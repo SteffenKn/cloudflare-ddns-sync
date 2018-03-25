@@ -325,6 +325,10 @@ ddnsSync.syncOnceEveryMonth("23:55", "0.0.0.0", async (response) => {  // syncs 
 
 ## Changelog
 
+### v1.2.1
+
+- 🚑 Fix README
+
 ### v1.2.0
 
 - ✨ Add onIpChange Function
