@@ -57,9 +57,9 @@ ddnsSync.sync()
 
 - Returns the external IP
 
-#### Returns:
+**Returns:**
 
-  * *The external IP* [Promise\<string>]
+- *The external IP* [Promise\<string>]
 
 ```javascript
 ddnsSync.getIp()
@@ -73,11 +73,11 @@ ddnsSync.getIp()
 - Updates the IP of the DNS records
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
-- `ip` *The IP which should be set in the DNS records* [string] **Optional.**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional.**
 
-#### Returns:
+ **Returns:**
 
 - *The results of changing the DNS records* [Array\<Promise\<string>>]
 
@@ -90,18 +90,38 @@ ddnsSync.sync()
 });
 ```
 
+### ddnsSync.syncOnIpChange(\<callback>)
+
+- Updates the IP of the DNS records, when the external IP changed
+
+**Parameters:**
+
+- `ip` *The IP that will be set in the DNS records* [string] **Optional.**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
+
+```javascript
+ddnsSync.syncOnIpChange(async (response) => { // syncs on first call and every time when the external ip changed
+  var results = await response;
+  for(var result of results) {
+    console.log(result);
+    // Successfully changed the IP of [your.domain] to [0.0.0.0]
+    // Successfully changed the IP of [subdomain.your.domain] to [0.0.0.0]
+  }
+});
+```
+
 ### ddnsSync.syncByInterval(interval, \<ip>, \<callback>)
 
 - Updates the IP of the DNS records in the given interval
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `interval` *The interval in which the sync function gets called* [seconds, \<minutes>, \<hours>, \<day of month>, \<months>, \<day of week>]
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -121,13 +141,13 @@ ddnsSync.syncByInterval([30, 29, 12], "0.0.0.0", async (response) => {  // syncs
 - Updates the IP of the DNS records every hour at the given minute
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `minute` *The minute at which the sync function gets called every hour* [number]
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -148,13 +168,13 @@ ddnsSync.syncOnceEveryHour(15, "0.0.0.0", async (response) => {  // syncs 15 min
 - Default minute is 0
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `hour, minute` *The time at which the sync function gets called every day* [Array\<number>] **Necessary, Optional**
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -175,13 +195,13 @@ ddnsSync.syncOnceEveryDay([10, 30], "0.0.0.0", async (response) => {  // syncs e
 - Default hour/minute is 0
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `dayOfWeek, hour, minute` *The time at which the sync function gets called every week* [Array\<number>] **Necessary, Optional, Optional**
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -202,13 +222,13 @@ ddnsSync.syncOnceEveryWeek([7, 12, 59], "0.0.0.0", async (response) => {  // syn
 - Default hour/minute is 0
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `dayOfMonth, hour, minute` *The time at which the sync function gets called every month* [Array\<number>] **Necessary, Optional, Optional**
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -223,13 +243,12 @@ ddnsSync.syncOnceEveryMonth([1, 12, 30], "0.0.0.0", async (response) => {  // sy
 });
 ```
 
-
 ### ddnsSync.syncByCronTime(cronTime, \<ip>, \<callback>)
 
 - Updates the IP of the DNS records at the given cron time
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Syntax:
+**Syntax:**
 
 - '`*`' to make the sync time independent of this setting
 - there need to be these 6 values separated by a space:
@@ -249,13 +268,13 @@ Day of Week: 0-6 | 0 means sunday
 
 [Read more about crontabs syntax](http://crontab.org/)
 
-#### Parameters:
+**Parameters:**
 
 - `cron` *The time at which the sync function gets called* [string>]
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -270,19 +289,18 @@ ddnsSync.syncByCronTime('* * * * * *', "0.0.0.0", async (response) => {  // sync
 });
 ```
 
-
 ### ddnsSync.syncByTimestring(timestring, \<ip>, \<callback>)
 
 - Updates the IP of the DNS records every day at the given time
 - When the IP parameter is not set, it will automatically use the external IP
 
-#### Parameters:
+**Parameters:**
 
 - `timestring` *The time at which the sync function gets called every day* [string]
-- `ip` *The IP which should be set in the DNS records* [string] **Optional**
-- `callback` *The callback which should get called when the syncing is done* [function] **Optional**
+- `ip` *The IP that will be set in the DNS records* [string] **Optional**
+- `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
-#### Returns:
+**Returns:**
 
 - *The cronjob which handles the sync function* [CronJob]
 
@@ -308,6 +326,16 @@ ddnsSync.syncOnceEveryMonth("23:55", "0.0.0.0", async (response) => {  // syncs 
 
 ## Changelog
 
+### v1.2.0
+
+- ✨ Add onIpChange Function
+- 📝 Adjust README
+- 🚚 Move Utils to Lib
+- 🚚 Move IP Functions to Lib
+- 🚚 Move Dependencies to devDependencies
+- 🔧 Update Eslint Config
+- 🎨 Fix Eslit Error
+
 ### v1.1.0
 
 - ⚡️ Improve Performance of First Sync
@@ -331,3 +359,4 @@ ddnsSync.syncOnceEveryMonth("23:55", "0.0.0.0", async (response) => {  // syncs 
 
 - ✨ Add sync Function -> changes the IP of the configured DNS records on cloudflare
 - ✨ Add getIp Function -> returns the external IP
+- 📝 Add README
