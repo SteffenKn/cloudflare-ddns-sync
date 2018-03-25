@@ -96,7 +96,6 @@ ddnsSync.sync()
 
 **Parameters:**
 
-- `ip` *The IP that will be set in the DNS records* [string] **Optional.**
 - `callback` *The callback that gets called when the syncing is done* [function] **Optional**
 
 ```javascript
