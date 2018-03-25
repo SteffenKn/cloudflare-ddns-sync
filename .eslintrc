@@ -1,0 +1,37 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "for-direction": 2,
+    "getter-return": 1,
+    "no-await-in-loop": 2,
+    "no-template-curly-in-string": 2,
+    "consistent-return": 1,
+    "default-case": 1,
+    "eqeqeq": 1,
+    "no-alert": 1,
+    "no-else-return": 2,
+    "no-empty-function": 2,
+    "no-eq-null": 1,
+    "no-extra-label": 1,
+    "no-fallthrough": 2,
+    "no-lone-blocks": 1,
+    "no-multi-spaces": 1,
+    "no-new": 2,
+    "no-return-assign": 2,
+    "no-return-await": 2,
+    "no-self-compare": 2,
+    "no-useless-concat": 1,
+    "no-useless-return": 1,
+    "no-void": 1,
+    "no-undef": 0,
+    "no-undef-init": 1,
+    "global-require": 1,
+    "array-bracket-spacing": 1,
+    "brace-style": 2,
+    "camelcase": 1,
+    "comma-dangle": 1
+  }
+}
