@@ -261,7 +261,32 @@ CloudflareDDNSSync.prototype.syncByCronTime = function (cronTime, ipOrCallback, 
     ip = ipOrCallback;
   }
 
+  if(typeof cronTime !== 'string'){
+    throw new Error(`cronTime must be string not ${typeof cronTime}`);
+  }
+
   return createCronJob(this, cronTime, ip, callback);
+}
+
+CloudflareDDNSSync.prototype.syncAtDate = function (date, ipOrCallback, callback) {
+  let ip;
+  if(typeof ipOrCallback === 'function') {
+    callback = ipOrCallback
+  } else {
+    ip = ipOrCallback;
+  }
+
+  if(date.toString() === 'Invalid Date'){
+    throw new Error('The date is invalid');
+  }
+  if(typeof date !== 'object'){
+    throw new Error(`Date must not be ${typeof date}`);
+  }
+  if(Date.now() > date){
+    throw Error('The timetravel function is not working at the moment. The date must not be in the past')
+  }
+
+  return createCronJob(this, date, ip, callback);
 }
 
 CloudflareDDNSSync.prototype.syncByTimestring = function (timestring, ipOrCallback, callback) {
