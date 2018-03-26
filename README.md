@@ -54,30 +54,19 @@ ddnsSync.sync()
 
 ## Methods
 
-### getIp()
+- getIp()
+- sync(\<ip>)
+- syncOnIpChange(\<callback>)
+- syncByInterval(interval, \<ip>, \<callback>)
+- syncOnceEveryHour(minute, \<ip>, \<callback>)
+- syncOnceEveryDay([hour, \<minute>], \<ip>, \<callback>)
+- syncOnceEveryWeek([dayOfWeek, \<hour>, \<minute>], \<ip>, \<callback>)
+- syncOnceEveryMonth([dayOfMonth, \<hour>, \<minute>], \<ip>, \<callback>)
+- syncByCronTime(cronTime, \<ip>, \<callback>)
+- syncAtDate(date, \<ip>, \<callback>)
+- syncByTimestring(timestring, \<ip>, \<callback>)
 
-### sync(\<ip>)
-
-### syncOnIpChange(\<callback>)
-
-### syncByInterval(interval, \<ip>, \<callback>)
-
-### syncOnceEveryHour(minute, \<ip>, \<callback>)
-
-### syncOnceEveryDay([hour, \<minute>], \<ip>, \<callback>)
-
-### syncOnceEveryWeek([dayOfWeek, \<hour>, \<minute>], \<ip>, \<callback>)
-
-### syncOnceEveryMonth([dayOfMonth, \<hour>, \<minute>], \<ip>, \<callback>)
-
-### syncByCronTime(cronTime, \<ip>, \<callback>)
-
-### syncByTimestring(timestring, \<ip>, \<callback>)
-
-### syncAtDate(date, \<ip>, \<callback>)
-
-<br>
-For a more detailed view, have a look at the [Documentation](https://steffen982.gitbooks.io/cloudflare-ddns-sync/methods.html)
+For a more detailed view, have a look at the [Documentation](https://steffen982.gitbooks.io/cloudflare-ddns-sync/)
 
 ## Get Your Cloudflare API Key
 
@@ -90,6 +79,10 @@ For a more detailed view, have a look at the [Documentation](https://steffen982.
 - **Copy the API Key**
 
 ## Changelog
+
+### v1.3.1
+
+- 📝 **Fix README**
 
 ### v1.3.0
 
