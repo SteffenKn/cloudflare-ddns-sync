@@ -57,6 +57,7 @@ ddnsSync.sync()
 ## Methods
 
 - getIp()
+- getRecordIps()
 - sync(\<ip>)
 - syncOnIpChange(\<callback>)
 - syncByInterval(interval, \<ip>, \<callback>)
@@ -81,6 +82,10 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 - **Copy the API Key**
 
 ## Changelog
+
+### v1.3.4
+
+- 🐛 **Fix ipChange Interval**
 
 ### v1.3.3
 
