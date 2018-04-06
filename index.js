@@ -64,6 +64,8 @@ function getZoneId() {
         return zone.id;
       }
     }
+
+    return null;
   });
 }
 
@@ -88,6 +90,20 @@ async function getRecordIds() {
   });
 }
 
+async function getRecordIps() {
+  const recordIps = [];
+
+  for(const recordId of cfRecordIds) {
+    const currentIp = cf.dnsRecords.read(cfZoneId, recordId).then((response) => {
+      return response.result.content;
+    });
+
+    recordIps.push(currentIp);
+  }
+
+  return Promise.all(recordIps);
+}
+
 function getRecord(recordId) {
   return cf.dnsRecords.read(cfZoneId, recordId)
   .then((response) => {
@@ -110,15 +126,9 @@ function setRecord(recordId, record) {
   });
 }
 
-function setIpInRecord(record, ip) {
-  record.content = ip;
-
-  return record;
-}
-
 async function updateIpOfRecord(recordId, ip) {
   let record = await getRecord(recordId);
-  record = setIpInRecord(record, ip);
+  record.content = ip;
 
   const result = await setRecord(recordId, record);
   return result;
@@ -136,11 +146,19 @@ function createCronJob(ddnsSync, cronTime, ip, callback) {
 
 CloudflareDDNSSync.prototype.getIp = ipUtil.getIp;
 
-CloudflareDDNSSync.prototype.syncOnIpChange = function (callback) {
-  ipUtil.onIpChange((ip) => {
+CloudflareDDNSSync.prototype.getRecordIps = getRecordIps;
+
+CloudflareDDNSSync.prototype.syncOnIpChange = async function (callback) {
+  if(cfRecordIds.then !== undefined) {
+    cfRecordIds = await cfRecordIds;
+  }
+
+  ipUtil.onIpChange(this, (ip) => {
     const result = this.sync(ip);
 
-    callback(result);
+    if (typeof callback === 'function') {
+      callback(result);
+    }
   })
 }
 
@@ -261,7 +279,7 @@ CloudflareDDNSSync.prototype.syncByCronTime = function (cronTime, ipOrCallback, 
     ip = ipOrCallback;
   }
 
-  if(typeof cronTime !== 'string'){
+  if(typeof cronTime !== 'string') {
     throw new Error(`cronTime must be string not ${typeof cronTime}`);
   }
 
@@ -276,13 +294,13 @@ CloudflareDDNSSync.prototype.syncAtDate = function (date, ipOrCallback, callback
     ip = ipOrCallback;
   }
 
-  if(date.toString() === 'Invalid Date'){
+  if(date.toString() === 'Invalid Date') {
     throw new Error('The date is invalid');
   }
-  if(typeof date !== 'object'){
+  if(typeof date !== 'object') {
     throw new Error(`Date must not be ${typeof date}`);
   }
-  if(Date.now() > date){
+  if(Date.now() > date) {
     throw Error('The timetravel function is not working at the moment. The date must not be in the past')
   }
 
