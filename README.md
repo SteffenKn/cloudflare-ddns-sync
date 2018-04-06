@@ -1,6 +1,8 @@
 # Cloudflare-DDNS-Sync
 
-[Documentation](https://steffen982.gitbooks.io/cloudflare-ddns-sync/)
+[![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://nodei.co/npm/cloudflare-ddns-sync/)
+
+[Documentation](https://cds.knaup.pw/)
 
 ## Overview
 
@@ -66,7 +68,7 @@ ddnsSync.sync()
 - syncAtDate(date, \<ip>, \<callback>)
 - syncByTimestring(timestring, \<ip>, \<callback>)
 
-For a more detailed view, have a look at the [Documentation](https://steffen982.gitbooks.io/cloudflare-ddns-sync/)
+For a more detailed view, have a look at the [Documentation](https://cds.knaup.pw/methods.html)
 
 ## Get Your Cloudflare API Key
 

@@ -1,9 +1,9 @@
 {
   "name": "cloudflare-ddns-sync",
-  "version": "1.3.1",
-  "description": "A simple tool to update DNS records on Cloudflare",
+  "version": "1.3.2",
+  "description": "A simple package to update DNS records on Cloudflare whenever you want",
   "main": "index.js",
-  "author": "Steffen Knaup <SteffenKnaup@hotmail.de",
+  "author": "Steffen Knaup <SteffenKnaup@hotmail.de>",
   "license": "ISC",
   "keywords": [
     "cloudflare",
@@ -17,7 +17,8 @@
     "url": "git://github.com:Steffen982/cloudflare-ddns-sync.git"
   },
   "scripts": {
-    "test": "npm run test-convert-crontime",
+    "test": "npm run test-convert-crontime && npm run test-sync",
+    "test-sync": "mocha tests/test-sync.js --timeout 15000 --exit",
     "test-convert-crontime": "mocha tests/test-convert-crontime.js"
   },
   "dependencies": {
@@ -28,7 +29,7 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.0.4",
-    "eslint": "^4.19.1"
+    "eslint": "^4.19.1",
+    "mocha": "^5.0.4"
   }
 }
