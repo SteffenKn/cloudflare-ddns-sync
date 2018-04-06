@@ -82,6 +82,22 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 
 ## Changelog
 
+### v1.3.3
+
+- 📝 **Add Changelog**
+
+### v1.3.2
+
+- ✨ **Add getRecordIps Function**
+- ♻️ **Refactor syncOnIpChange**
+- ✅ **Add Tests for Sync Functionality**
+- 📝 **Improve README**
+- 📝 **Add NPM Badge**
+- 🔥 Remove Unnecessary Code
+- 🚸 Update Description
+- 🎨 Order Dependencies
+- 🎨 Lint files
+
 ### v1.3.1
 
 - 📝 **Fix README**
