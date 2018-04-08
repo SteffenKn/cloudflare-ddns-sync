@@ -162,6 +162,8 @@ CloudflareDDNSSync.prototype.syncOnIpChange = async function (callback) {
   })
 }
 
+CloudflareDDNSSync.prototype.stopSyncOnIpChange = ipUtil.stopOnIpChange;
+
 CloudflareDDNSSync.prototype.syncByInterval = function (interval, ipOrCallback, callback) {
   let ip;
   if(typeof ipOrCallback === 'function') {

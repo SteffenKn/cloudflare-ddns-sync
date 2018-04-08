@@ -68,6 +68,7 @@ ddnsSync.sync()
 - syncByCronTime(cronTime, \<ip>, \<callback>)
 - syncAtDate(date, \<ip>, \<callback>)
 - syncByTimestring(timestring, \<ip>, \<callback>)
+- stopSyncOnIpChange()
 
 For a more detailed view, have a look at the [Documentation](https://cds.knaup.pw/methods.html)
 
@@ -82,6 +83,10 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 - **Copy the API Key**
 
 ## Changelog
+
+### v1.4.0
+
+- ✨ **Add Stop SyncOnIpChange Function**
 
 ### v1.3.4
 
