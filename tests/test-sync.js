@@ -13,17 +13,16 @@ const cf = cloudflare({
 let zoneId = getZoneId();
 let recordId = getRecordId();
 
-
 describe ('Sync Functionality', () => {
   it('sync should return success message', async () => {
     const results = await ddnsSync.sync('1.2.3.4');
 
-    expect(results[0]).to.equal('Successfully changed the IP of ' + `[${auth.records[0]}]`.yellow + ' to ' + `[1.2.3.4]`.green)
+    expect(results[0]).to.equal('Successfully changed the IP of ' + `[${auth.records[0]}]`.yellow + ' to ' + `[1.2.3.4]`.green);
   });
 
   it('the ip of the dns record should be "1.2.3.4"', async () => {
-    recordId = await recordId;
     const ddnsIp = await getRecordIps();
+
     expect(ddnsIp).to.equal('1.2.3.4');
   });
   
@@ -59,9 +58,10 @@ async function testSyncOnIpChange() {
 
 async function getRecordIps() {
   recordId = await recordId;
+
   return cf.dnsRecords.read(zoneId, recordId).then((response) => {
     return response.result.content;
-  })
+  });
 }
 
 function getZoneId() {
@@ -69,12 +69,13 @@ function getZoneId() {
   .then((response) => {
     const zones = response.result;
 
-    for(const zone of zones) {
-      if(zone.name === auth.domain) {
-        return zone.id;
-      }
-    }
+    const zone = zones.find((zone) => {
+      return zone.name === auth.domain;
+    });
 
+    if(zone !== undefined) {
+      return zone.id;
+    }
     return null;
   });
 }
@@ -91,7 +92,7 @@ async function getRecordId() {
         return record.id;
       }
     }
-    
+
     return null;
   });
 }

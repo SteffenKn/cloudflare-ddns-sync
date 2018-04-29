@@ -8,13 +8,17 @@ const ipUtil = require('./lib/ip-utils')
 const CronJob = cron.CronJob;
 
 let cf = null;
-let cfEmail = null;
-let cfKey = null;
-let cfDomain = null;
+let configEmail = null;
+let configKey = null;
+let configDomain = null;
+let configRecords = [];
+
 let cfRecords = [];
 
 let cfZoneId = null;
 let cfRecordIds = [];
+
+let inited = false;
 
 const CloudflareDDNSSync = function(options) {
   if(!options
@@ -40,18 +44,49 @@ const CloudflareDDNSSync = function(options) {
     );
   }
 
-  cfEmail = options.auth.email;
-  cfKey = options.auth.key;
-  cfDomain = options.domain;
-  cfRecords = options.records;
+  configEmail = options.auth.email;
+  configKey = options.auth.key;
+  configDomain = options.domain;
+  configRecords = options.records;
 
   cf = cloudflare({
-    email: cfEmail,
-    key: cfKey
+    email: configEmail,
+    key: configKey
   });
 
   cfZoneId = getZoneId();
   cfRecordIds = getRecordIds();
+}
+
+async function initialSetup() {
+  cfRecordIds = await cfRecordIds;
+
+  const newRecords = [];
+  for(const configRecord of configRecords) {
+    const record = cfRecords.find((cfRecord) => {
+      return cfRecord.name === configRecord;
+    });
+
+    if(record === undefined) {
+      newRecords.push(addDnsRecord(configRecord));
+    }
+  }
+
+  return Promise.all(newRecords)
+  .then(() => {
+    cfRecordIds = getRecordIds();
+    inited = true;
+  });
+}
+
+function addDnsRecord(newRecordName) {
+  const newDnsRecord = {
+    name: newRecordName,
+    type: 'A',
+    content: '0.0.0.0'
+  }
+
+  return cf.dnsRecords.add(cfZoneId, newDnsRecord);
 }
 
 function getZoneId() {
@@ -60,7 +95,7 @@ function getZoneId() {
     const zones = response.result;
 
     for(const zone of zones) {
-      if(zone.name === cfDomain) {
+      if(zone.name === configDomain) {
         return zone.id;
       }
     }
@@ -71,22 +106,28 @@ function getZoneId() {
 
 async function getRecordIds() {
   cfZoneId = await cfZoneId;
+  cfRecords = await getRecords();
 
+  const recordIds = [];
+  for(const record of cfRecords) {
+    if(configRecords.includes(record.name)) {
+      recordIds.push(record.id);
+    }
+
+    if(recordIds.length === configRecords.length) {
+      break;
+    }
+  }
+
+  return recordIds;
+}
+
+function getRecords() {
   return cf.dnsRecords.browse(cfZoneId)
   .then((response) => {
     const records = response.result;
-    const recordIds = [];
 
-    for(const record of records) {
-      if(cfRecords.includes(record.name)) {
-        recordIds.push(record.id);
-      }
-      if(cfRecordIds.length === cfRecords.length) {
-        break;
-      }
-    }
-
-    return recordIds;
+    return records;
   });
 }
 
@@ -148,7 +189,34 @@ CloudflareDDNSSync.prototype.getIp = ipUtil.getIp;
 
 CloudflareDDNSSync.prototype.getRecordIps = getRecordIps;
 
+CloudflareDDNSSync.prototype.sync = async function (ip) {
+  if(!inited) {
+    await initialSetup();
+  }
+
+  if(cfRecordIds.then !== undefined) {
+    cfRecordIds = await cfRecordIds;
+  }
+
+  let ipToSync = ip;
+  if(!ipToSync) {
+    ipToSync = await this.getIp();
+  }
+
+  const results = [];
+  for(const recordId of cfRecordIds) {
+    const currentResult = updateIpOfRecord(recordId, ipToSync);
+    results.push(currentResult);
+  }
+
+  return Promise.all(results);
+}
+
 CloudflareDDNSSync.prototype.syncOnIpChange = async function (callback) {
+  if(!inited) {
+    await initialSetup();
+  }
+
   if(cfRecordIds.then !== undefined) {
     cfRecordIds = await cfRecordIds;
   }
@@ -324,25 +392,6 @@ CloudflareDDNSSync.prototype.syncByTimestring = function (timestring, ipOrCallba
   } catch (error) {
     throw error;
   }
-}
-
-CloudflareDDNSSync.prototype.sync = async function (ip) {
-  if(cfRecordIds.then !== undefined) {
-    cfRecordIds = await cfRecordIds;
-  }
-
-  let ipToSync = ip;
-  if(!ipToSync) {
-    ipToSync = await this.getIp();
-  }
-
-  const results = [];
-  for(const recordId of cfRecordIds) {
-    const currentResult = updateIpOfRecord(recordId, ipToSync);
-    results.push(currentResult);
-  }
-
-  return Promise.all(results);
 }
 
 module.exports = CloudflareDDNSSync;
