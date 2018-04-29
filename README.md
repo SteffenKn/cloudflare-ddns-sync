@@ -6,11 +6,13 @@
 
 ## Overview
 
-Cloudflare-DDNS-Sync is a simple NPM package that updates the IP address of Cloudflare DNS records.
+Cloudflare-DDNS-Sync is a simple NPM package that updates the IP address of
+Cloudflare DNS records.
 
 ## What are the goals of this project?
 
-The goal of Cloudflare-DDNS-Sync is to make updating the IP of Cloudflare DNS records as easy as possible.
+The goal of Cloudflare-DDNS-Sync is to make updating the IP of Cloudflare DNS
+records as easy as possible.
 
 ## How do I set this project up?
 
@@ -54,6 +56,9 @@ ddnsSync.sync()
 });
 ```
 
+> Hint: If a record is not existing, CDS will automatically create it when
+syncing.
+
 ## Methods
 
 - getIp()
@@ -83,6 +88,11 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 - **Copy the API Key**
 
 ## Changelog
+
+### v1.5.0
+
+- ✨ **Add Create Not Existing Records Functionality**
+- ✨ **Add Fallback getIp Function**
 
 ### v1.4.0
 
