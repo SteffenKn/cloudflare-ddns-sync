@@ -331,7 +331,8 @@ CloudflareDDNSSync.prototype.syncOnceEveryMonth = function ([dayOfMonth, hour, m
     throw new Error('syncOnceEveryMonth needs an interval');
   }
 
-  const ip;
+  let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
