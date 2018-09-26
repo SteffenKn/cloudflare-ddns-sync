@@ -89,6 +89,10 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 
 ## Changelog
 
+### v1.5.2
+
+- 🐛 Fix Wrong Using of Const
+
 ### v1.5.1
 
 - 🐛 **Fix Bug When 'public-ip' Throws An Error**
