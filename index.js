@@ -18,16 +18,16 @@ let cfRecords = [];
 let cfZoneId = null;
 let cfRecordIds = [];
 
-let inited = false;
+let initialized = false;
 
 const CloudflareDDNSSync = function(options) {
   if(!options
-    ||!options.auth
-    || !options.domain
-    || !options.records
-    || !options.auth.email
-    || !options.auth.key
-    || !(options.records.length > 0)) {
+  || !options.auth
+  || !options.domain
+  || !options.records
+  || !options.auth.email
+  || !options.auth.key
+  || !(options.records.length > 0)) {
 
     throw new Error(`You used CloudflareDDNSSync wrong
       Usage: CloudflareDDNSSync({
@@ -62,6 +62,7 @@ async function initialSetup() {
   cfRecordIds = await cfRecordIds;
 
   const newRecords = [];
+
   for(const configRecord of configRecords) {
     const record = cfRecords.find((cfRecord) => {
       return cfRecord.name === configRecord;
@@ -75,7 +76,7 @@ async function initialSetup() {
   return Promise.all(newRecords)
   .then(() => {
     cfRecordIds = getRecordIds();
-    inited = true;
+    initialized = true;
   });
 }
 
@@ -91,17 +92,17 @@ function addDnsRecord(newRecordName) {
 
 function getZoneId() {
   return cf.zones.browse()
-  .then((response) => {
-    const zones = response.result;
+    .then((response) => {
+      const zones = response.result;
 
-    for(const zone of zones) {
-      if(zone.name === configDomain) {
-        return zone.id;
+      for(const zone of zones) {
+        if(zone.name === configDomain) {
+          return zone.id;
+        }
       }
-    }
 
-    return null;
-  });
+      return null;
+    });
 }
 
 async function getRecordIds() {
@@ -109,6 +110,7 @@ async function getRecordIds() {
   cfRecords = await getRecords();
 
   const recordIds = [];
+
   for(const record of cfRecords) {
     if(configRecords.includes(record.name)) {
       recordIds.push(record.id);
@@ -157,18 +159,20 @@ function getRecord(recordId) {
 
 function setRecord(recordId, record) {
   return cf.dnsRecords.edit(cfZoneId, recordId, record)
-  .then((response) => {
-    const result = response.result;
-    const resultString = 'Successfully changed the IP of ' + `[${result.name}]`.yellow + ' to ' + `[${result.content}]`.green;
-    return resultString;
-  })
-  .catch((error) => {
-    return error.message;
-  });
+    .then((response) => {
+      const result = response.result;
+      const resultString = 'Successfully changed the IP of ' + `[${result.name}]`.yellow + ' to ' + `[${result.content}]`.green;
+
+      return resultString;
+    })
+    .catch((error) => {
+      return error.message;
+    });
 }
 
 async function updateIpOfRecord(recordId, ip) {
   let record = await getRecord(recordId);
+
   record.content = ip;
 
   const result = await setRecord(recordId, record);
@@ -190,7 +194,7 @@ CloudflareDDNSSync.prototype.getIp = ipUtil.getIp;
 CloudflareDDNSSync.prototype.getRecordIps = getRecordIps;
 
 CloudflareDDNSSync.prototype.sync = async function (ip) {
-  if(!inited) {
+  if(!initialized) {
     await initialSetup();
   }
 
@@ -198,14 +202,13 @@ CloudflareDDNSSync.prototype.sync = async function (ip) {
     cfRecordIds = await cfRecordIds;
   }
 
-  let ipToSync = ip;
-  if(!ipToSync) {
-    ipToSync = await this.getIp();
-  }
+  let ipToSync = ip ? ip : await this.getIp();
 
   const results = [];
+
   for(const recordId of cfRecordIds) {
     const currentResult = updateIpOfRecord(recordId, ipToSync);
+
     results.push(currentResult);
   }
 
@@ -213,7 +216,7 @@ CloudflareDDNSSync.prototype.sync = async function (ip) {
 }
 
 CloudflareDDNSSync.prototype.syncOnIpChange = async function (callback) {
-  if(!inited) {
+  if(!initialized) {
     await initialSetup();
   }
 
@@ -234,6 +237,7 @@ CloudflareDDNSSync.prototype.stopSyncOnIpChange = ipUtil.stopOnIpChange;
 
 CloudflareDDNSSync.prototype.syncByInterval = function (interval, ipOrCallback, callback) {
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -259,6 +263,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryHour = function (minute, ipOrCallback,
   }
 
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -281,6 +286,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryDay = function ([hour, minute], ipOrCa
   }
 
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -303,6 +309,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryWeek = function ([dayOfWeek, hour, min
   }
 
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -310,7 +317,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryWeek = function ([dayOfWeek, hour, min
   }
 
   try{
-    let interval = [0, minute||0, hour||0, "*", "*", dayOfWeek];
+    const interval = [0, minute||0, hour||0, "*", "*", dayOfWeek];
     const cronTime = ctConverter.convertIntervalToCronTime(interval);
 
     return createCronJob(this, cronTime, ip, callback);
@@ -324,7 +331,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryMonth = function ([dayOfMonth, hour, m
     throw new Error('syncOnceEveryMonth needs an interval');
   }
 
-  let ip;
+  const ip;
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -332,7 +339,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryMonth = function ([dayOfMonth, hour, m
   }
 
   try{
-    let interval = [0, minute||0, hour||0, dayOfMonth];
+    const interval = [0, minute||0, hour||0, dayOfMonth];
     const cronTime = ctConverter.convertIntervalToCronTime(interval);
 
     return createCronJob(this, cronTime, ip, callback);
@@ -343,6 +350,7 @@ CloudflareDDNSSync.prototype.syncOnceEveryMonth = function ([dayOfMonth, hour, m
 
 CloudflareDDNSSync.prototype.syncByCronTime = function (cronTime, ipOrCallback, callback) {
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -358,6 +366,7 @@ CloudflareDDNSSync.prototype.syncByCronTime = function (cronTime, ipOrCallback, 
 
 CloudflareDDNSSync.prototype.syncAtDate = function (date, ipOrCallback, callback) {
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {
@@ -367,9 +376,11 @@ CloudflareDDNSSync.prototype.syncAtDate = function (date, ipOrCallback, callback
   if(date.toString() === 'Invalid Date') {
     throw new Error('The date is invalid');
   }
+
   if(typeof date !== 'object') {
     throw new Error(`Date must not be ${typeof date}`);
   }
+
   if(Date.now() > date) {
     throw Error('The timetravel function is not working at the moment. The date must not be in the past')
   }
@@ -379,6 +390,7 @@ CloudflareDDNSSync.prototype.syncAtDate = function (date, ipOrCallback, callback
 
 CloudflareDDNSSync.prototype.syncByTimestring = function (timestring, ipOrCallback, callback) {
   let ip;
+
   if(typeof ipOrCallback === 'function') {
     callback = ipOrCallback
   } else {

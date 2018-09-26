@@ -89,6 +89,11 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 
 ## Changelog
 
+### v1.5.1
+
+- 🐛 **Fix Bug When 'public-ip' Throws An Error**
+- 💄 Improve Code Quality
+
 ### v1.5.0
 
 - ✨ **Add Create Not Existing Records Functionality**
