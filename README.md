@@ -89,6 +89,15 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 
 ## Changelog
 
+### v1.5.3
+
+- 🐛 **Fix Stopping Sync On IP Change**
+- 🐛 **Fix Crontime Converter For Hour**
+- 🐛 **Fix Syncing With Crontime Without Setting an IP**
+- ⚡️ **Small Performance Improvements**
+- 💄 Improve Code Quality
+- 💄 Extract Business Rules
+
 ### v1.5.2
 
 - 🐛 Fix Wrong Using of Const
