@@ -1,8 +1,12 @@
 # Cloudflare-DDNS-Sync
 
-[![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://nodei.co/npm/cloudflare-ddns-sync/)
+[![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://www.npmjs.com/package/cloudflare-ddns-sync)
 
 [Documentation](https://cds.knaup.pw/)
+
+You may also have a look at the **official** CLI version of Cloudflare-DDNS-Sync:
+
+[![NPM](https://nodei.co/npm/cloudflare-ddns-sync-cli.png)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
 
 ## Overview
 
@@ -88,6 +92,10 @@ For a more detailed view, have a look at the [Documentation](https://cds.knaup.p
 - **Copy the API Key**
 
 ## Changelog
+
+### v1.5.4
+
+- 📝 Update README
 
 ### v1.5.3
 
