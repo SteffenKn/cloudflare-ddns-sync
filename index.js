@@ -1,11 +1,9 @@
 'use strict';
 const cloudflare = require('cloudflare');
-const cron = require('cron');
+const cron = require('node-cron');
 require('colors');
 const ctConverter = require('./lib/crontime-converter');
 const ipUtil = require('./lib/ip-utils')
-
-const CronJob = cron.CronJob;
 
 let cf = null;
 let configEmail = null;
@@ -190,7 +188,7 @@ async function updateIpOfRecord(recordId, ip) {
 }
 
 function createCronJob(ddnsSync, cronTime, ip, callback) {
-  return new CronJob(cronTime, async () => {
+  return cron.schedule(cronTime, async () => {
     if(ip === null){
       ip = await ipUtil.getIp();
     }
@@ -201,7 +199,7 @@ function createCronJob(ddnsSync, cronTime, ip, callback) {
     if (callbackGiven) {
       callback(syncResult);
     }
-  }, null, true);
+  });
 }
 
 CloudflareDDNSSync.prototype.getIp = ipUtil.getIp;
