@@ -17,6 +17,7 @@
     "url": "git://github.com:Steffen982/cloudflare-ddns-sync.git"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "tslint --project .",
     "test": "npm run test-convert-crontime && npm run test-sync",
     "test-sync": "mocha tests/test-sync.js --timeout 15000 --exit",
