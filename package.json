@@ -17,6 +17,7 @@
     "url": "git://github.com:Steffen982/cloudflare-ddns-sync.git"
   },
   "scripts": {
+    "lint": "tslint --project .",
     "test": "npm run test-convert-crontime && npm run test-sync",
     "test-sync": "mocha tests/test-sync.js --timeout 15000 --exit",
     "test-convert-crontime": "mocha tests/test-convert-crontime.js"
@@ -31,6 +32,7 @@
     "@types/node": "10.14.17",
     "chai": "4.2.0",
     "mocha": "6.2.0",
+    "tslint": "5.20.0",
     "typescript": "3.6.2"
   }
 }
