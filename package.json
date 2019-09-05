@@ -22,15 +22,15 @@
     "test-convert-crontime": "mocha tests/test-convert-crontime.js"
   },
   "dependencies": {
-    "cloudflare": "^2.4.1",
-    "colors": "^1.2.1",
-    "node-cron": "^2.0.3",
-    "public-ip": "^2.4.0",
-    "what-is-my-ip-address": "^1.0.3"
+    "cloudflare": "2.5.1",
+    "node-cron": "2.0.3",
+    "public-ip": "3.2.0",
+    "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "eslint": "^4.19.1",
-    "mocha": "^5.0.4"
+    "@types/node": "10.14.17",
+    "chai": "4.2.0",
+    "mocha": "6.2.0",
+    "typescript": "3.6.2"
   }
 }
