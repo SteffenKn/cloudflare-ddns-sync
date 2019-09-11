@@ -1,10 +1,10 @@
 import Cloudflare from 'cloudflare';
 import parseDomain from 'parse-domain';
 
-import {IRecord, Record, Zone, ZoneMap} from "../contracts";
+import {IRecord, Record, Zone, ZoneMap} from '../contracts';
 
 export default class CloudflareClient {
-  private cloudflare;
+  private cloudflare: Cloudflare;
 
   private zoneMap: ZoneMap = new Map();
 
@@ -24,12 +24,12 @@ export default class CloudflareClient {
     const recordId: string = recordIds.get(record.name);
 
     const recordExists: boolean = recordId !== undefined;
-    if(recordExists) {
-      const result = await this.updateRecord(zoneId, recordId, record, ip);
+    if (recordExists) {
+      const result: Record = await this.updateRecord(zoneId, recordId, record, ip);
 
       return result;
     } else {
-      const result = await this.createRecord(zoneId, record, ip);
+      const result: Record = await this.createRecord(zoneId, record, ip);
 
       return result;
     }
@@ -38,18 +38,18 @@ export default class CloudflareClient {
   public async syncRecords(records: Array<IRecord>, ip?: string): Promise<Array<Record>> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
 
-    const resultPromises: Array<Promise<Record>> = records.map(async (record: IRecord) => {
+    const resultPromises: Array<Promise<Record>> = records.map(async(record: IRecord) => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
       const recordId: string = recordIds.get(record.name);
 
       const recordExists: boolean = recordId !== undefined;
-      if(recordExists) {
-        const currentResult = await this.updateRecord(zoneId, recordId, record, ip);
-        
+      if (recordExists) {
+        const currentResult: Record = await this.updateRecord(zoneId, recordId, record, ip);
+
         return currentResult;
       } else {
-        const currentResult = await this.createRecord(zoneId, record, ip);
-        
+        const currentResult: Record = await this.createRecord(zoneId, record, ip);
+
         return currentResult;
       }
 
@@ -63,7 +63,7 @@ export default class CloudflareClient {
   public async removeRecord(zoneId: string, recordId: string): Promise<void> {
     try {
       await this.cloudflare.dnsRecords.del(zoneId, recordId);
-    } catch(error) {
+    } catch (error) {
       throw error;
     }
   }
@@ -85,14 +85,14 @@ export default class CloudflareClient {
     console.time('getRecordDataForRecord');
     const domain: string = this.getDomainByRecordName(record.name);
 
-      const recordDataForDomain: Array<Record> = await this.getRecordsByDomain(domain);
+    const recordDataForDomain: Array<Record> = await this.getRecordsByDomain(domain);
 
-      const recordData: Record = recordDataForDomain.find((singleRecordData: Record) => {
+    const recordData: Record = recordDataForDomain.find((singleRecordData: Record) => {
         return record.name === singleRecordData.name;
       });
 
-      console.timeEnd('getRecordDataForRecord');
-      return recordData;
+    console.timeEnd('getRecordDataForRecord');
+    return recordData;
   }
 
   // TODO: Performance?
@@ -100,16 +100,16 @@ export default class CloudflareClient {
     console.time('getRecordDataForRecords');
     const domains: Array<string> = this.getDomainsFromRecords(records);
 
-    const recordDataPromises: Array<Promise<Array<Record>>> = domains.map(async (domain: string) => {
+    const recordDataPromises: Array<Promise<Array<Record>>> = domains.map(async(domain: string) => {
       const recordDataForDomain: Array<Record> = await this.getRecordsByDomain(domain);
 
-      const recordData: Array<Record> = recordDataForDomain.filter((singleRecordData: Record) => {
+      const recordDataForDomainFilteredByRecords: Array<Record> = recordDataForDomain.filter((singleRecordData: Record) => {
         return records.some((record: IRecord) => {
           return record.name === singleRecordData.name;
         });
       });
 
-      return recordData;
+      return recordDataForDomainFilteredByRecords;
     });
 
     const recordDataForDomains: Array<Array<Record>> = await Promise.all(recordDataPromises);
@@ -124,15 +124,15 @@ export default class CloudflareClient {
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
-    if(!copyOfRecord.content) {
-      throw Error(`Could not create Record "${record.name}": Ip is missing!`)
+    if (!copyOfRecord.content) {
+      throw Error(`Could not create Record "${record.name}": Ip is missing!`);
     }
 
     try {
-      const response = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
+      const response: {result: Record} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
 
       return response.result;
-    } catch(error) {
+    } catch (error) {
       throw error;
     }
   }
@@ -142,25 +142,25 @@ export default class CloudflareClient {
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
-    if(!copyOfRecord.content) {
-      throw Error(`Could not update Record "${record.name}": Ip is missing!`)
+    if (!copyOfRecord.content) {
+      throw Error(`Could not update Record "${record.name}": Ip is missing!`);
     }
 
     try {
-      const response = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
+      const response: {result: Record} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
 
       return response.result;
-    } catch(error) {
+    } catch (error) {
       throw error;
     }
   }
 
   private async updateZoneMap(): Promise<void> {
-    const response = await this.cloudflare.zones.browse();
+    const response: {result: Array<Zone>} = await this.cloudflare.zones.browse();
     const zones: Array<Zone> = response.result;
 
     this.zoneMap = new Map();
-    for(const zone of zones) {
+    for (const zone of zones) {
       this.zoneMap.set(zone.name, zone.id);
     }
   }
@@ -170,12 +170,12 @@ export default class CloudflareClient {
 
     const records: Array<Record> = await this.getRecordsByDomain(domain);
 
-    const record: Record = records.find((record: Record) => {
-      return record.name === recordName;
+    const record: Record = records.find((currentRecord: Record) => {
+      return currentRecord.name === recordName;
     });
 
     const recordNotFound: boolean = record === undefined;
-    if(recordNotFound) {
+    if (recordNotFound) {
       throw new Error(`Record '${recordName}' not found.`);
     }
 
@@ -190,7 +190,7 @@ export default class CloudflareClient {
 
     const recordData: Array<Record> = await this.getRecordDataForRecords(records);
 
-    for(const record of recordData) {
+    for (const record of recordData) {
       recordIdMap.set(record.name, record.id);
     }
 
@@ -202,38 +202,37 @@ export default class CloudflareClient {
   private async getRecordsByDomain(domain: string): Promise<Array<Record>> {
     const zoneId: string = await this.getZoneIdByDomain(domain);
 
-    const response = await this.cloudflare.dnsRecords.browse(zoneId);
+    const response: {result: Array<Record>} = await this.cloudflare.dnsRecords.browse(zoneId);
     const records: Array<Record> = response.result;
 
     return records;
   }
 
   private async getZoneIdByDomain(domain: string): Promise<string> {
-    if(this.zoneMap.has(domain)) {
+    if (this.zoneMap.has(domain)) {
+      const zoneId: string = this.zoneMap.get(domain);
+
+      return zoneId;
+    } else {
+      await this.updateZoneMap();
       const zoneId: string = this.zoneMap.get(domain);
 
       return zoneId;
     }
-
-
-    await this.updateZoneMap();
-    const zoneId: string = this.zoneMap.get(domain);
-
-    return zoneId;
   }
 
   private getDomainsFromRecords(records: Array<IRecord>): Array<string> {
     const domains: Array<string> = records.map((record: IRecord) => {
       return this.getDomainByRecordName(record.name);
-    }).filter((domain: string, index: number, domains: Array<string>) => {
-      return domains.indexOf(domain) == index;
+    }).filter((domain: string, index: number, domainList: Array<string>) => {
+      return domainList.indexOf(domain) === index;
     });
 
     return domains;
   }
 
   private getDomainByRecordName(recordName: string): string {
-    const parsedDomain = parseDomain(recordName);
+    const parsedDomain: parseDomain.ParsedDomain = parseDomain(recordName);
 
     return `${parsedDomain.domain}.${parsedDomain.tld}`;
   }

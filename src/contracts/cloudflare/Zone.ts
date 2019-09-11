@@ -16,7 +16,7 @@ export type Zone = {
     custom_certificate_quota: number,
     page_rule_quota: number,
     phishing_detected: boolean,
-    multiple_railguns_allowed: boolean
+    multiple_railguns_allowed: boolean,
   };
   owner: {
     id: string,
@@ -25,7 +25,7 @@ export type Zone = {
   };
   account: {
     id: string,
-    name: string
+    name: string,
   };
   permissions: Array<string>;
   plan: {
@@ -38,6 +38,6 @@ export type Zone = {
     can_subscribe: boolean,
     legacy_id: string,
     legacy_discount: boolean,
-    externally_managed: boolean
+    externally_managed: boolean,
   }
-}
+};

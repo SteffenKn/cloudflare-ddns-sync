@@ -1,14 +1,15 @@
+// tslint:disable:no-unused-expression
 import chai from 'chai';
 
 import CloudflareClient from '../lib/cloudflare-client';
 
-import * as authConfig from './auth.json';
 import {IRecord, Record} from '../contracts';
 import IPUtils from '../lib/ip-utils';
+import * as authConfig from './auth.json';
 
-const expect = chai.expect;
+const expect: Chai.ExpectStatic = chai.expect;
 
-const cloudflareClient: CloudflareClient = new CloudflareClient(authConfig.auth.email, authConfig.auth.key)
+const cloudflareClient: CloudflareClient = new CloudflareClient(authConfig.auth.email, authConfig.auth.key);
 
 describe('Cloudflare Client', () => {
   it('should get the zone id of a domain', async() => {
@@ -40,7 +41,6 @@ describe('Cloudflare Client', () => {
       const record: IRecord = authConfig.records[0];
       const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
 
-
       expect(recordId).to.be.string;
       expect(recordId.length).to.be.greaterThan(0);
     });
@@ -66,7 +66,7 @@ describe('Cloudflare Client', () => {
 
     const recordDataNames: Array<string> = recordData.map((recordDataEntry: Record) => {
       return recordDataEntry.name;
-    })
+    });
 
     expect(recordData.length).to.equal(records.length);
     expect(recordDataNames).to.contain(records[0].name);
@@ -91,7 +91,6 @@ describe('Cloudflare Client', () => {
 
     await cloudflareClient.removeRecord(zoneId, recordId);
   });
-
 
   it('should sync with ip via parameter', async() => {
     const record: IRecord = authConfig.records[0];
@@ -123,7 +122,6 @@ describe('Cloudflare Client', () => {
 
     await cloudflareClient.removeRecord(zoneId, recordId);
   });
-
 
   it('should sync with external ip', async() => {
     const record: IRecord = authConfig.records[0];

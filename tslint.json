@@ -93,7 +93,7 @@
     "max-classes-per-file": [true, 1],
     "max-file-line-count": [true, 3000],
     "max-line-length": [true, 150],
-    "no-default-export": true,
+    "no-default-export": false,
     "no-mergeable-namespace": true,
     "no-require-imports": true,
     "no-trailing-whitespace": true,

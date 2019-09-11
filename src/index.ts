@@ -6,9 +6,9 @@ import ipUtils from './lib/ip-utils';
 
 import {
   IRecord,
-  Record,
   MultiSyncCallback,
   MultiSyncResult,
+  Record,
   SingleSyncResult,
 } from './contracts/index';
 
@@ -35,7 +35,6 @@ export default class CloudflareDDNSSync {
     const zoneId: string = await this.cloudflareClient.getZoneIdByRecordName(recordName);
     const recordId: string = await this.cloudflareClient.getRecordIdByName(recordName);
 
-
     this.cloudflareClient.removeRecord(zoneId, recordId);
   }
 
@@ -56,17 +55,17 @@ export default class CloudflareDDNSSync {
 
   public async syncOnIpChange(records: Array<IRecord>, callback: MultiSyncCallback): Promise<string> {
     const changeListenerId: string = await ipUtils.addIpChangeListener(async(ip: string) => {
-      const result = await this.syncRecords(records, ip);
-  
+      const result: Array<Record> = await this.syncRecords(records, ip);
+
       callback(result);
     });
 
     const currentIp: string = await ipUtils.getIp();
-    this.syncRecords(records, currentIp).then((records: Array<Record>) => {
-      callback(records);
+    this.syncRecords(records, currentIp).then((syncedRecords: Array<Record>) => {
+      callback(syncedRecords);
     });
 
-    return changeListenerId
+    return changeListenerId;
   }
 
   public stopSyncOnIpChange(changeListenerId: string): void {
@@ -78,7 +77,7 @@ export default class CloudflareDDNSSync {
       const result: Array<Record> = await this.syncRecords(records, ip);
 
       callback(result);
-    })
+    });
   }
 }
 
