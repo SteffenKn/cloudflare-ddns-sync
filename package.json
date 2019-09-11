@@ -24,7 +24,7 @@
     "test-convert-crontime": "mocha tests/test-convert-crontime.js"
   },
   "dependencies": {
-    "cloudflare": "2.5.1",
+    "cloudflare": "2.6.0",
     "node-cron": "2.0.3",
     "public-ip": "3.2.0",
     "what-is-my-ip-address": "1.0.3"
