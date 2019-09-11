@@ -19,9 +19,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "tslint --project .",
-    "test": "npm run test-convert-crontime && npm run test-sync",
-    "test-sync": "mocha tests/test-sync.js --timeout 15000 --exit",
-    "test-convert-crontime": "mocha tests/test-convert-crontime.js"
+    "test": "mocha dist/tests/*.js --timeout 15000 --exit"
   },
   "dependencies": {
     "cloudflare": "2.6.0",
@@ -31,6 +29,8 @@
     "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
+    "@types/chai": "4.2.2",
+    "@types/mocha": "5.2.7",
     "@types/node": "10.14.17",
     "@types/node-cron": "2.0.2",
     "chai": "4.2.0",
