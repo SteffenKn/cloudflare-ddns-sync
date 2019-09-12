@@ -1,0 +1,39 @@
+name: Test-Workflow
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/*
+      - release/*
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install
+      run: npm install
+
+    - name: npm lint
+      run: npm run lint
+
+    - name: npm build
+      run: npm run build
+
+    - name: npm test
+      env:
+        CLOUDFLARE_EMAIL: ${{ secrets.TESTS__CLOUDFLARE_EMAIL }}
+        CLOUDFLARE_KEY: ${{ secrets.TESTS__CLOUDFLARE_KEY }}
+        CLOUDFLARE_RECORDS: ${{ secrets.TESTS__CLOUDFLARE_RECORDS }}
+      run: npm test -- --email=$CLOUDFLARE_EMAIL --key=$CLOUDFLARE_KEY --records=$CLOUDFLARE_RECORDS
