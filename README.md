@@ -1,5 +1,7 @@
 # Cloudflare-DDNS-Sync
 
+![](https://github.com/SteffenKn/Cloudflare-ddns-sync/workflows/Test-Workflow/badge.svg)
+
 [![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://www.npmjs.com/package/cloudflare-ddns-sync)
 
 [Documentation](https://cds.knaup.pw/)
