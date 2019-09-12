@@ -1,5 +1,5 @@
 import publicIp from 'public-ip';
-import wimIp from 'what-is-my-ip-address';
+import {v4 as wimIp} from 'what-is-my-ip-address';
 
 export default class IPUtils {
   private static readonly ipPollingDelay: number = 10 * 1000;
@@ -10,7 +10,7 @@ export default class IPUtils {
     try {
       return await publicIp.v4();
     } catch (error) {
-      return wimIp.v4();
+      return wimIp();
     }
   }
 
