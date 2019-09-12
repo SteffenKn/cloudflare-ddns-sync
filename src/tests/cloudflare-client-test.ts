@@ -2,18 +2,19 @@
 import chai from 'chai';
 
 import CloudflareClient from '../lib/cloudflare-client';
+import IPUtils from '../lib/ip-utils';
+import Auth, {AuthData} from './auth/auth-service';
 
 import {IRecord, Record} from '../contracts';
-import IPUtils from '../lib/ip-utils';
-import * as authConfig from './auth.json';
 
 const expect: Chai.ExpectStatic = chai.expect;
 
-const cloudflareClient: CloudflareClient = new CloudflareClient(authConfig.auth.email, authConfig.auth.key);
+const authData: AuthData = Auth.getAuthData();
+const cloudflareClient: CloudflareClient = new CloudflareClient(authData.auth.email, authData.auth.key);
 
 describe('Cloudflare Client', () => {
   it('should get the zone id of a domain', async() => {
-    const record: IRecord = authConfig.records[0];
+    const record: IRecord = authData.records[0];
     const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
 
     expect(zoneId).to.be.string;
@@ -22,7 +23,7 @@ describe('Cloudflare Client', () => {
 
   describe('Add, Get, Remove', () => {
     it('should be able to create a record', async() => {
-      const record: IRecord = authConfig.records[0];
+      const record: IRecord = authData.records[0];
 
       record.content = '1.2.3.4';
 
@@ -38,7 +39,7 @@ describe('Cloudflare Client', () => {
     });
 
     it('should be able to get a record id', async() => {
-      const record: IRecord = authConfig.records[0];
+      const record: IRecord = authData.records[0];
       const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
 
       expect(recordId).to.be.string;
@@ -46,7 +47,7 @@ describe('Cloudflare Client', () => {
     });
 
     it('should be able to remove a record', async() => {
-      const record: IRecord = authConfig.records[0];
+      const record: IRecord = authData.records[0];
       const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
 
       const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
@@ -56,7 +57,7 @@ describe('Cloudflare Client', () => {
   });
 
   it('should get record data for records', async() => {
-    const records: Array<IRecord> = authConfig.records;
+    const records: Array<IRecord> = authData.records;
 
     for (const record of records) {
       await cloudflareClient.syncRecord(record, '1.2.3.4');
@@ -79,7 +80,7 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync existing record', async() => {
-    const record: IRecord = authConfig.records[0];
+    const record: IRecord = authData.records[0];
 
     await cloudflareClient.syncRecord(record);
     const recordData: Record = await cloudflareClient.syncRecord(record);
@@ -93,7 +94,7 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with ip via parameter', async() => {
-    const record: IRecord = authConfig.records[0];
+    const record: IRecord = authData.records[0];
     const randomIp: string = getRandomIp();
 
     const recordData: Record = await cloudflareClient.syncRecord(record, randomIp);
@@ -108,7 +109,7 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with ip via record.content', async() => {
-    const record: IRecord = authConfig.records[0];
+    const record: IRecord = authData.records[0];
     const randomIp: string = getRandomIp();
     record.content = randomIp;
 
@@ -124,7 +125,7 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with external ip', async() => {
-    const record: IRecord = authConfig.records[0];
+    const record: IRecord = authData.records[0];
     record.content = undefined;
     const currentIp: string = await IPUtils.getIp();
 
