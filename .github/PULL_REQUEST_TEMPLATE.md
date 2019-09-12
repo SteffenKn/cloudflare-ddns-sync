@@ -12,5 +12,5 @@ PR: #NumberOfThisPR
 
 ## Checks
 
-[ ] The code is covered by tests. 
-[ ] The code is ready to get merged.
+- [ ] The code is covered by tests.
+- [ ] The code is ready to get merged.
