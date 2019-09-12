@@ -2,6 +2,7 @@ import Cloudflare from 'cloudflare';
 import parseDomain from 'parse-domain';
 
 import {IRecord, Record, Zone, ZoneMap} from '../contracts';
+import IPUtils from './ip-utils';
 
 export default class CloudflareClient {
   private cloudflare: Cloudflare;
@@ -19,17 +20,18 @@ export default class CloudflareClient {
 
   public async syncRecord(record: IRecord, ip?: string): Promise<Record> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords([record]);
+    const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
     const zoneId: string = await this.getZoneIdByRecordName(record.name);
     const recordId: string = recordIds.get(record.name);
 
     const recordExists: boolean = recordId !== undefined;
     if (recordExists) {
-      const result: Record = await this.updateRecord(zoneId, recordId, record, ip);
+      const result: Record = await this.updateRecord(zoneId, recordId, record, ipToUse);
 
       return result;
     } else {
-      const result: Record = await this.createRecord(zoneId, record, ip);
+      const result: Record = await this.createRecord(zoneId, record, ipToUse);
 
       return result;
     }
@@ -37,6 +39,7 @@ export default class CloudflareClient {
 
   public async syncRecords(records: Array<IRecord>, ip?: string): Promise<Array<Record>> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
+    const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
     const resultPromises: Array<Promise<Record>> = records.map(async(record: IRecord) => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
@@ -44,11 +47,11 @@ export default class CloudflareClient {
 
       const recordExists: boolean = recordId !== undefined;
       if (recordExists) {
-        const currentResult: Record = await this.updateRecord(zoneId, recordId, record, ip);
+        const currentResult: Record = await this.updateRecord(zoneId, recordId, record, ipToUse);
 
         return currentResult;
       } else {
-        const currentResult: Record = await this.createRecord(zoneId, record, ip);
+        const currentResult: Record = await this.createRecord(zoneId, record, ipToUse);
 
         return currentResult;
       }
