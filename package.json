@@ -19,7 +19,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "tslint --project .",
-    "test": "mocha dist/tests/*.js --timeout 15000 --exit"
+    "test": "mocha dist/tests/*.js --timeout 15000 --exit",
+    "test-jenkins": "JUNIT_REPORT_PATH=report.xml npm test -- --reporter mocha-jenkins-reporter"
   },
   "dependencies": {
     "cloudflare": "2.6.0",
@@ -37,6 +38,7 @@
     "chai": "4.2.0",
     "minimist": "1.2.0",
     "mocha": "6.2.0",
+    "mocha-jenkins-reporter": "0.4.2",
     "tslint": "5.20.0",
     "typescript": "3.6.3"
   }
