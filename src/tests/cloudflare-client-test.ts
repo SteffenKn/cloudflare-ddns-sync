@@ -32,8 +32,10 @@ describe('Cloudflare Client', () => {
   });
 
   it('should be able to create a record', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
+    // Prepare END
 
     const createdRecord: Record = await cloudflareClient.syncRecord(record);
 
@@ -47,9 +49,11 @@ describe('Cloudflare Client', () => {
   });
 
   it('should be able to get a record id', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
     await cloudflareClient.syncRecord(record);
+    // Pepare END
 
     const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
 
@@ -58,20 +62,24 @@ describe('Cloudflare Client', () => {
   });
 
   it('should be able to remove a record', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
     await cloudflareClient.syncRecord(record);
     const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
     const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
+    // Prepare END
 
     await cloudflareClient.removeRecord(zoneId, recordId);
   });
 
   it('should get record data for records', async() => {
+    // Prepare
     const records: Array<IRecord> = TestService.getTestData().records;
     for (const record of records) {
       await cloudflareClient.syncRecord(record, '1.2.3.4');
     }
+    // Prepare END
 
     const recordData: Array<Record> = await cloudflareClient.getRecordDataForRecords(records);
 
@@ -84,8 +92,10 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync existing record', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     await cloudflareClient.syncRecord(record);
+    // Prepare END
 
     const recordData: Record = await cloudflareClient.syncRecord(record);
 
@@ -93,8 +103,10 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with ip via parameter', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     const randomIp: string = getRandomIp();
+    // Prepare END
 
     const recordData: Record = await cloudflareClient.syncRecord(record, randomIp);
 
@@ -103,9 +115,11 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with ip via record.content', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     const randomIp: string = getRandomIp();
     record.content = randomIp;
+    // Prepare END
 
     const recordData: Record = await cloudflareClient.syncRecord(record);
 
@@ -114,9 +128,11 @@ describe('Cloudflare Client', () => {
   });
 
   it('should sync with external ip', async() => {
+    // Prepare
     const record: IRecord = TestService.getTestData().records[0];
     record.content = undefined;
     const currentIp: string = await IPUtils.getIp();
+    // Prepare END
 
     const recordData: Record = await cloudflareClient.syncRecord(record);
 
