@@ -31,6 +31,14 @@ export default class CloudflareDDNSSync {
     return this.cloudflareClient.syncRecord(record);
   }
 
+  public async getRecordDataForDomain(domain: string): Promise<Array<Record>> {
+    return this.cloudflareClient.getRecordDataForDomain(domain);
+  }
+
+  public async getRecordDataForDomains(domains: Array<string>): Promise<Array<Record>> {
+    return this.cloudflareClient.getRecordDataForDomains(domains);
+  }
+
   public async removeRecord(recordName: string): Promise<void> {
     const zoneId: string = await this.cloudflareClient.getZoneIdByRecordName(recordName);
     const recordId: string = await this.cloudflareClient.getRecordIdByName(recordName);

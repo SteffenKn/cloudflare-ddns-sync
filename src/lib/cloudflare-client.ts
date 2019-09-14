@@ -122,6 +122,30 @@ export default class CloudflareClient {
     return recordData;
   }
 
+  // TODO: Performance?
+  public async getRecordDataForDomains(domains: Array<string>): Promise<Array<Record>> {
+    // console.time('getRecordDataForDomains');
+
+    const recordDataPromises: Array<Promise<Array<Record>>> = domains.map(async(domain: string) => {
+      return this.getRecordDataForDomain(domain);
+    });
+
+    const recordDataForDomains: Array<Array<Record>> = await Promise.all(recordDataPromises);
+    const recordData: Array<Record> = [].concat(...recordDataForDomains);
+
+    // console.timeEnd('getRecordDataForDomains');
+    return recordData;
+  }
+
+  // TODO: Performance?
+  public async getRecordDataForDomain(domain: string): Promise<Array<Record>> {
+    // console.time('getRecordDataForDomain');
+    const recordData: Array<Record> =  await this.getRecordsByDomain(domain);
+    // console.timeEnd('getRecordDataForDomain');
+
+    return recordData;
+  }
+
   private async createRecord(zoneId: string, record: IRecord, ip?: string): Promise<Record> {
     const copyOfRecord: IRecord = Object.assign({}, record);
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
