@@ -126,6 +126,26 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
+  it('should sync multiple records', async() => {
+    // Prepare
+    const records: Array<Record> = TestService.getTestData().records;
+    // Prepare END
+
+    const recordData: Array<RecordData> = await cloudflareClient.syncRecords(records);
+
+    const recordDataNames: Array<string> = recordData.map((singleRecordData: RecordData) => {
+      return singleRecordData.name.toLowerCase();
+    });
+
+    for (const record of records) {
+      expect(recordDataNames).to.contain(record.name.toLowerCase());
+    }
+
+    // Cleanup
+    recordsToCleanUp.push(...records);
+    // Cleanup END
+  });
+
   it('should sync with ip via parameter', async() => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
