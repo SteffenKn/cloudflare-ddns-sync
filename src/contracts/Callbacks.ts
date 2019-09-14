@@ -1,4 +1,4 @@
-import {Record} from './index';
+import {RecordData} from './index';
 
-export type SingleSyncCallback = (syncResult: Record) => void;
-export type MultiSyncCallback = (syncResult: Array<Record>) => void;
+export type SingleSyncCallback = (syncResult: RecordData) => void;
+export type MultiSyncCallback = (syncResult: Array<RecordData>) => void;

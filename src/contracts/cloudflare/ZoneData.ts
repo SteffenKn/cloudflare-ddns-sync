@@ -1,4 +1,4 @@
-export type Zone = {
+export type ZoneData = {
   id: string;
   name: string;
   status: string;

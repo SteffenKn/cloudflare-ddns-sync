@@ -1,7 +1,7 @@
 import Cloudflare from 'cloudflare';
 import parseDomain from 'parse-domain';
 
-import {IRecord, Record, Zone, ZoneMap} from '../contracts';
+import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts';
 import IPUtils from './ip-utils';
 
 export default class CloudflareClient {
@@ -18,7 +18,7 @@ export default class CloudflareClient {
     this.updateZoneMap();
   }
 
-  public async syncRecord(record: IRecord, ip?: string): Promise<Record> {
+  public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords([record]);
     const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
@@ -27,38 +27,38 @@ export default class CloudflareClient {
 
     const recordExists: boolean = recordId !== undefined;
     if (recordExists) {
-      const result: Record = await this.updateRecord(zoneId, recordId, record, ipToUse);
+      const result: RecordData = await this.updateRecord(zoneId, recordId, record, ipToUse);
 
       return result;
     } else {
-      const result: Record = await this.createRecord(zoneId, record, ipToUse);
+      const result: RecordData = await this.createRecord(zoneId, record, ipToUse);
 
       return result;
     }
   }
 
-  public async syncRecords(records: Array<IRecord>, ip?: string): Promise<Array<Record>> {
+  public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
     const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
-    const resultPromises: Array<Promise<Record>> = records.map(async(record: IRecord) => {
+    const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record) => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
       const recordId: string = recordIds.get(record.name);
 
       const recordExists: boolean = recordId !== undefined;
       if (recordExists) {
-        const currentResult: Record = await this.updateRecord(zoneId, recordId, record, ipToUse);
+        const currentResult: RecordData = await this.updateRecord(zoneId, recordId, record, ipToUse);
 
         return currentResult;
       } else {
-        const currentResult: Record = await this.createRecord(zoneId, record, ipToUse);
+        const currentResult: RecordData = await this.createRecord(zoneId, record, ipToUse);
 
         return currentResult;
       }
 
     });
 
-    const results: Array<Record> = await Promise.all(resultPromises);
+    const results: Array<RecordData> = await Promise.all(resultPromises);
 
     return results;
   }
@@ -78,19 +78,19 @@ export default class CloudflareClient {
   }
 
   public async getRecordIdByName(recordName: string): Promise<string> {
-    const record: Record = await this.getRecordByName(recordName);
+    const record: RecordData = await this.getRecordByName(recordName);
 
     return record.id;
   }
 
   // TODO: Performance?
-  public async getRecordDataForRecord(record: IRecord): Promise<Record> {
+  public async getRecordDataForRecord(record: Record): Promise<RecordData> {
     // console.time('getRecordDataForRecord');
     const domain: string = this.getDomainByRecordName(record.name);
 
-    const recordDataForDomain: Array<Record> = await this.getRecordsByDomain(domain);
+    const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-    const recordData: Record = recordDataForDomain.find((singleRecordData: Record) => {
+    const recordData: RecordData = recordDataForDomain.find((singleRecordData: RecordData) => {
         return record.name === singleRecordData.name;
       });
 
@@ -99,15 +99,15 @@ export default class CloudflareClient {
   }
 
   // TODO: Performance?
-  public async getRecordDataForRecords(records: Array<IRecord>): Promise<Array<Record>> {
+  public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
     // console.time('getRecordDataForRecords');
     const domains: Array<string> = this.getDomainsFromRecords(records);
 
-    const recordDataPromises: Array<Promise<Array<Record>>> = domains.map(async(domain: string) => {
-      const recordDataForDomain: Array<Record> = await this.getRecordsByDomain(domain);
+    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
+      const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-      const recordDataForDomainFilteredByRecords: Array<Record> = recordDataForDomain.filter((singleRecordData: Record) => {
-        return records.some((record: IRecord) => {
+      const recordDataForDomainFilteredByRecords: Array<RecordData> = recordDataForDomain.filter((singleRecordData: RecordData) => {
+        return records.some((record: Record) => {
           return record.name === singleRecordData.name;
         });
       });
@@ -115,39 +115,43 @@ export default class CloudflareClient {
       return recordDataForDomainFilteredByRecords;
     });
 
-    const recordDataForDomains: Array<Array<Record>> = await Promise.all(recordDataPromises);
-    const recordData: Array<Record> = [].concat(...recordDataForDomains);
+    const recordDataForDomains: Array<Array<RecordData>> = await Promise.all(recordDataPromises);
+    const recordData: Array<RecordData> = [].concat(...recordDataForDomains);
 
     // console.timeEnd('getRecordDataForRecords');
     return recordData;
   }
 
   // TODO: Performance?
-  public async getRecordDataForDomains(domains: Array<string>): Promise<Array<Record>> {
+  public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
     // console.time('getRecordDataForDomains');
 
-    const recordDataPromises: Array<Promise<Array<Record>>> = domains.map(async(domain: string) => {
+    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
       return this.getRecordDataForDomain(domain);
     });
 
-    const recordDataForDomains: Array<Array<Record>> = await Promise.all(recordDataPromises);
-    const recordData: Array<Record> = [].concat(...recordDataForDomains);
+    const recordDataForDomains: Array<Array<RecordData>> = await Promise.all(recordDataPromises);
+
+    const recordData: DomainRecordList = {};
+    recordDataForDomains.forEach((recordDataForDomain: Array<RecordData>, index: number): void => {
+      recordData[domains[index]] = recordDataForDomain;
+    });
 
     // console.timeEnd('getRecordDataForDomains');
     return recordData;
   }
 
   // TODO: Performance?
-  public async getRecordDataForDomain(domain: string): Promise<Array<Record>> {
+  public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
     // console.time('getRecordDataForDomain');
-    const recordData: Array<Record> =  await this.getRecordsByDomain(domain);
+    const recordData: Array<RecordData> =  await this.getRecordsByDomain(domain);
     // console.timeEnd('getRecordDataForDomain');
 
     return recordData;
   }
 
-  private async createRecord(zoneId: string, record: IRecord, ip?: string): Promise<Record> {
-    const copyOfRecord: IRecord = Object.assign({}, record);
+  private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
+    const copyOfRecord: Record = Object.assign({}, record);
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
@@ -156,7 +160,7 @@ export default class CloudflareClient {
     }
 
     try {
-      const response: {result: Record} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
+      const response: {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
 
       return response.result;
     } catch (error) {
@@ -164,8 +168,8 @@ export default class CloudflareClient {
     }
   }
 
-  private async updateRecord(zoneId: string, recordId: string, record: IRecord, ip?: string): Promise<Record> {
-    const copyOfRecord: IRecord = Object.assign({}, record);
+  private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
+    const copyOfRecord: Record = Object.assign({}, record);
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
@@ -174,7 +178,7 @@ export default class CloudflareClient {
     }
 
     try {
-      const response: {result: Record} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
+      const response: {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
 
       return response.result;
     } catch (error) {
@@ -183,8 +187,8 @@ export default class CloudflareClient {
   }
 
   private async updateZoneMap(): Promise<void> {
-    const response: {result: Array<Zone>} = await this.cloudflare.zones.browse();
-    const zones: Array<Zone> = response.result;
+    const response: {result: Array<ZoneData>} = await this.cloudflare.zones.browse();
+    const zones: Array<ZoneData> = response.result;
 
     this.zoneMap = new Map();
     for (const zone of zones) {
@@ -192,12 +196,12 @@ export default class CloudflareClient {
     }
   }
 
-  private async getRecordByName(recordName: string): Promise<Record> {
+  private async getRecordByName(recordName: string): Promise<RecordData> {
     const domain: string = this.getDomainByRecordName(recordName);
 
-    const records: Array<Record> = await this.getRecordsByDomain(domain);
+    const records: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-    const record: Record = records.find((currentRecord: Record) => {
+    const record: RecordData = records.find((currentRecord: RecordData) => {
       return currentRecord.name === recordName;
     });
 
@@ -210,12 +214,12 @@ export default class CloudflareClient {
   }
 
   // TODO: Performance?
-  private async getRecordIdsForRecords(records: Array<IRecord>): Promise<Map<string, string>> {
+  private async getRecordIdsForRecords(records: Array<Record>): Promise<Map<string, string>> {
     // console.time('getRecordIdsToUpdate');
 
     const recordIdMap: Map<string, string> = new Map();
 
-    const recordData: Array<Record> = await this.getRecordDataForRecords(records);
+    const recordData: Array<RecordData> = await this.getRecordDataForRecords(records);
 
     for (const record of recordData) {
       recordIdMap.set(record.name, record.id);
@@ -226,11 +230,11 @@ export default class CloudflareClient {
     return recordIdMap;
   }
 
-  private async getRecordsByDomain(domain: string): Promise<Array<Record>> {
+  private async getRecordsByDomain(domain: string): Promise<Array<RecordData>> {
     const zoneId: string = await this.getZoneIdByDomain(domain);
 
-    const response: {result: Array<Record>} = await this.cloudflare.dnsRecords.browse(zoneId);
-    const records: Array<Record> = response.result;
+    const response: {result: Array<RecordData>} = await this.cloudflare.dnsRecords.browse(zoneId);
+    const records: Array<RecordData> = response.result;
 
     return records;
   }
@@ -248,8 +252,8 @@ export default class CloudflareClient {
     }
   }
 
-  private getDomainsFromRecords(records: Array<IRecord>): Array<string> {
-    const domains: Array<string> = records.map((record: IRecord) => {
+  private getDomainsFromRecords(records: Array<Record>): Array<string> {
+    const domains: Array<string> = records.map((record: Record) => {
       return this.getDomainByRecordName(record.name);
     }).filter((domain: string, index: number, domainList: Array<string>) => {
       return domainList.indexOf(domain) === index;

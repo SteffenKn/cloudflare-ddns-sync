@@ -2,7 +2,7 @@ import minimist, {ParsedArgs} from 'minimist';
 
 import testConfig from './test-data.json';
 
-import {IRecord} from '../../contracts/index.js';
+import {Record} from '../../contracts/index.js';
 
 export default class TestService {
   public static getTestData(): TestData {
@@ -18,17 +18,18 @@ export default class TestService {
         email: email,
         key: key,
       },
+      domain: domain,
       records: this.getRandomRecords(5, domain),
     };
 
     return testData;
   }
 
-  private static getRandomRecords(amount: number, domain: string): Array<IRecord> {
-    const records: Array<IRecord> = [];
+  private static getRandomRecords(amount: number, domain: string): Array<Record> {
+    const records: Array<Record> = [];
 
     for (let index: number = 0; index < amount; index++) {
-      const record: IRecord = {
+      const record: Record = {
         name: `cddnss-test-${this.getRandomSubdomain()}.${domain}`,
       };
 
@@ -56,5 +57,6 @@ export type TestData = {
     email: string,
     key: string,
   },
-  records: Array<IRecord>,
+  domain: string,
+  records: Array<Record>,
 };

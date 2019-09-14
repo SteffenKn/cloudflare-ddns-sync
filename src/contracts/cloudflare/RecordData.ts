@@ -1,4 +1,4 @@
-export type Record = {
+export type RecordData = {
   id: string;
   type: string;
   name: string;

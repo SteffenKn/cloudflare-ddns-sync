@@ -1,2 +1,2 @@
-export * from './Record';
-export * from './Zone';
+export * from './RecordData';
+export * from './ZoneData';

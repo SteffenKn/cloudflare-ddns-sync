@@ -1,4 +1,4 @@
-import {Record} from './index';
+import {RecordData} from './index';
 
-export type SingleSyncResult = Promise<Record>;
-export type MultiSyncResult = Promise<Array<Record>>;
+export type SingleSyncResult = Promise<RecordData>;
+export type MultiSyncResult = Promise<Array<RecordData>>;
