@@ -91,9 +91,7 @@ describe('Cloudflare Client', () => {
   it('should get record data for records', async() => {
     // Prepare
     const records: Array<Record> = TestService.getTestData().records;
-    for (const record of records) {
-      await cloudflareClient.syncRecord(record, '1.2.3.4');
-    }
+    await cloudflareClient.syncRecords(records, '1.2.3.4');
     // Prepare END
 
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(records);
