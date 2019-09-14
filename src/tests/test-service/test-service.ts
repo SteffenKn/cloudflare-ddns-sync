@@ -8,24 +8,46 @@ export default class TestService {
   public static getTestData(): TestData {
     const args: ParsedArgs = minimist(process.argv.slice(2));
 
-    const testData: TestData = Object.assign({}, testConfig);
+    const email: string = args.email ? args.email : testConfig.auth.email;
+    const key: string = args.key ? args.key : testConfig.auth.key;
+    const domain: string = args.domain ? args.domain : testConfig.domain;
+    // const records: Array<IRecord> = this.getRecords(args.domain ? args.domain : testConfig.domain);
 
-    const email: string | undefined = args.email;
-    const key: string | undefined = args.key;
-    const recordsAsString: string | undefined = args.records;
-
-    testData.auth.email = email ? email : testData.auth.email;
-    testData.auth.key = key ? key : testData.auth.key;
-
-    try {
-      const records: Array<IRecord> = JSON.parse(recordsAsString).records;
-
-      testData.records = records;
-    } catch {
-      // Do nothing
-    }
+    const testData: TestData = {
+      auth: {
+        email: email,
+        key: key,
+      },
+      records: this.getRandomRecords(5, domain),
+    };
 
     return testData;
+  }
+
+  private static getRandomRecords(amount: number, domain: string): Array<IRecord> {
+    const records: Array<IRecord> = [];
+
+    for (let index: number = 0; index < amount; index++) {
+      const record: IRecord = {
+        name: `cddnss-test-${this.getRandomSubdomain()}.${domain}`,
+      };
+
+      records.push(record);
+    }
+
+    return records;
+  }
+
+  private static getRandomSubdomain(): string {
+    let result: string = '';
+    const characters: string = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength: number = characters.length;
+
+    for ( let index: number = 0; index < 5; index++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
   }
 }
 

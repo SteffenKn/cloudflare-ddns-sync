@@ -81,8 +81,8 @@ pipeline {
       steps {
         sh('node --version')
 
-        withCredentials([string(credentialsId: 'CLOUDFLARE_EMAIL', variable: 'CLOUDFLARE_EMAIL'), string(credentialsId: 'CLOUDFLARE_KEY', variable: 'CLOUDFLARE_KEY'), string(credentialsId: 'CLOUDFLARE_RECORDS', variable: 'CLOUDFLARE_RECORDS')]) {
-         sh('npm run test-jenkins -- --email="'+CLOUDFLARE_EMAIL+'" --key="'+CLOUDFLARE_KEY+'" --records="'+CLOUDFLARE_RECORDS+'"')
+        withCredentials([string(credentialsId: 'CLOUDFLARE_EMAIL', variable: 'CLOUDFLARE_EMAIL'), string(credentialsId: 'CLOUDFLARE_KEY', variable: 'CLOUDFLARE_KEY'), string(credentialsId: 'CLOUDFLARE_DOMAIN', variable: 'CLOUDFLARE_DOMAIN')]) {
+         sh('npm run test-jenkins -- --email="'+CLOUDFLARE_EMAIL+'" --key="'+CLOUDFLARE_KEY+'" --domain="'+CLOUDFLARE_DOMAIN+'"')
 
           junit 'report.xml'
         }

@@ -3,12 +3,5 @@
     "email"  : "your@email.com",
     "key"  : "your_cloudflare_api_key"
   },
-  "records" : [
-    {
-      "name": "cddnstest.your-domain.com"
-    },
-    {
-      "name": "cddns.test.your-domain.com"
-    }
-  ]
+  "domain" : "yourdomain.com"
 }
