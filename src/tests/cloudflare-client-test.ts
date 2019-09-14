@@ -5,7 +5,7 @@ import CloudflareClient from '../lib/cloudflare-client';
 import IPUtils from '../lib/ip-utils';
 import TestService, { TestData } from './test-service/test-service';
 
-import {Record, RecordData} from '../contracts';
+import {DomainRecordList, Record, RecordData} from '../contracts';
 
 const expect: Chai.ExpectStatic = chai.expect;
 
@@ -175,6 +175,58 @@ describe('Cloudflare Client', () => {
 
     // Cleanup
     recordsToCleanUp.push(record);
+    // Cleanup END
+  });
+
+  it ('should get record data for domain', async() => {
+    // Prepare
+    const testData: TestData = TestService.getTestData();
+    const domain: string = testData.domain;
+    const records: Array<Record> = testData.records;
+    await cloudflareClient.syncRecords(records, '1.2.3.4');
+    // Prepare END
+
+    const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForDomain(domain);
+
+    const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData) => {
+      return recordDataEntry.name.toLowerCase();
+    });
+
+    // At least the data of the synced records should be existing
+    expect(recordData.length).to.be.greaterThan(records.length - 1);
+    for (const record of records) {
+      expect(recordDataNames).to.contain(record.name.toLowerCase());
+    }
+
+    // Cleanup
+    recordsToCleanUp.push(...records);
+    // Cleanup END
+  });
+
+  it ('should get record data for multiple domains', async() => {
+    // Prepare
+    const testData: TestData = TestService.getTestData();
+    const domain: string = testData.domain;
+    const records: Array<Record> = testData.records;
+    await cloudflareClient.syncRecords(records, '1.2.3.4');
+    // Prepare END
+
+    const domainRecordList: DomainRecordList = await cloudflareClient.getRecordDataForDomains([domain]);
+
+    expect(Object.keys(domainRecordList)).to.contain(domain);
+
+    const recordDataNames: Array<string> = domainRecordList[domain].map((recordDataEntry: RecordData) => {
+      return recordDataEntry.name.toLowerCase();
+    });
+
+    // At least the data of the synced records should be existing
+    expect(domainRecordList[domain].length).to.be.greaterThan(records.length - 1);
+    for (const record of records) {
+      expect(recordDataNames).to.contain(record.name.toLowerCase());
+    }
+
+    // Cleanup
+    recordsToCleanUp.push(...records);
     // Cleanup END
   });
 });
