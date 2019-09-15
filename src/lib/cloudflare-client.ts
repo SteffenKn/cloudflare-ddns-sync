@@ -233,8 +233,22 @@ export default class CloudflareClient {
   private async getRecordsByDomain(domain: string): Promise<Array<RecordData>> {
     const zoneId: string = await this.getZoneIdByDomain(domain);
 
-    const response: {result: Array<RecordData>} = await this.cloudflare.dnsRecords.browse(zoneId);
-    const records: Array<RecordData> = response.result;
+    const records: Array<RecordData>  = [];
+
+    let pageIndex: number = 1;
+    let allRecordsFound: boolean = false;
+    while (!allRecordsFound) {
+      const response: Response & {result: Array<RecordData>} = await this.cloudflare.dnsRecords.browse(zoneId, {
+        page: pageIndex,
+        per_page: 100,
+      });
+
+      records.push(...response.result);
+
+      allRecordsFound = response.result.length < 100;
+
+      pageIndex++;
+    }
 
     return records;
   }
