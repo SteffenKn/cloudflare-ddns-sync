@@ -23,7 +23,7 @@ export default class CloudflareClient {
     const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
     const zoneId: string = await this.getZoneIdByRecordName(record.name);
-    const recordId: string = recordIds.get(record.name);
+    const recordId: string = recordIds.get(record.name.toLowerCase());
 
     const recordExists: boolean = recordId !== undefined;
     if (recordExists) {
@@ -43,7 +43,7 @@ export default class CloudflareClient {
 
     const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record) => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
-      const recordId: string = recordIds.get(record.name);
+      const recordId: string = recordIds.get(record.name.toLowerCase());
 
       const recordExists: boolean = recordId !== undefined;
       if (recordExists) {
@@ -91,7 +91,7 @@ export default class CloudflareClient {
     const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
     const recordData: RecordData = recordDataForDomain.find((singleRecordData: RecordData) => {
-        return record.name === singleRecordData.name;
+        return record.name.toLowerCase() === singleRecordData.name.toLowerCase();
       });
 
     // console.timeEnd('getRecordDataForRecord');
@@ -108,7 +108,7 @@ export default class CloudflareClient {
 
       const recordDataForDomainFilteredByRecords: Array<RecordData> = recordDataForDomain.filter((singleRecordData: RecordData) => {
         return records.some((record: Record) => {
-          return record.name === singleRecordData.name;
+          return record.name.toLowerCase() === singleRecordData.name.toLowerCase();
         });
       });
 
@@ -152,15 +152,16 @@ export default class CloudflareClient {
 
   private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
     const copyOfRecord: Record = Object.assign({}, record);
+    copyOfRecord.name = record.name.toLowerCase();
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
     if (!copyOfRecord.content) {
-      throw Error(`Could not create Record "${record.name}": Ip is missing!`);
+      throw Error(`Could not create Record "${copyOfRecord.name}": Ip is missing!`);
     }
 
     try {
-      const response: {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
+      const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
 
       return response.result;
     } catch (error) {
@@ -170,6 +171,7 @@ export default class CloudflareClient {
 
   private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
     const copyOfRecord: Record = Object.assign({}, record);
+    copyOfRecord.name = record.name.toLowerCase();
     copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
@@ -178,7 +180,7 @@ export default class CloudflareClient {
     }
 
     try {
-      const response: {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
+      const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
 
       return response.result;
     } catch (error) {
@@ -202,7 +204,7 @@ export default class CloudflareClient {
     const records: Array<RecordData> = await this.getRecordsByDomain(domain);
 
     const record: RecordData = records.find((currentRecord: RecordData) => {
-      return currentRecord.name === recordName;
+      return currentRecord.name.toLowerCase() === recordName.toLowerCase();
     });
 
     const recordNotFound: boolean = record === undefined;
@@ -222,7 +224,7 @@ export default class CloudflareClient {
     const recordData: Array<RecordData> = await this.getRecordDataForRecords(records);
 
     for (const record of recordData) {
-      recordIdMap.set(record.name, record.id);
+      recordIdMap.set(record.name.toLowerCase(), record.id);
     }
 
     // console.timeEnd('getRecordIdsToUpdate');
@@ -255,12 +257,12 @@ export default class CloudflareClient {
 
   private async getZoneIdByDomain(domain: string): Promise<string> {
     if (this.zoneMap.has(domain)) {
-      const zoneId: string = this.zoneMap.get(domain);
+      const zoneId: string = this.zoneMap.get(domain.toLowerCase());
 
       return zoneId;
     } else {
       await this.updateZoneMap();
-      const zoneId: string = this.zoneMap.get(domain);
+      const zoneId: string = this.zoneMap.get(domain.toLowerCase());
 
       return zoneId;
     }
@@ -270,7 +272,7 @@ export default class CloudflareClient {
     const domains: Array<string> = records.map((record: Record) => {
       return this.getDomainByRecordName(record.name);
     }).filter((domain: string, index: number, domainList: Array<string>) => {
-      return domainList.indexOf(domain) === index;
+      return domainList.indexOf(domain.toLowerCase()) === index;
     });
 
     return domains;
@@ -279,6 +281,6 @@ export default class CloudflareClient {
   private getDomainByRecordName(recordName: string): string {
     const parsedDomain: parseDomain.ParsedDomain = parseDomain(recordName);
 
-    return `${parsedDomain.domain}.${parsedDomain.tld}`;
+    return `${parsedDomain.domain}.${parsedDomain.tld}`.toLowerCase();
   }
 }

@@ -23,7 +23,7 @@ describe('Cloudflare Client', () => {
       await cloudflareClient.removeRecord(zoneId, record.id);
 
       const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record) => {
-        return record.name = recordToCleanup.name;
+        return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
       });
 
       recordsToCleanUp.splice(indexOfRecord, 1);
@@ -97,13 +97,13 @@ describe('Cloudflare Client', () => {
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(records);
 
     const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData) => {
-      return recordDataEntry.name;
+      return recordDataEntry.name.toLowerCase();
     });
 
     expect(recordData.length).to.equal(records.length);
 
     for (const record of records) {
-     expect(recordDataNames).to.contain(record.name);
+     expect(recordDataNames).to.contain(record.name.toLowerCase());
     }
 
     // Cleanup
