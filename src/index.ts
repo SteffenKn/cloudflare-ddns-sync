@@ -20,6 +20,10 @@ export default class CloudflareDDNSSync {
     this.cloudflareClient = new CloudflareClient(email, authKey);
   }
 
+  public getRecordDataForRecord(record: Record): Promise<RecordData> {
+    return this.cloudflareClient.getRecordDataForRecord(record);
+  }
+
   public getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
     return this.cloudflareClient.getRecordDataForRecords(records);
   }
@@ -47,7 +51,7 @@ export default class CloudflareDDNSSync {
     this.cloudflareClient.removeRecord(zoneId, recordId);
   }
 
-  public async sync(record: Record, ip?: string): SingleSyncResult {
+  public async syncRecord(record: Record, ip?: string): SingleSyncResult {
 
     const ipToUse: string = ip ? ip : await ipUtils.getIp();
 

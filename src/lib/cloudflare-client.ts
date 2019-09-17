@@ -4,6 +4,9 @@ import parseDomain from 'parse-domain';
 import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts';
 import IPUtils from './ip-utils';
 
+const ipv4Regex: RegExp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+const ipv6Regex: RegExp = /^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::))))$/;
+
 export default class CloudflareClient {
   private cloudflare: Cloudflare;
 
@@ -64,11 +67,7 @@ export default class CloudflareClient {
   }
 
   public async removeRecord(zoneId: string, recordId: string): Promise<void> {
-    try {
-      await this.cloudflare.dnsRecords.del(zoneId, recordId);
-    } catch (error) {
-      throw error;
-    }
+    return this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
 
   public async getZoneIdByRecordName(recordName: string): Promise<string> {
@@ -157,16 +156,26 @@ export default class CloudflareClient {
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
     if (!copyOfRecord.content) {
-      throw Error(`Could not create Record "${copyOfRecord.name}": Ip is missing!`);
+      throw Error(`Could not create Record "${copyOfRecord.name}": Content is missing!`);
     }
 
-    try {
-      const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
-
-      return response.result;
-    } catch (error) {
-      throw error;
+    if (copyOfRecord.type === 'A') {
+      if (!copyOfRecord.content.match(ipv4Regex)) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+      }
+    } else if (copyOfRecord.type === 'AAAA') {
+      if (!copyOfRecord.content.match(ipv6Regex)) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+      }
+    } else if (copyOfRecord.type === 'CNAME') {
+      if (parseDomain(copyOfRecord.content) === null) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+      }
     }
+
+    const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
+
+    return response.result;
   }
 
   private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
@@ -176,16 +185,26 @@ export default class CloudflareClient {
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
     if (!copyOfRecord.content) {
-      throw Error(`Could not update Record "${record.name}": Ip is missing!`);
+      throw Error(`Could not create Record "${copyOfRecord.name}": Content is missing!`);
     }
 
-    try {
-      const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
-
-      return response.result;
-    } catch (error) {
-      throw error;
+    if (copyOfRecord.type === 'A') {
+      if (!copyOfRecord.content.match(ipv4Regex)) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+      }
+    } else if (copyOfRecord.type === 'AAAA') {
+      if (!copyOfRecord.content.match(ipv6Regex)) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+      }
+    } else if (copyOfRecord.type === 'CNAME') {
+      if (parseDomain(copyOfRecord.content) === null) {
+        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+      }
     }
+
+    const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
+
+    return response.result;
   }
 
   private async updateZoneMap(): Promise<void> {
@@ -262,6 +281,11 @@ export default class CloudflareClient {
       return zoneId;
     } else {
       await this.updateZoneMap();
+
+      if (!this.zoneMap.has(domain)) {
+        throw new Error(`Could not find domain '${domain}'. Make sure the domain is set up for your cloudflare account.`);
+      }
+
       const zoneId: string = this.zoneMap.get(domain.toLowerCase());
 
       return zoneId;
@@ -280,6 +304,10 @@ export default class CloudflareClient {
 
   private getDomainByRecordName(recordName: string): string {
     const parsedDomain: parseDomain.ParsedDomain = parseDomain(recordName);
+
+    if (parsedDomain === null) {
+      throw new Error(`Could not parse domain. '${JSON.stringify(recordName)}' is not a valid record name.`);
+    }
 
     return `${parsedDomain.domain}.${parsedDomain.tld}`.toLowerCase();
   }
