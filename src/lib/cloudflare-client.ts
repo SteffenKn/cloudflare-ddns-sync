@@ -82,9 +82,7 @@ export default class CloudflareClient {
     return record.id;
   }
 
-  // TODO: Performance?
   public async getRecordDataForRecord(record: Record): Promise<RecordData> {
-    // console.time('getRecordDataForRecord');
     const domain: string = this.getDomainByRecordName(record.name);
 
     const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
@@ -93,13 +91,10 @@ export default class CloudflareClient {
         return record.name.toLowerCase() === singleRecordData.name.toLowerCase();
       });
 
-    // console.timeEnd('getRecordDataForRecord');
     return recordData;
   }
 
-  // TODO: Performance?
   public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
-    // console.time('getRecordDataForRecords');
     const domains: Array<string> = this.getDomainsFromRecords(records);
 
     const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
@@ -117,14 +112,10 @@ export default class CloudflareClient {
     const recordDataForDomains: Array<Array<RecordData>> = await Promise.all(recordDataPromises);
     const recordData: Array<RecordData> = [].concat(...recordDataForDomains);
 
-    // console.timeEnd('getRecordDataForRecords');
     return recordData;
   }
 
-  // TODO: Performance?
   public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
-    // console.time('getRecordDataForDomains');
-
     const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
       return this.getRecordDataForDomain(domain);
     });
@@ -136,15 +127,11 @@ export default class CloudflareClient {
       recordData[domains[index]] = recordDataForDomain;
     });
 
-    // console.timeEnd('getRecordDataForDomains');
     return recordData;
   }
 
-  // TODO: Performance?
   public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
-    // console.time('getRecordDataForDomain');
     const recordData: Array<RecordData> =  await this.getRecordsByDomain(domain);
-    // console.timeEnd('getRecordDataForDomain');
 
     return recordData;
   }
@@ -234,10 +221,7 @@ export default class CloudflareClient {
     return record;
   }
 
-  // TODO: Performance?
   private async getRecordIdsForRecords(records: Array<Record>): Promise<Map<string, string>> {
-    // console.time('getRecordIdsToUpdate');
-
     const recordIdMap: Map<string, string> = new Map();
 
     const recordData: Array<RecordData> = await this.getRecordDataForRecords(records);
@@ -245,8 +229,6 @@ export default class CloudflareClient {
     for (const record of recordData) {
       recordIdMap.set(record.name.toLowerCase(), record.id);
     }
-
-    // console.timeEnd('getRecordIdsToUpdate');
 
     return recordIdMap;
   }
