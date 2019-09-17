@@ -20,20 +20,12 @@ export default class CloudflareDDNSSync {
     this.cloudflareClient = new CloudflareClient(email, authKey);
   }
 
-  public getRecordDataForRecord(record: Record): Promise<RecordData> {
-    return this.cloudflareClient.getRecordDataForRecord(record);
-  }
-
-  public getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
-    return this.cloudflareClient.getRecordDataForRecords(records);
+  public async createRecord(record: Record): Promise<RecordData> {
+    return this.cloudflareClient.syncRecord(record);
   }
 
   public getIp(): Promise<string> {
     return ipUtils.getIp();
-  }
-
-  public async createRecord(record: Record): Promise<RecordData> {
-    return this.cloudflareClient.syncRecord(record);
   }
 
   public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
@@ -44,6 +36,14 @@ export default class CloudflareDDNSSync {
     return this.cloudflareClient.getRecordDataForDomains(domains);
   }
 
+  public getRecordDataForRecord(record: Record): Promise<RecordData> {
+    return this.cloudflareClient.getRecordDataForRecord(record);
+  }
+
+  public getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
+    return this.cloudflareClient.getRecordDataForRecords(records);
+  }
+
   public async removeRecord(recordName: string): Promise<void> {
     const zoneId: string = await this.cloudflareClient.getZoneIdByRecordName(recordName);
     const recordId: string = await this.cloudflareClient.getRecordIdByName(recordName);
@@ -51,19 +51,16 @@ export default class CloudflareDDNSSync {
     this.cloudflareClient.removeRecord(zoneId, recordId);
   }
 
-  public async syncRecord(record: Record, ip?: string): SingleSyncResult {
-
-    const ipToUse: string = ip ? ip : await ipUtils.getIp();
-
-    return this.cloudflareClient.syncRecord(record, ipToUse);
+  public stopSyncOnIpChange(changeListenerId: string): void {
+    ipUtils.removeIpChangeListener(changeListenerId);
   }
 
-  public async syncRecords(records: Array<Record>, ip?: string): MultiSyncResult {
-    const currentIp: string = await ipUtils.getIp();
+  public syncByCronTime(cronExpression: string, records: Array<Record>, callback: MultiSyncCallback, ip?: string): ScheduledTask {
+    return Cron.createCronJob(cronExpression, async() => {
+      const result: Array<RecordData> = await this.syncRecords(records, ip);
 
-    const ipToUse: string = ip ? ip : currentIp;
-
-    return this.cloudflareClient.syncRecords(records, ipToUse);
+      callback(result);
+    });
   }
 
   public async syncOnIpChange(records: Array<Record>, callback: MultiSyncCallback): Promise<string> {
@@ -81,16 +78,19 @@ export default class CloudflareDDNSSync {
     return changeListenerId;
   }
 
-  public stopSyncOnIpChange(changeListenerId: string): void {
-    ipUtils.removeIpChangeListener(changeListenerId);
+  public async syncRecord(record: Record, ip?: string): SingleSyncResult {
+
+    const ipToUse: string = ip ? ip : await ipUtils.getIp();
+
+    return this.cloudflareClient.syncRecord(record, ipToUse);
   }
 
-  public syncByCronTime(cronExpression: string, records: Array<Record>, callback: MultiSyncCallback, ip?: string): ScheduledTask {
-    return Cron.createCronJob(cronExpression, async() => {
-      const result: Array<RecordData> = await this.syncRecords(records, ip);
+  public async syncRecords(records: Array<Record>, ip?: string): MultiSyncResult {
+    const currentIp: string = await ipUtils.getIp();
 
-      callback(result);
-    });
+    const ipToUse: string = ip ? ip : currentIp;
+
+    return this.cloudflareClient.syncRecords(records, ipToUse);
   }
 }
 
