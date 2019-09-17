@@ -41,7 +41,7 @@ export default class TestService {
 
   private static getRandomSubdomain(): string {
     let result: string = '';
-    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-';
+    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength: number = characters.length;
 
     for (let index: number = 0; index < 5; index++) {
