@@ -1,7 +1,7 @@
 {
   "name": "cloudflare-ddns-sync",
   "version": "1.5.4",
-  "description": "A simple package to update DNS records on Cloudflare whenever you want",
+  "description": "A simple module to update DNS records on Cloudflare whenever you want",
   "main": "index.js",
   "author": "Steffen Knaup <SteffenKnaup@hotmail.de>",
   "license": "ISC",
