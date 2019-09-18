@@ -129,6 +129,20 @@ For a more detailed view, have a look at the [Documentation](https://docu.cddnss
 - **Enter your password** and **fill the captcha**
 - **Copy the API Key**
 
+## Tests
+
+In order to run the tests there are two ways to do so
+
+### Use `test-data.json`
+
+- Open the `test-data.json` which can be found under `src/tests/test-service/`
+- Configure the email, cloudflare api key and the domain
+- Run `npm test`
+
+### Use `npm test` Only
+
+- Run `npm test -- --email="your@email.com" --key="your_cloudflare_api_key" --domain="yourdomain.com"`
+
 ## Changelog
 
 ### v1.5.4
