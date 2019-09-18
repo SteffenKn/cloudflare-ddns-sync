@@ -18,9 +18,7 @@ describe('Cloudflare Client', () => {
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(recordsToCleanUp);
 
     for (const record of recordData) {
-      const zoneId: string = record.zone_id;
-
-      await cloudflareClient.removeRecord(zoneId, record.id);
+      await cloudflareClient.removeRecordByName(record.name);
 
       const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record) => {
         return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
@@ -81,11 +79,9 @@ describe('Cloudflare Client', () => {
     const record: Record = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
     await cloudflareClient.syncRecord(record);
-    const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
-    const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
     // Prepare END
 
-    await cloudflareClient.removeRecord(zoneId, recordId);
+    await cloudflareClient.removeRecordByName(record.name);
   });
 
   it('should get record data for records', async() => {

@@ -66,7 +66,10 @@ export default class CloudflareClient {
     return results;
   }
 
-  public async removeRecord(zoneId: string, recordId: string): Promise<void> {
+  public async removeRecordByName(recordName: string): Promise<void> {
+    const zoneId: string = await this.getZoneIdByRecordName(recordName);
+    const recordId: string = await this.getRecordIdByName(recordName);
+
     return this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
 

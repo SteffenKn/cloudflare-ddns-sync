@@ -39,10 +39,7 @@ export default class CloudflareDDNSSync {
   }
 
   public async removeRecord(recordName: string): Promise<void> {
-    const zoneId: string = await this.cloudflareClient.getZoneIdByRecordName(recordName);
-    const recordId: string = await this.cloudflareClient.getRecordIdByName(recordName);
-
-    return this.cloudflareClient.removeRecord(zoneId, recordId);
+    return this.cloudflareClient.removeRecordByName(recordName);
   }
 
   public stopSyncOnIpChange(changeListenerId: string): void {
