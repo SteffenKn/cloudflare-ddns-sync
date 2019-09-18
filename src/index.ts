@@ -20,10 +20,6 @@ export default class CloudflareDDNSSync {
     this.cloudflareClient = new CloudflareClient(email, authKey);
   }
 
-  public async createRecord(record: Record): Promise<RecordData> {
-    return this.cloudflareClient.syncRecord(record);
-  }
-
   public getIp(): Promise<string> {
     return ipUtils.getIp();
   }
