@@ -3,8 +3,5 @@
     "email"  : "your@email.com",
     "key"  : "your_cloudflare_api_key"
   },
-  "domain": "your-domain.com",
-  "records" : [
-    "subdomain.your-domain.com"
-  ]
+  "domain" : "yourdomain.com"
 }

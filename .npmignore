@@ -1,2 +1,8 @@
-node_modules/
+.github/
+src/
+dist/tests
+
 package-lock.json
+tsconfig.json
+tslint.json
+Jenkinsfile
