@@ -61,6 +61,7 @@ export default class CloudflareDDNSSync {
       callback(result);
     });
 
+    // Sync records to make sure the current ip is already set.
     const currentIp: string = await ipUtils.getIp();
     this.syncRecords(records, currentIp).then((syncedRecords: Array<RecordData>): void => {
       callback(syncedRecords);
