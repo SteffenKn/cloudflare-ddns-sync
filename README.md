@@ -90,16 +90,16 @@ cddnss.syncRecords(records).then((result: Array<RecordData>) => {
 ## Methods
 
 - getIp(): Promise\<string\>
-- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://docu.cddnss.pw/types/RecordData)\>\>
-- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://docu.cddnss.pw/types/RecordDataList)\>
-- getRecordDataForRecord(record: [Record](https://docu.cddnss.pw/types/Record)): Promise\<[RecordData](https://docu.cddnss.pw/types/RecordData)\>
-- getRecordDataForRecords(records: Array\<[Record](https://docu.cddnss.pw/types/Record)\>): Promise\<Array\<[RecordData](https://docu.cddnss.pw/types/RecordData)\>\>
+- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://docu.cddnss.pw/types/recorddata)\>\>
+- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://docu.cddnss.pw/types/domainrecordlist)\>
+- getRecordDataForRecord(record: [Record](https://docu.cddnss.pw/types/record)): Promise\<[RecordData](https://docu.cddnss.pw/types/recorddata)\>
+- getRecordDataForRecords(records: Array\<[Record](https://docu.cddnss.pw/types/record)\>): Promise\<Array\<[RecordData](https://docu.cddnss.pw/types/recorddata)\>\>
 - removeRecord(recordName: string): Promise\<void\>
 - stopSyncOnIpChange(changeListenerId: string): void
-- syncByCronTime(cronExpression: string, records: Array\<[Record](https://docu.cddnss.pw/types/RecordData)\>, callback: [MultiSyncCallback](https://docu.cddnss.pw/types/MultiSyncCallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
-- syncOnIpChange(records: Array\<[Record](https://docu.cddnss.pw/types/Record)\>, callback: MultiSyncCallback): Promise\<string\>
-- syncRecord(record: [Record](https://docu.cddnss.pw/types/Record), ip?: string): [SingleSyncResult](https://docu.cddnss.pw/types/SingleSyncResult)
-- syncRecords(records: Array\<[Record](https://docu.cddnss.pw/types/Record)\>, ip?: string): [MultiSyncResult](https://docu.cddnss.pw/types/MultiSyncResult)
+- syncByCronTime(cronExpression: string, records: Array\<[Record](https://docu.cddnss.pw/types/recorddata)\>, callback: [MultiSyncCallback](https://docu.cddnss.pw/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
+- syncOnIpChange(records: Array\<[Record](https://docu.cddnss.pw/types/record)\>, callback: multisynccallback): Promise\<string\>
+- syncRecord(record: [Record](https://docu.cddnss.pw/types/record), ip?: string): Promise\<[RecordData](https://docu.cddnss.pw/types/recorddata)\>
+- syncRecords(records: Array\<[Record](https://docu.cddnss.pw/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://docu.cddnss.pw/types/recorddata)\>\>
 
 For a more detailed view, have a look at the [Documentation](https://docu.cddnss.pw/)
 
