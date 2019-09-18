@@ -1,12 +1,13 @@
 {
   "name": "cloudflare-ddns-sync",
-  "version": "1.5.4",
+  "version": "2.0.0",
   "description": "A simple module to update DNS records on Cloudflare whenever you want",
   "main": "dist/index.js",
   "author": "Steffen Knaup <SteffenKnaup@hotmail.de>",
   "license": "ISC",
   "keywords": [
     "cloudflare",
+    "cddnss",
     "ddns",
     "dns",
     "dyndns",
@@ -23,14 +24,14 @@
     "test-jenkins": "JUNIT_REPORT_PATH=report.xml npm test -- --reporter mocha-jenkins-reporter"
   },
   "dependencies": {
-    "cloudflare": "2.6.0",
+    "cloudflare": "2.7.0",
     "node-cron": "2.0.3",
     "parse-domain": "2.3.2",
     "public-ip": "3.2.0",
     "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "4.2.2",
+    "@types/chai": "4.2.3",
     "@types/minimist": "1.2.0",
     "@types/mocha": "5.2.7",
     "@types/node": "10.14.17",
