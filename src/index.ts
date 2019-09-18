@@ -7,10 +7,8 @@ import ipUtils from './lib/ip-utils';
 import {
   DomainRecordList,
   MultiSyncCallback,
-  MultiSyncResult,
   Record,
   RecordData,
-  SingleSyncResult,
 } from './contracts/index';
 
 export default class CloudflareDDNSSync {
@@ -74,14 +72,14 @@ export default class CloudflareDDNSSync {
     return changeListenerId;
   }
 
-  public async syncRecord(record: Record, ip?: string): SingleSyncResult {
+  public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
 
     const ipToUse: string = ip ? ip : await ipUtils.getIp();
 
     return this.cloudflareClient.syncRecord(record, ipToUse);
   }
 
-  public async syncRecords(records: Array<Record>, ip?: string): MultiSyncResult {
+  public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     const currentIp: string = await ipUtils.getIp();
 
     const ipToUse: string = ip ? ip : currentIp;
