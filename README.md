@@ -87,6 +87,22 @@ cddnss.syncRecords(records).then((result: Array<RecordData>) => {
 })
 ```
 
+### Cron Expression Syntax
+
+Cron expressions have the following syntax:
+
+```
+* * * * * *
+┬ ┬ ┬ ┬ ┬ ┬
+│ │ │ │ │ │
+│ │ │ │ │ └──── weekday (0-7, sunday is 0 or 7)
+│ │ │ │ └────── month (1-12)
+│ │ │ └──────── day (1-31)
+│ │ └────────── hour (0-23)
+│ └──────────── minute (0-59)
+└────────────── second (0-59) [optional]
+```
+
 ## Methods
 
 - getIp(): Promise\<string\>
