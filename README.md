@@ -70,7 +70,7 @@ const cddnss: Cddnss = new Cddnss('your@email.com', '<your-cloudflare-api-key>')
 
 const records: Array<Record> = [
   {
-    name: 'test-1.cddnss.pw',
+    name: 'test-1.yourdomain.com',
     type: 'A',          // optional
     proxied: true,      // optional
     ttl: 1,             // optional
@@ -78,13 +78,13 @@ const records: Array<Record> = [
     content: '1.2.3.4', // optional
   },
   {
-    name: "test-2.cddnss.pw"
+    name: "test-2.yourdomain.com"
   },
 ];
 
 cddnss.syncRecords(records).then((result: Array<RecordData>) => {
   console.log(result);
-})
+});
 ```
 
 ### Cron Expression Syntax
