@@ -94,4 +94,4 @@ export default class CloudflareDDNSSync {
   }
 }
 
-module.exports = CloudflareDDNSSync;
+export * from './contracts/index';
