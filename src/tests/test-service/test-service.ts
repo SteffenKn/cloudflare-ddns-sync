@@ -11,7 +11,6 @@ export default class TestService {
     const email: string = args.email ? args.email : testConfig.auth.email;
     const key: string = args.key ? args.key : testConfig.auth.key;
     const domain: string = args.domain ? args.domain : testConfig.domain;
-    // const records: Array<IRecord> = this.getRecords(args.domain ? args.domain : testConfig.domain);
 
     const testData: TestData = {
       auth: {
