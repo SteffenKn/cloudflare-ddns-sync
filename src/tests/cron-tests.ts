@@ -67,6 +67,7 @@ describe('Cron Handler', () => {
 
         done(`Error: "*/2 * * * * a" was scheduled.`);
       } catch (error) {
+        expect(error.message).to.contain('is not a valid cron expression.');
         done();
       }
     });
