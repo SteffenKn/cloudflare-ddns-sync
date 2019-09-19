@@ -15,4 +15,49 @@ describe('IPUtils', () => {
       expect(ip).to.match(ipRegex);
     });
   });
+
+  describe('Add IP Change Listener', () => {
+    const changeListenersToRemove: Array<string> = [];
+    after(() => {
+      for (const changeListener of changeListenersToRemove) {
+        IpUtils.removeIpChangeListener(changeListener);
+      }
+    });
+
+    it('should be able to create change listener', async() => {
+      const changeListenerId: string = await IpUtils.addIpChangeListener(() => {
+        // Do nothing
+      });
+
+      expect(changeListenerId).to.be.string;
+
+      changeListenersToRemove.push(changeListenerId);
+    });
+
+    it('should get the current ip in change listener', async() => {
+      // Prepare
+      const currentIp: string = await IpUtils.getIp();
+      // Prepare END
+
+      const changeListenerId: string = await IpUtils.addIpChangeListener((ip: string) => {
+        expect(ip).to.be.string;
+        expect(ip).to.match(ipRegex);
+        expect(ip).to.equal(currentIp);
+      });
+
+      changeListenersToRemove.push(changeListenerId);
+    });
+
+    it('should be able to remove a change listener', async() => {
+      // Prepare
+      const changeListenerId: string = await IpUtils.addIpChangeListener(() => {
+        // Do nothing
+      });
+      // Prepare END
+
+      IpUtils.removeIpChangeListener(changeListenerId);
+
+      expect(changeListenerId).to.be.string;
+    });
+  });
 });
