@@ -4,6 +4,7 @@ import testConfig from './test-data.json';
 
 import {Record} from '../../contracts/index.js';
 
+/* c8 ignore next 100 */
 export default class TestService {
   public static getTestData(): TestData {
     const args: ParsedArgs = minimist(process.argv.slice(2));

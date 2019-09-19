@@ -20,8 +20,10 @@
   "scripts": {
     "build": "tsc",
     "lint": "tslint --project .",
-    "test": "mocha dist/tests/*.js --timeout 15000 --exit",
-    "test-jenkins": "JUNIT_REPORT_PATH=report.xml npm test -- --reporter mocha-jenkins-reporter"
+    "test": "c8 mocha dist/tests/*.js --timeout 15000 --exit",
+    "test-jenkins": "JUNIT_REPORT_PATH=report.xml npm test -- --reporter mocha-jenkins-reporter",
+    "test-coverage-check": "c8 check-coverage --lines 70 --functions 70 --branches 70",
+    "test-coverage-report": "c8 report"
   },
   "dependencies": {
     "cloudflare": "2.7.0",
@@ -36,6 +38,7 @@
     "@types/mocha": "5.2.7",
     "@types/node": "10.14.17",
     "@types/node-cron": "2.0.2",
+    "c8": "5.0.4",
     "chai": "4.2.0",
     "minimist": "1.2.0",
     "mocha": "6.2.0",

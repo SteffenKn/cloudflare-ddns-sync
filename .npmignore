@@ -1,6 +1,7 @@
 .github/
 src/
 dist/tests
+coverage/
 
 package-lock.json
 tsconfig.json
