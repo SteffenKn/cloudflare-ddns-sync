@@ -28,14 +28,6 @@ describe('Cloudflare Client', () => {
     }
   });
 
-  it('should get the zone id of a domain', async() => {
-    const record: Record = TestService.getTestData().records[0];
-    const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
-
-    expect(zoneId).to.be.string;
-    expect(zoneId.length).to.be.greaterThan(0);
-  });
-
   it('should be able to create a record', async() => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
@@ -51,23 +43,6 @@ describe('Cloudflare Client', () => {
     expect(createdRecord.name.length).to.be.greaterThan(0);
     expect(createdRecord.type).to.be.string;
     expect(createdRecord.type).to.equal(expectedRecordType);
-
-    // Cleanup
-    recordsToCleanUp.push(record);
-    // Cleanup END
-  });
-
-  it('should be able to get a record id', async() => {
-    // Prepare
-    const record: Record = TestService.getTestData().records[0];
-    record.content = '1.2.3.4';
-    await cloudflareClient.syncRecord(record);
-    // Pepare END
-
-    const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
-
-    expect(recordId).to.be.string;
-    expect(recordId.length).to.be.greaterThan(0);
 
     // Cleanup
     recordsToCleanUp.push(record);

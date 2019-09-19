@@ -73,18 +73,6 @@ export default class CloudflareClient {
     return this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
 
-  public async getZoneIdByRecordName(recordName: string): Promise<string> {
-    const domain: string = this.getDomainByRecordName(recordName);
-
-    return this.getZoneIdByDomain(domain);
-  }
-
-  public async getRecordIdByName(recordName: string): Promise<string> {
-    const record: RecordData = await this.getRecordByName(recordName);
-
-    return record.id;
-  }
-
   public async getRecordDataForRecord(record: Record): Promise<RecordData> {
     const domain: string = this.getDomainByRecordName(record.name);
 
@@ -205,6 +193,18 @@ export default class CloudflareClient {
     for (const zone of zones) {
       this.zoneMap.set(zone.name, zone.id);
     }
+  }
+
+  private async getRecordIdByName(recordName: string): Promise<string> {
+    const record: RecordData = await this.getRecordByName(recordName);
+
+    return record.id;
+  }
+
+  private async getZoneIdByRecordName(recordName: string): Promise<string> {
+    const domain: string = this.getDomainByRecordName(recordName);
+
+    return this.getZoneIdByDomain(domain);
   }
 
   private async getRecordByName(recordName: string): Promise<RecordData> {
