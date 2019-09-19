@@ -38,3 +38,8 @@ jobs:
         CLOUDFLARE_KEY: ${{ secrets.TESTS__CLOUDFLARE_KEY }}
         CLOUDFLARE_DOMAIN: ${{ secrets.TESTS__CLOUDFLARE_DOMAIN }}
       run: npm test -- --email=$CLOUDFLARE_EMAIL --key=$CLOUDFLARE_KEY --domain=$CLOUDFLARE_DOMAIN
+
+    - name: npm test coverage
+      run: |
+        npm run test-coverage-report
+        npm run test-coverage-check
