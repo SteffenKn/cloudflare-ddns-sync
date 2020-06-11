@@ -44,7 +44,7 @@ export default class CloudflareClient {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
     const ipToUse: string = ip ? ip : await IPUtils.getIp();
 
-    const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record) => {
+    const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record): Promise<RecordData> => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
       const recordId: string = recordIds.get(record.name.toLowerCase());
 
@@ -78,7 +78,7 @@ export default class CloudflareClient {
 
     const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-    const recordData: RecordData = recordDataForDomain.find((singleRecordData: RecordData) => {
+    const recordData: RecordData = recordDataForDomain.find((singleRecordData: RecordData): boolean => {
         return record.name.toLowerCase() === singleRecordData.name.toLowerCase();
       });
 
@@ -88,11 +88,11 @@ export default class CloudflareClient {
   public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
     const domains: Array<string> = this.getDomainsFromRecords(records);
 
-    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
+    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string): Promise<Array<RecordData>> => {
       const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-      const recordDataForDomainFilteredByRecords: Array<RecordData> = recordDataForDomain.filter((singleRecordData: RecordData) => {
-        return records.some((record: Record) => {
+      const recordDataForDomainFilteredByRecords: Array<RecordData> = recordDataForDomain.filter((singleRecordData: RecordData): boolean => {
+        return records.some((record: Record): boolean => {
           return record.name.toLowerCase() === singleRecordData.name.toLowerCase();
         });
       });
@@ -107,7 +107,7 @@ export default class CloudflareClient {
   }
 
   public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
-    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string) => {
+    const recordDataPromises: Array<Promise<Array<RecordData>>> = domains.map(async(domain: string): Promise<Array<RecordData>> => {
       return this.getRecordDataForDomain(domain);
     });
 
@@ -212,7 +212,7 @@ export default class CloudflareClient {
 
     const records: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-    const record: RecordData = records.find((currentRecord: RecordData) => {
+    const record: RecordData = records.find((currentRecord: RecordData): boolean => {
       return currentRecord.name.toLowerCase() === recordName.toLowerCase();
     });
 
@@ -278,9 +278,9 @@ export default class CloudflareClient {
   }
 
   private getDomainsFromRecords(records: Array<Record>): Array<string> {
-    const domains: Array<string> = records.map((record: Record) => {
+    const domains: Array<string> = records.map((record: Record): string => {
       return this.getDomainByRecordName(record.name);
-    }).filter((domain: string, index: number, domainList: Array<string>) => {
+    }).filter((domain: string, index: number, domainList: Array<string>): boolean => {
       return domainList.indexOf(domain.toLowerCase()) === index;
     });
 
