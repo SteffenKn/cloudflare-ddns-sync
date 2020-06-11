@@ -145,6 +145,10 @@ In order to run the tests there are two ways to do so
 
 ## Changelog
 
+### v2.0.1
+
+- ⬆️ Update Dependencies
+
 ### v2.0.0
 
 - ♻️ **Rewrite Cloudflare-DDNS-Sync in Typescript**
