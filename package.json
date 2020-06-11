@@ -28,22 +28,22 @@
   "dependencies": {
     "cloudflare": "2.7.0",
     "node-cron": "2.0.3",
-    "parse-domain": "2.3.2",
-    "public-ip": "3.2.0",
+    "parse-domain": "3.0.2",
+    "public-ip": "4.0.1",
     "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "4.2.3",
+    "@types/chai": "4.2.11",
     "@types/minimist": "1.2.0",
-    "@types/mocha": "5.2.7",
+    "@types/mocha": "7.0.2",
     "@types/node": "10.14.17",
-    "@types/node-cron": "2.0.2",
-    "c8": "5.0.4",
+    "@types/node-cron": "2.0.3",
+    "c8": "7.2.0",
     "chai": "4.2.0",
     "minimist": "1.2.5",
-    "mocha": "6.2.0",
-    "mocha-jenkins-reporter": "0.4.2",
-    "tslint": "5.20.0",
-    "typescript": "3.6.3"
+    "mocha": "8.0.1",
+    "mocha-jenkins-reporter": "0.4.3",
+    "tslint": "6.1.2",
+    "typescript": "3.9.5"
   }
 }
