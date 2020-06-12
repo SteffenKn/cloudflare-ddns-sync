@@ -20,7 +20,7 @@ export default class IPUtils {
 
     let previousIp: string = await this.getIp();
 
-    const intervalId: NodeJS.Timeout = setInterval(async() => {
+    const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
       const currentIp: string = await this.getIp();
 
       const ipMustBeUpdated: boolean = currentIp !== previousIp;
