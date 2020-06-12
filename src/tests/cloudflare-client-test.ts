@@ -204,7 +204,7 @@ describe('Cloudflare Client', (): void => {
 
     expect(Object.keys(domainRecordList)).to.contain(domain);
 
-    const recordDataNames: Array<string> = domainRecordList[domain].map((recordDataEntry: RecordData): strirng => {
+    const recordDataNames: Array<string> = domainRecordList[domain].map((recordDataEntry: RecordData): string => {
       return recordDataEntry.name.toLowerCase();
     });
 

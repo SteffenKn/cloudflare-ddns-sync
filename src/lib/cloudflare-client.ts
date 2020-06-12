@@ -1,5 +1,5 @@
 import Cloudflare from 'cloudflare';
-import parseDomain from 'parse-domain';
+import {fromUrl, parseDomain, ParseResult, ParseResultType} from 'parse-domain';
 
 import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts';
 import IPUtils from './ip-utils';
@@ -146,7 +146,8 @@ export default class CloudflareClient {
         throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
       }
     } else if (copyOfRecord.type === 'CNAME') {
-      if (parseDomain(copyOfRecord.content) === null) {
+      const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
+      if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
         throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
       }
     }
@@ -175,7 +176,8 @@ export default class CloudflareClient {
         throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
       }
     } else if (copyOfRecord.type === 'CNAME') {
-      if (parseDomain(copyOfRecord.content) === null) {
+      const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
+      if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
         throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
       }
     }
@@ -288,12 +290,18 @@ export default class CloudflareClient {
   }
 
   private getDomainByRecordName(recordName: string): string {
-    const parsedDomain: parseDomain.ParsedDomain = parseDomain(recordName);
+    const parsedDomain: ParseResult = parseDomain(fromUrl(recordName));
 
-    if (parsedDomain === null) {
+    if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
       throw new Error(`Could not parse domain. '${JSON.stringify(recordName)}' is not a valid record name.`);
     }
 
-    return `${parsedDomain.domain}.${parsedDomain.tld}`.toLowerCase();
+    let domain: string = '';
+    domain += parsedDomain.domain;
+    for (const tld of parsedDomain.topLevelDomains) {
+      domain += `.${tld}`;
+    }
+
+    return domain.toLowerCase();
   }
 }
