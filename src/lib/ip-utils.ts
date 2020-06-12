@@ -9,6 +9,7 @@ export default class IPUtils {
   public static async getIp(): Promise<string> {
     try {
       return await publicIp.v4();
+      /* c8 ignore next */
     } catch (error) {
       return wimIp();
     }
@@ -19,10 +20,11 @@ export default class IPUtils {
 
     let previousIp: string = await this.getIp();
 
-    const intervalId: NodeJS.Timeout = setInterval(async() => {
+    const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
       const currentIp: string = await this.getIp();
 
       const ipMustBeUpdated: boolean = currentIp !== previousIp;
+      /* c8 ignore next */
       if (ipMustBeUpdated) {
         previousIp = currentIp;
 

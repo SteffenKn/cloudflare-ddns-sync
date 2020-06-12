@@ -47,7 +47,7 @@ export default class CloudflareDDNSSync {
   }
 
   public syncByCronTime(cronExpression: string, records: Array<Record>, callback: MultiSyncCallback, ip?: string): ScheduledTask {
-    return Cron.createCronJob(cronExpression, async() => {
+    return Cron.createCronJob(cronExpression, async(): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);
@@ -55,7 +55,7 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncOnIpChange(records: Array<Record>, callback: MultiSyncCallback): Promise<string> {
-    const changeListenerId: string = await ipUtils.addIpChangeListener(async(ip: string) => {
+    const changeListenerId: string = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);

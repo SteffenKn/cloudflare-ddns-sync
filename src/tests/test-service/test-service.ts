@@ -4,6 +4,7 @@ import testConfig from './test-data.json';
 
 import {Record} from '../../contracts/index.js';
 
+/* c8 ignore next 100 */
 export default class TestService {
   public static getTestData(): TestData {
     const args: ParsedArgs = minimist(process.argv.slice(2));
@@ -11,7 +12,6 @@ export default class TestService {
     const email: string = args.email ? args.email : testConfig.auth.email;
     const key: string = args.key ? args.key : testConfig.auth.key;
     const domain: string = args.domain ? args.domain : testConfig.domain;
-    // const records: Array<IRecord> = this.getRecords(args.domain ? args.domain : testConfig.domain);
 
     const testData: TestData = {
       auth: {

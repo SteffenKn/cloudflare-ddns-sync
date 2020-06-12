@@ -13,14 +13,14 @@ const cloudflareClient: CloudflareClient = new CloudflareClient(TestService.getT
 
 const recordsToCleanUp: Array<Record> = [];
 
-describe('Cloudflare Client', () => {
-  afterEach(async() => {
+describe('Cloudflare Client', (): void => {
+  afterEach(async(): Promise<void> => {
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(recordsToCleanUp);
 
     for (const record of recordData) {
       await cloudflareClient.removeRecordByName(record.name);
 
-      const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record) => {
+      const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => {
         return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
       });
 
@@ -28,15 +28,7 @@ describe('Cloudflare Client', () => {
     }
   });
 
-  it('should get the zone id of a domain', async() => {
-    const record: Record = TestService.getTestData().records[0];
-    const zoneId: string = await cloudflareClient.getZoneIdByRecordName(record.name);
-
-    expect(zoneId).to.be.string;
-    expect(zoneId.length).to.be.greaterThan(0);
-  });
-
-  it('should be able to create a record', async() => {
+  it('should be able to create a record', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
@@ -57,24 +49,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should be able to get a record id', async() => {
-    // Prepare
-    const record: Record = TestService.getTestData().records[0];
-    record.content = '1.2.3.4';
-    await cloudflareClient.syncRecord(record);
-    // Pepare END
-
-    const recordId: string = await cloudflareClient.getRecordIdByName(record.name);
-
-    expect(recordId).to.be.string;
-    expect(recordId.length).to.be.greaterThan(0);
-
-    // Cleanup
-    recordsToCleanUp.push(record);
-    // Cleanup END
-  });
-
-  it('should be able to remove a record', async() => {
+  it('should be able to remove a record', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     record.content = '1.2.3.4';
@@ -84,7 +59,7 @@ describe('Cloudflare Client', () => {
     await cloudflareClient.removeRecordByName(record.name);
   });
 
-  it('should get record data for records', async() => {
+  it('should get record data for records', async(): Promise<void> => {
     // Prepare
     const records: Array<Record> = TestService.getTestData().records;
     await cloudflareClient.syncRecords(records, '1.2.3.4');
@@ -92,7 +67,7 @@ describe('Cloudflare Client', () => {
 
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(records);
 
-    const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData) => {
+    const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData): string => {
       return recordDataEntry.name.toLowerCase();
     });
 
@@ -107,7 +82,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should sync existing record', async() => {
+  it('should sync existing record', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     await cloudflareClient.syncRecord(record);
@@ -122,14 +97,14 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should sync multiple records', async() => {
+  it('should sync multiple records', async(): Promise<void> => {
     // Prepare
     const records: Array<Record> = TestService.getTestData().records;
     // Prepare END
 
     const recordData: Array<RecordData> = await cloudflareClient.syncRecords(records);
 
-    const recordDataNames: Array<string> = recordData.map((singleRecordData: RecordData) => {
+    const recordDataNames: Array<string> = recordData.map((singleRecordData: RecordData): string => {
       return singleRecordData.name.toLowerCase();
     });
 
@@ -142,7 +117,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should sync with ip via parameter', async() => {
+  it('should sync with ip via parameter', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     const randomIp: string = getRandomIp();
@@ -158,7 +133,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should sync with ip via record.content', async() => {
+  it('should sync with ip via record.content', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     const randomIp: string = getRandomIp();
@@ -175,7 +150,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it('should sync with external ip', async() => {
+  it('should sync with external ip', async(): Promise<void> => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     record.content = undefined;
@@ -192,7 +167,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it ('should get record data for domain', async() => {
+  it ('should get record data for domain', async(): Promise<void> => {
     // Prepare
     const testData: TestData = TestService.getTestData();
     const domain: string = testData.domain;
@@ -202,7 +177,7 @@ describe('Cloudflare Client', () => {
 
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForDomain(domain);
 
-    const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData) => {
+    const recordDataNames: Array<string> = recordData.map((recordDataEntry: RecordData): string => {
       return recordDataEntry.name.toLowerCase();
     });
 
@@ -217,7 +192,7 @@ describe('Cloudflare Client', () => {
     // Cleanup END
   });
 
-  it ('should get record data for multiple domains', async() => {
+  it ('should get record data for multiple domains', async(): Promise<void> => {
     // Prepare
     const testData: TestData = TestService.getTestData();
     const domain: string = testData.domain;
@@ -229,7 +204,7 @@ describe('Cloudflare Client', () => {
 
     expect(Object.keys(domainRecordList)).to.contain(domain);
 
-    const recordDataNames: Array<string> = domainRecordList[domain].map((recordDataEntry: RecordData) => {
+    const recordDataNames: Array<string> = domainRecordList[domain].map((recordDataEntry: RecordData): string => {
       return recordDataEntry.name.toLowerCase();
     });
 

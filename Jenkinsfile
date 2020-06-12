@@ -89,6 +89,16 @@ pipeline {
       }
     }
 
+    stage('Evaluate Test Coverage') {
+      steps {
+        sh('node --version')
+
+        sh ('npm run test-coverage-report')
+
+        sh ('npm run test-coverage-check')
+      }
+    }
+
     stage('Publish') {
       when {
         expression {

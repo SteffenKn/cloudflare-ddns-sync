@@ -1,11 +1,6 @@
-name: Test-Workflow
+name: push-workflow
 
-on:
-  push:
-    branches:
-      - develop
-      - feature/*
-      - release/*
+on: [push]
 
 jobs:
   build:
@@ -23,6 +18,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: versions
+      run: |
+        node -v
+        npm -v
+
     - name: npm install
       run: npm install
 
@@ -32,9 +33,56 @@ jobs:
     - name: npm build
       run: npm run build
 
+    - name: Stash dist
+      uses: actions/upload-artifact@master
+      with:
+        name: dist
+        path: dist/
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Unstash dist
+      uses: actions/download-artifact@master
+      with:
+        name: dist
+        path: "dist/"
+
+    - name: npm install
+      run: npm install
+
     - name: npm test
       env:
         CLOUDFLARE_EMAIL: ${{ secrets.TESTS__CLOUDFLARE_EMAIL }}
         CLOUDFLARE_KEY: ${{ secrets.TESTS__CLOUDFLARE_KEY }}
         CLOUDFLARE_DOMAIN: ${{ secrets.TESTS__CLOUDFLARE_DOMAIN }}
       run: npm test -- --email=$CLOUDFLARE_EMAIL --key=$CLOUDFLARE_KEY --domain=$CLOUDFLARE_DOMAIN
+
+    - name: npm test coverage
+      run: |
+        npm run test-coverage-report
+        npm run test-coverage-check
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
