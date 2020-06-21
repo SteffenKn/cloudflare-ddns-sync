@@ -145,6 +145,10 @@ In order to run the tests there are two ways to do so
 
 ## Changelog
 
+### v2.0.2
+
+- 🐛 **Fix Publishing**
+
 ### v2.0.1
 
 - ⬆️ Update Dependencies
