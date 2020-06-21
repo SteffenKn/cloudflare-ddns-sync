@@ -95,6 +95,7 @@ jobs:
     - name: Install
       run: npm install
 
-    - run: Publish on NPM
+    - name: Publish on NPM
+      run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
