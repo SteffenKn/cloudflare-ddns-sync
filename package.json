@@ -42,7 +42,6 @@
     "chai": "4.2.0",
     "minimist": "1.2.5",
     "mocha": "8.0.1",
-    "mocha-jenkins-reporter": "0.4.3",
     "tslint": "6.1.2",
     "typescript": "3.9.5"
   }
