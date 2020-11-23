@@ -145,6 +145,10 @@ In order to run the tests there are two ways to do so
 
 ## Changelog
 
+### v2.0.3
+
+- 📝 Update links in README
+
 ### v2.0.2
 
 - 🐛 **Fix Publishing**
