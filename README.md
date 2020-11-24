@@ -106,11 +106,12 @@ Cron expressions have the following syntax:
 ## Methods
 
 - getIp(): Promise\<string\>
+- getIpv6(): Promise\<string\>
 - getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
 - getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://docu-cddnss.knaup.dev/types/domainrecordlist)\>
 - getRecordDataForRecord(record: [Record](https://docu-cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>
 - getRecordDataForRecords(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
-- removeRecord(recordName: string): Promise\<void\>
+- removeRecord(recordName: string, recordType?: string): Promise\<void\>
 - stopSyncOnIpChange(changeListenerId: string): void
 - syncByCronTime(cronExpression: string, records: Array\<[Record](https://docu-cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://docu-cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
 - syncOnIpChange(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
