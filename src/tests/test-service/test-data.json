@@ -1,7 +1,7 @@
 {
-  "auth" : {
-    "email"  : "your@email.com",
-    "key"  : "your_cloudflare_api_key"
+  "auth": {
+    "email": "your@email.com",
+    "key": "your_cloudflare_api_key"
   },
-  "domain" : "yourdomain.com"
+  "domain": "yourdomain.com"
 }
