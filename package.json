@@ -13,7 +13,7 @@
     "dyndns",
     "sync"
   ],
-  "homepage": "https://docu.cddnss.knaup.dev/",
+  "homepage": "https://cddnss.knaup.dev/",
   "repository": {
     "type": "git",
     "url": "git://github.com:Steffen982/cloudflare-ddns-sync.git"
