@@ -12,7 +12,7 @@ import {
 } from './contracts/index';
 
 export default class CloudflareDDNSSync {
-  public cloudflareClient: CloudflareClient;
+  private cloudflareClient: CloudflareClient;
 
   constructor(email: string, authKey: string) {
     this.cloudflareClient = new CloudflareClient(email, authKey);
