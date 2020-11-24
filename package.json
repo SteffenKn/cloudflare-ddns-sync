@@ -23,7 +23,7 @@
     "lint": "tslint --project .",
     "test": "c8 mocha dist/tests/*.js --timeout 15000 --exit",
     "test:coverage": "npm run test:coverage-check && npm run test:coverage-report",
-    "test:coverage-check": "c8 check-coverage --lines 70 --functions 70 --branches 70",
+    "test:coverage-check": "c8 check-coverage --lines 65 --functions 65 --branches 65",
     "test:coverage-report": "c8 report"
   },
   "dependencies": {
