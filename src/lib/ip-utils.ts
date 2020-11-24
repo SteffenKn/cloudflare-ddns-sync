@@ -1,27 +1,36 @@
 import publicIp from 'public-ip';
-import {v4 as wimIp} from 'what-is-my-ip-address';
+import * as wimIp from 'what-is-my-ip-address';
 
 export default class IPUtils {
   private static readonly ipPollingDelay: number = 10 * 1000;
 
   private static ipChangeEventListeners: Map<string, NodeJS.Timeout> = new Map();
 
-  public static async getIp(): Promise<string> {
+  public static async getIpv4(): Promise<string> {
     try {
       return await publicIp.v4();
       /* c8 ignore next */
     } catch (error) {
-      return wimIp();
+      return wimIp.v4();
+    }
+  }
+
+  public static async getIpv6(): Promise<string> {
+    try {
+      return await publicIp.v6();
+      /* c8 ignore next */
+    } catch (error) {
+      return wimIp.v6();
     }
   }
 
   public static async addIpChangeListener(callback: Function): Promise<string> {
     const eventListenerId: string = this.getRandomId();
 
-    let previousIp: string = await this.getIp();
+    let previousIp: string = await this.getIpv4();
 
     const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
-      const currentIp: string = await this.getIp();
+      const currentIp: string = await this.getIpv4();
 
       const ipMustBeUpdated: boolean = currentIp !== previousIp;
       /* c8 ignore next */

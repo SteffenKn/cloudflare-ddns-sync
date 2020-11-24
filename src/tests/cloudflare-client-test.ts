@@ -154,7 +154,7 @@ describe('Cloudflare Client', (): void => {
     // Prepare
     const record: Record = TestService.getTestData().records[0];
     record.content = undefined;
-    const currentIp: string = await IPUtils.getIp();
+    const currentIp: string = await IPUtils.getIpv4();
     // Prepare END
 
     const recordData: RecordData = await cloudflareClient.syncRecord(record);

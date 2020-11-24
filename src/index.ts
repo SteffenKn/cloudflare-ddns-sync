@@ -19,7 +19,11 @@ export default class CloudflareDDNSSync {
   }
 
   public getIp(): Promise<string> {
-    return ipUtils.getIp();
+    return ipUtils.getIpv4();
+  }
+
+  public getIpv6(): Promise<string> {
+    return ipUtils.getIpv6();
   }
 
   public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
@@ -62,7 +66,7 @@ export default class CloudflareDDNSSync {
     });
 
     // Sync records to make sure the current ip is already set.
-    const currentIp: string = await ipUtils.getIp();
+    const currentIp: string = await ipUtils.getIpv4();
     this.syncRecords(records, currentIp).then((syncedRecords: Array<RecordData>): void => {
       callback(syncedRecords);
     });

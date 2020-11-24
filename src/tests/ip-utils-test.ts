@@ -9,7 +9,7 @@ const ipRegex: RegExp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3
 describe('IPUtils', (): void => {
   describe('Get IP', (): void => {
     it('should get a valid ip', async(): Promise<void> => {
-      const ip: string = await IpUtils.getIp();
+      const ip: string = await IpUtils.getIpv4();
 
       expect(ip).to.be.string;
       expect(ip).to.match(ipRegex);
@@ -36,7 +36,7 @@ describe('IPUtils', (): void => {
 
     it('should get the current ip in change listener', async(): Promise<void> => {
       // Prepare
-      const currentIp: string = await IpUtils.getIp();
+      const currentIp: string = await IpUtils.getIpv4();
       // Prepare END
 
       const changeListenerId: string = await IpUtils.addIpChangeListener((ip: string): void => {

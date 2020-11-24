@@ -23,7 +23,7 @@ export default class CloudflareClient {
 
   public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords([record]);
-    const ipToUse: string = ip ? ip : await IPUtils.getIp();
+    const ipToUse: string = ip ? ip : await IPUtils.getIpv4();
 
     const zoneId: string = await this.getZoneIdByRecordName(record.name);
     const recordId: string = recordIds.get(record.name.toLowerCase());
@@ -42,7 +42,7 @@ export default class CloudflareClient {
 
   public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
-    const ipToUse: string = ip ? ip : await IPUtils.getIp();
+    const ipToUse: string = ip ? ip : await IPUtils.getIpv4();
 
     const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record): Promise<RecordData> => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
