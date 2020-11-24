@@ -26,7 +26,7 @@ export default class CloudflareClient {
     const ipToUse: string = ip ? ip : await IPUtils.getIpv4();
 
     const zoneId: string = await this.getZoneIdByRecordName(record.name);
-    const recordId: string = recordIds.get(record.name.toLowerCase());
+    const recordId: string = recordIds.get(this.getRecordIdMapKey(record));
 
     const recordExists: boolean = recordId !== undefined;
     if (recordExists) {
@@ -46,7 +46,7 @@ export default class CloudflareClient {
 
     const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record): Promise<RecordData> => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
-      const recordId: string = recordIds.get(record.name.toLowerCase());
+      const recordId: string = recordIds.get(this.getRecordIdMapKey(record));
 
       const recordExists: boolean = recordId !== undefined;
       if (recordExists) {
@@ -235,10 +235,17 @@ export default class CloudflareClient {
     const recordData: Array<RecordData> = await this.getRecordDataForRecords(records);
 
     for (const record of recordData) {
-      recordIdMap.set(record.name.toLowerCase(), record.id);
+      recordIdMap.set(this.getRecordIdMapKey(record), record.id);
     }
 
     return recordIdMap;
+  }
+
+  private getRecordIdMapKey(record: Record): string {
+    const recordName: string = record.name.toLowerCase();
+    const recordType: string = record.type ? record.type.toLowerCase() : 'a';
+
+    return `"${recordName}"_"${recordType}"`;
   }
 
   private async getRecordsByDomain(domain: string): Promise<Array<RecordData>> {
