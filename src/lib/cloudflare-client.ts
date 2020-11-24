@@ -66,9 +66,11 @@ export default class CloudflareClient {
     return results;
   }
 
-  public async removeRecordByName(recordName: string): Promise<void> {
+  public async removeRecordByNameAndType(recordName: string, recordType?: string): Promise<void> {
+    const recordTypeToUse: string = recordType ? recordType : 'A';
+
     const zoneId: string = await this.getZoneIdByRecordName(recordName);
-    const recordId: string = await this.getRecordIdByName(recordName);
+    const recordId: string = await this.getRecordIdByNameAndType(recordName, recordTypeToUse);
 
     return this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
@@ -197,8 +199,8 @@ export default class CloudflareClient {
     }
   }
 
-  private async getRecordIdByName(recordName: string): Promise<string> {
-    const record: RecordData = await this.getRecordByName(recordName);
+  private async getRecordIdByNameAndType(recordName: string, recordType: string): Promise<string> {
+    const record: RecordData = await this.getRecordByNameAndType(recordName, recordType);
 
     return record.id;
   }
@@ -209,13 +211,14 @@ export default class CloudflareClient {
     return this.getZoneIdByDomain(domain);
   }
 
-  private async getRecordByName(recordName: string): Promise<RecordData> {
+  private async getRecordByNameAndType(recordName: string, recordType: string): Promise<RecordData> {
     const domain: string = this.getDomainByRecordName(recordName);
 
     const records: Array<RecordData> = await this.getRecordsByDomain(domain);
 
     const record: RecordData = records.find((currentRecord: RecordData): boolean => {
-      return currentRecord.name.toLowerCase() === recordName.toLowerCase();
+      return currentRecord.name.toLowerCase() === recordName.toLowerCase()
+          && currentRecord.type.toLowerCase() === recordType.toLowerCase();
     });
 
     const recordNotFound: boolean = record === undefined;

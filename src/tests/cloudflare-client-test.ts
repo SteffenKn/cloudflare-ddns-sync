@@ -18,7 +18,7 @@ describe('Cloudflare Client', (): void => {
     const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(recordsToCleanUp);
 
     for (const record of recordData) {
-      await cloudflareClient.removeRecordByName(record.name);
+      await cloudflareClient.removeRecordByNameAndType(record.name);
 
       const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => {
         return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
@@ -56,7 +56,7 @@ describe('Cloudflare Client', (): void => {
     await cloudflareClient.syncRecord(record);
     // Prepare END
 
-    await cloudflareClient.removeRecordByName(record.name);
+    await cloudflareClient.removeRecordByNameAndType(record.name);
   });
 
   it('should get record data for records', async(): Promise<void> => {

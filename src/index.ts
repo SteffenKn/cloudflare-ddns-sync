@@ -42,8 +42,8 @@ export default class CloudflareDDNSSync {
     return this.cloudflareClient.getRecordDataForRecords(records);
   }
 
-  public async removeRecord(recordName: string): Promise<void> {
-    return this.cloudflareClient.removeRecordByName(recordName);
+  public async removeRecord(recordName: string, recordType?: string): Promise<void> {
+    return this.cloudflareClient.removeRecordByNameAndType(recordName, recordType);
   }
 
   public stopSyncOnIpChange(changeListenerId: string): void {
