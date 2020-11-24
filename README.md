@@ -148,6 +148,11 @@ In order to run the tests there are two ways to do so
 
 ### v2.0.3
 
+- ✨ **Add function to get ipv6 address**
+- 🐛 **Fix syncing two records with the same name**
+- 🐛 **Fix removing records if two records have the same name**
+- ✏️ Fix typo in error messages
+- 🐛 Make cloudflareClient private
 - 📝 Update links in README
 
 ### v2.0.2
