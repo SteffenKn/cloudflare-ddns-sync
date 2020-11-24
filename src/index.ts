@@ -75,18 +75,11 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
-
-    const ipToUse: string = ip ? ip : await ipUtils.getIp();
-
-    return this.cloudflareClient.syncRecord(record, ipToUse);
+    return this.cloudflareClient.syncRecord(record, ip);
   }
 
   public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
-    const currentIp: string = await ipUtils.getIp();
-
-    const ipToUse: string = ip ? ip : currentIp;
-
-    return this.cloudflareClient.syncRecords(records, ipToUse);
+    return this.cloudflareClient.syncRecords(records, ip);
   }
 }
 
