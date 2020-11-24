@@ -166,21 +166,21 @@ export default class CloudflareClient {
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
     if (!copyOfRecord.content) {
-      throw Error(`Could not create Record "${copyOfRecord.name}": Content is missing!`);
+      throw Error(`Could not update Record "${copyOfRecord.name}": Content is missing!`);
     }
 
     if (copyOfRecord.type === 'A') {
       if (!copyOfRecord.content.match(ipv4Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
       }
     } else if (copyOfRecord.type === 'AAAA') {
       if (!copyOfRecord.content.match(ipv6Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
       }
     } else if (copyOfRecord.type === 'CNAME') {
       const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
       }
     }
 
