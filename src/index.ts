@@ -12,14 +12,18 @@ import {
 } from './contracts/index';
 
 export default class CloudflareDDNSSync {
-  public cloudflareClient: CloudflareClient;
+  private cloudflareClient: CloudflareClient;
 
   constructor(email: string, authKey: string) {
     this.cloudflareClient = new CloudflareClient(email, authKey);
   }
 
   public getIp(): Promise<string> {
-    return ipUtils.getIp();
+    return ipUtils.getIpv4();
+  }
+
+  public getIpv6(): Promise<string> {
+    return ipUtils.getIpv6();
   }
 
   public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
@@ -38,8 +42,8 @@ export default class CloudflareDDNSSync {
     return this.cloudflareClient.getRecordDataForRecords(records);
   }
 
-  public async removeRecord(recordName: string): Promise<void> {
-    return this.cloudflareClient.removeRecordByName(recordName);
+  public async removeRecord(recordName: string, recordType?: string): Promise<void> {
+    return this.cloudflareClient.removeRecordByNameAndType(recordName, recordType);
   }
 
   public stopSyncOnIpChange(changeListenerId: string): void {
@@ -62,7 +66,7 @@ export default class CloudflareDDNSSync {
     });
 
     // Sync records to make sure the current ip is already set.
-    const currentIp: string = await ipUtils.getIp();
+    const currentIp: string = await ipUtils.getIpv4();
     this.syncRecords(records, currentIp).then((syncedRecords: Array<RecordData>): void => {
       callback(syncedRecords);
     });
@@ -71,18 +75,11 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
-
-    const ipToUse: string = ip ? ip : await ipUtils.getIp();
-
-    return this.cloudflareClient.syncRecord(record, ipToUse);
+    return this.cloudflareClient.syncRecord(record, ip);
   }
 
   public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
-    const currentIp: string = await ipUtils.getIp();
-
-    const ipToUse: string = ip ? ip : currentIp;
-
-    return this.cloudflareClient.syncRecords(records, ipToUse);
+    return this.cloudflareClient.syncRecords(records, ip);
   }
 }
 

@@ -6,4 +6,3 @@ coverage/
 package-lock.json
 tsconfig.json
 tslint.json
-Jenkinsfile

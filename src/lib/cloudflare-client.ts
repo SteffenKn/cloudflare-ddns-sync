@@ -23,10 +23,10 @@ export default class CloudflareClient {
 
   public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords([record]);
-    const ipToUse: string = ip ? ip : await IPUtils.getIp();
+    const ipToUse: string = ip ? ip : await IPUtils.getIpv4();
 
     const zoneId: string = await this.getZoneIdByRecordName(record.name);
-    const recordId: string = recordIds.get(record.name.toLowerCase());
+    const recordId: string = recordIds.get(this.getRecordIdMapKey(record));
 
     const recordExists: boolean = recordId !== undefined;
     if (recordExists) {
@@ -42,11 +42,11 @@ export default class CloudflareClient {
 
   public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
-    const ipToUse: string = ip ? ip : await IPUtils.getIp();
+    const ipToUse: string = ip ? ip : await IPUtils.getIpv4();
 
     const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record): Promise<RecordData> => {
       const zoneId: string = await this.getZoneIdByRecordName(record.name);
-      const recordId: string = recordIds.get(record.name.toLowerCase());
+      const recordId: string = recordIds.get(this.getRecordIdMapKey(record));
 
       const recordExists: boolean = recordId !== undefined;
       if (recordExists) {
@@ -66,9 +66,11 @@ export default class CloudflareClient {
     return results;
   }
 
-  public async removeRecordByName(recordName: string): Promise<void> {
+  public async removeRecordByNameAndType(recordName: string, recordType?: string): Promise<void> {
+    const recordTypeToUse: string = recordType ? recordType : 'A';
+
     const zoneId: string = await this.getZoneIdByRecordName(recordName);
-    const recordId: string = await this.getRecordIdByName(recordName);
+    const recordId: string = await this.getRecordIdByNameAndType(recordName, recordTypeToUse);
 
     return this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
@@ -164,21 +166,21 @@ export default class CloudflareClient {
     copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
 
     if (!copyOfRecord.content) {
-      throw Error(`Could not create Record "${copyOfRecord.name}": Content is missing!`);
+      throw Error(`Could not update Record "${copyOfRecord.name}": Content is missing!`);
     }
 
     if (copyOfRecord.type === 'A') {
       if (!copyOfRecord.content.match(ipv4Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
       }
     } else if (copyOfRecord.type === 'AAAA') {
       if (!copyOfRecord.content.match(ipv6Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
       }
     } else if (copyOfRecord.type === 'CNAME') {
       const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
       }
     }
 
@@ -197,8 +199,8 @@ export default class CloudflareClient {
     }
   }
 
-  private async getRecordIdByName(recordName: string): Promise<string> {
-    const record: RecordData = await this.getRecordByName(recordName);
+  private async getRecordIdByNameAndType(recordName: string, recordType: string): Promise<string> {
+    const record: RecordData = await this.getRecordByNameAndType(recordName, recordType);
 
     return record.id;
   }
@@ -209,13 +211,14 @@ export default class CloudflareClient {
     return this.getZoneIdByDomain(domain);
   }
 
-  private async getRecordByName(recordName: string): Promise<RecordData> {
+  private async getRecordByNameAndType(recordName: string, recordType: string): Promise<RecordData> {
     const domain: string = this.getDomainByRecordName(recordName);
 
     const records: Array<RecordData> = await this.getRecordsByDomain(domain);
 
     const record: RecordData = records.find((currentRecord: RecordData): boolean => {
-      return currentRecord.name.toLowerCase() === recordName.toLowerCase();
+      return currentRecord.name.toLowerCase() === recordName.toLowerCase()
+          && currentRecord.type.toLowerCase() === recordType.toLowerCase();
     });
 
     const recordNotFound: boolean = record === undefined;
@@ -232,10 +235,17 @@ export default class CloudflareClient {
     const recordData: Array<RecordData> = await this.getRecordDataForRecords(records);
 
     for (const record of recordData) {
-      recordIdMap.set(record.name.toLowerCase(), record.id);
+      recordIdMap.set(this.getRecordIdMapKey(record), record.id);
     }
 
     return recordIdMap;
+  }
+
+  private getRecordIdMapKey(record: Record): string {
+    const recordName: string = record.name.toLowerCase();
+    const recordType: string = record.type ? record.type.toLowerCase() : 'a';
+
+    return `"${recordName}"_"${recordType}"`;
   }
 
   private async getRecordsByDomain(domain: string): Promise<Array<RecordData>> {
