@@ -18,6 +18,7 @@
     "removeComments": false,
     "resolveJsonModule": true,
     "strict": true,
+    "useUnknownInCatchVariables": false,
     "strictNullChecks": false
   }
 }

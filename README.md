@@ -149,6 +149,7 @@ In order to run the tests there are two ways to do so
 ### v2.0.4
 
 - 📝 Update links in README
+- ⬆️ Update dependencies
 
 ### v2.0.3
 

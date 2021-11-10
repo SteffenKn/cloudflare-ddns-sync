@@ -52,7 +52,7 @@ describe('Cron Handler', (): void => {
         const scheduledTask: ScheduledTask = cron.createCronJob('*/1 * * * * *', (): void => {
           done();
 
-          scheduledTask.destroy();
+          scheduledTask.stop();
         });
       } catch (error) {
         done(`Error scheduling "*/1 * * * * *": ${error}`);
