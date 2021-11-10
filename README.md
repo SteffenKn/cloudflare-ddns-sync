@@ -107,18 +107,18 @@ Cron expressions have the following syntax:
 
 - getIp(): Promise\<string\>
 - getIpv6(): Promise\<string\>
-- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
-- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://docu-cddnss.knaup.dev/types/domainrecordlist)\>
-- getRecordDataForRecord(record: [Record](https://docu-cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>
-- getRecordDataForRecords(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
+- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
+- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://cddnss.knaup.dev/types/domainrecordlist)\>
+- getRecordDataForRecord(record: [Record](https://cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
+- getRecordDataForRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
 - removeRecord(recordName: string, recordType?: string): Promise\<void\>
 - stopSyncOnIpChange(changeListenerId: string): void
-- syncByCronTime(cronExpression: string, records: Array\<[Record](https://docu-cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://docu-cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
-- syncOnIpChange(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
-- syncRecord(record: [Record](https://docu-cddnss.knaup.dev/types/record), ip?: string): Promise\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>
-- syncRecords(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
+- syncByCronTime(cronExpression: string, records: Array\<[Record](https://cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
+- syncOnIpChange(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
+- syncRecord(record: [Record](https://cddnss.knaup.dev/types/record), ip?: string): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
+- syncRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
 
-For a more detailed view, have a look at the [Documentation](https://docu-cddnss.knaup.dev/)
+For a more detailed view, have a look at the [Documentation](https://cddnss.knaup.dev/)
 
 ## Get Your Cloudflare API Key
 
@@ -147,6 +147,9 @@ In order to run the tests there are two ways to do so
 ## Changelog
 
 ### v2.0.4
+
+- 📝 Update links in README
+
 ### v2.0.3
 
 - ✨ **Add function to get ipv6 address**
