@@ -146,6 +146,7 @@ In order to run the tests there are two ways to do so
 
 ## Changelog
 
+### v2.0.4
 ### v2.0.3
 
 - ✨ **Add function to get ipv6 address**
