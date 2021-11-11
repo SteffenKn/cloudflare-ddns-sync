@@ -50,9 +50,9 @@ describe('Cron Handler', (): void => {
     it('should schedule "*/1 * * * * *"', (done: Function): void => {
       try {
         const scheduledTask: ScheduledTask = cron.createCronJob('*/1 * * * * *', (): void => {
-          done();
-
           scheduledTask.stop();
+
+          done();
         });
       } catch (error) {
         done(`Error scheduling "*/1 * * * * *": ${error}`);
