@@ -7,9 +7,9 @@ export default class IPUtils {
   private static ipChangeEventListeners: Map<string, NodeJS.Timeout> = new Map();
 
   public static async getIpv4(): Promise<string> {
+    /* c8 ignore start*/
     try {
       return await publicIp.v4();
-      /* c8 ignore start*/
     } catch (error) {
       return wimIp.v4();
     }
@@ -17,9 +17,9 @@ export default class IPUtils {
   }
 
   public static async getIpv6(): Promise<string> {
+    /* c8 ignore start */
     try {
       return await publicIp.v6();
-      /* c8 ignore start */
     } catch (error) {
       return wimIp.v6();
     }
@@ -31,18 +31,18 @@ export default class IPUtils {
 
     let previousIp: string = await this.getIpv4();
 
+      /* c8 ignore start */
     const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
       const currentIp: string = await this.getIpv4();
 
       const ipMustBeUpdated: boolean = currentIp !== previousIp;
-      /* c8 ignore start */
       if (ipMustBeUpdated) {
         previousIp = currentIp;
 
         callback(currentIp);
       }
-      /* c8 ignore stop*/
     }, this.ipPollingDelay);
+      /* c8 ignore stop*/
 
     this.ipChangeEventListeners.set(eventListenerId, intervalId);
 
