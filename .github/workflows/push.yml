@@ -80,16 +80,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
           registry-url: "https://registry.npmjs.org"
 
       - name: Unstash dist
         uses: actions/download-artifact@master
         with:
-          name: dist ${{matrix.node-version}}
+          name: dist 16.x
           path: "dist/"
 
       - name: Install
