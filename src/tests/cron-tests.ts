@@ -50,9 +50,9 @@ describe('Cron Handler', (): void => {
     it('should schedule "*/1 * * * * *"', (done: Function): void => {
       try {
         const scheduledTask: ScheduledTask = cron.createCronJob('*/1 * * * * *', (): void => {
-          done();
+          scheduledTask.stop();
 
-          scheduledTask.destroy();
+          done();
         });
       } catch (error) {
         done(`Error scheduling "*/1 * * * * *": ${error}`);
@@ -62,7 +62,7 @@ describe('Cron Handler', (): void => {
     it('should not schedule "*/2 * * * * a"', (done: Function): void => {
       try {
         cron.createCronJob('*/2 * * * * a', (): void => {
-          // This should never be called
+          // This should never be called, because the cron expression is invalid
         });
 
         done(`Error: "*/2 * * * * a" was scheduled.`);

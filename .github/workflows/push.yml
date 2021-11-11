@@ -9,34 +9,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Versions
-      run: |
-        node -v
-        npm -v
+      - name: Versions
+        run: |
+          node -v
+          npm -v
 
-    - name: Install
-      run: npm install
+      - name: Install
+        run: npm install
 
-    - name: Lint
-      run: npm run lint
+      - name: Lint
+        run: npm run lint
 
-    - name: Build
-      run: npm run build
+      - name: Build
+        run: npm run build
 
-    - name: Stash dist
-      uses: actions/upload-artifact@master
-      with:
-        name: dist
-        path: dist/
+      - name: Stash dist
+        uses: actions/upload-artifact@master
+        with:
+          name: dist ${{matrix.node-version}}
+          path: dist/
 
   test:
     runs-on: ubuntu-latest
@@ -45,33 +45,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Unstash dist
-      uses: actions/download-artifact@master
-      with:
-        name: dist
-        path: "dist/"
+      - name: Unstash dist
+        uses: actions/download-artifact@master
+        with:
+          name: dist ${{matrix.node-version}}
+          path: "dist/"
 
-    - name: Install
-      run: npm install
+      - name: Install
+        run: npm install
 
-    - name: Test
-      env:
-        CLOUDFLARE_EMAIL: ${{ secrets.TESTS__CLOUDFLARE_EMAIL }}
-        CLOUDFLARE_KEY: ${{ secrets.TESTS__CLOUDFLARE_KEY }}
-        CLOUDFLARE_DOMAIN: ${{ secrets.TESTS__CLOUDFLARE_DOMAIN }}
-      run: npm test -- --email=$CLOUDFLARE_EMAIL --key=$CLOUDFLARE_KEY --domain=$CLOUDFLARE_DOMAIN
+      - name: Test
+        env:
+          CLOUDFLARE_EMAIL: ${{ secrets.TESTS__CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_KEY: ${{ secrets.TESTS__CLOUDFLARE_KEY }}
+          CLOUDFLARE_DOMAIN: ${{ secrets.TESTS__CLOUDFLARE_DOMAIN }}
+        run: npm test -- --email=$CLOUDFLARE_EMAIL --key=$CLOUDFLARE_KEY --domain=$CLOUDFLARE_DOMAIN
 
-    - name: Check test coverage
-      run: npm run test:coverage
+      - name: Check test coverage
+        run: npm run test:coverage
 
   publish:
     runs-on: ubuntu-latest
@@ -79,23 +79,23 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: 'https://registry.npmjs.org'
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: "https://registry.npmjs.org"
 
-    - name: Unstash dist
-      uses: actions/download-artifact@master
-      with:
-        name: dist
-        path: "dist/"
+      - name: Unstash dist
+        uses: actions/download-artifact@master
+        with:
+          name: dist ${{matrix.node-version}}
+          path: "dist/"
 
-    - name: Install
-      run: npm install
+      - name: Install
+        run: npm install
 
-    - name: Publish on NPM
-      run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish on NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

@@ -15,17 +15,17 @@ const recordsToCleanUp: Array<Record> = [];
 
 describe('Cloudflare Client', (): void => {
   afterEach(async(): Promise<void> => {
-    const recordData: Array<RecordData> = await cloudflareClient.getRecordDataForRecords(recordsToCleanUp);
+    const cleanupPromises: Array<Promise<void>> = recordsToCleanUp.map(async(record: Record): Promise<void> => {
+        await cloudflareClient.removeRecordByNameAndType(record.name);
 
-    for (const record of recordData) {
-      await cloudflareClient.removeRecordByNameAndType(record.name);
+        const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => {
+          return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
+        });
 
-      const indexOfRecord: number = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => {
-        return record.name.toLowerCase() === recordToCleanup.name.toLowerCase();
+        recordsToCleanUp.splice(indexOfRecord, 1);
       });
 
-      recordsToCleanUp.splice(indexOfRecord, 1);
-    }
+    await Promise.all(cleanupPromises);
   });
 
   it('should be able to create a record', async(): Promise<void> => {

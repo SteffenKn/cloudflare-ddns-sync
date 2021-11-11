@@ -10,6 +10,7 @@
 
 Cloudflare-DDNS-Sync is a simple module that updates Cloudflare DNS records.
 
+For a more detailed overview, have a look at the [Documentation](https://cddnss.knaup.dev/)
 
 You may also have a look at the **official** [CLI version](https://www.npmjs.com/package/cloudflare-ddns-sync-cli) of Cloudflare-DDNS-Sync.
 
@@ -107,18 +108,18 @@ Cron expressions have the following syntax:
 
 - getIp(): Promise\<string\>
 - getIpv6(): Promise\<string\>
-- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
-- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://docu-cddnss.knaup.dev/types/domainrecordlist)\>
-- getRecordDataForRecord(record: [Record](https://docu-cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>
-- getRecordDataForRecords(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
+- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
+- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://cddnss.knaup.dev/types/domainrecordlist)\>
+- getRecordDataForRecord(record: [Record](https://cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
+- getRecordDataForRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
 - removeRecord(recordName: string, recordType?: string): Promise\<void\>
 - stopSyncOnIpChange(changeListenerId: string): void
-- syncByCronTime(cronExpression: string, records: Array\<[Record](https://docu-cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://docu-cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
-- syncOnIpChange(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
-- syncRecord(record: [Record](https://docu-cddnss.knaup.dev/types/record), ip?: string): Promise\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>
-- syncRecords(records: Array\<[Record](https://docu-cddnss.knaup.dev/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://docu-cddnss.knaup.dev/types/recorddata)\>\>
+- syncByCronTime(cronExpression: string, records: Array\<[Record](https://cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
+- syncOnIpChange(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
+- syncRecord(record: [Record](https://cddnss.knaup.dev/types/record), ip?: string): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
+- syncRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
 
-For a more detailed view, have a look at the [Documentation](https://docu-cddnss.knaup.dev/)
+For a more detailed view, have a look at the [Documentation](https://cddnss.knaup.dev/)
 
 ## Get Your Cloudflare API Key
 
@@ -143,125 +144,3 @@ In order to run the tests there are two ways to do so
 ### Use `npm test` Only
 
 - Run `npm test -- --email="your@email.com" --key="your_cloudflare_api_key" --domain="yourdomain.com"`
-
-## Changelog
-
-### v2.0.3
-
-- ✨ **Add function to get ipv6 address**
-- 🐛 **Fix syncing two records with the same name**
-- 🐛 **Fix removing records if two records have the same name**
-- ✏️ Fix typo in error messages
-- 🐛 Make cloudflareClient private
-- 📝 Update links in README
-
-### v2.0.2
-
-- 🐛 **Fix Publishing**
-
-### v2.0.1
-
-- ⬆️ Update Dependencies
-
-### v2.0.0
-
-- ♻️ **Rewrite Cloudflare-DDNS-Sync in Typescript**
-
-### v1.5.4
-
-- 📝 Update README
-
-### v1.5.3
-
-- 🐛 **Fix Stopping Sync On IP Change**
-- 🐛 **Fix Crontime Converter For Hour**
-- 🐛 **Fix Syncing With Crontime Without Setting an IP**
-- ⚡️ **Small Performance Improvements**
-- 💄 Improve Code Quality
-- 💄 Extract Business Rules
-
-### v1.5.2
-
-- 🐛 Fix Wrong Using of Const
-
-### v1.5.1
-
-- 🐛 **Fix Bug When 'public-ip' Throws An Error**
-- 💄 Improve Code Quality
-
-### v1.5.0
-
-- ✨ **Add Create Not Existing Records Functionality**
-- ✨ **Add Fallback getIp Function**
-
-### v1.4.0
-
-- ✨ **Add Stop SyncOnIpChange Function**
-
-### v1.3.4
-
-- 🐛 **Fix ipChange Interval**
-
-### v1.3.3
-
-- 📝 **Add Changelog**
-
-### v1.3.2
-
-- ✨ **Add getRecordIps Function**
-- ♻️ **Refactor syncOnIpChange**
-- ✅ **Add Tests for Sync Functionality**
-- 📝 **Improve README**
-- 📝 **Add NPM Badge**
-- 🔥 Remove Unnecessary Code
-- 🚸 Update Description
-- 🎨 Order Dependencies
-- 🎨 Lint files
-
-### v1.3.1
-
-- 📝 **Fix README**
-
-### v1.3.0
-
-- ✨ **Add syncAtDate Function**
-- 📝 **Improve README**
-
-### v1.2.1
-
-- 🚑 **Fix README**
-
-### v1.2.0
-
-- ✨ **Add onIpChange Function**
-- 📝 **Adjust README**
-- 🚚 Move Utils to Lib
-- 🚚 Move IP Functions to Lib
-- 🚚 Move Dependencies to devDependencies
-- 🔧 Update Eslint Config
-- 🎨 Fix Eslit Error
-
-### v1.1.0
-
-- ⚡️ **Improve Performance of First Sync**
-- ✨ **Add Schedule Functionality**
-- 🚸 **Improve Success Message of Sync Function**
-- 📝 **Fix Typos in README**
-- 📝 **Add Schedule Functions to README**
-- ✅ Add Unittests
-- ✨ Add Eslint
-
-### v1.0.3
-
-- 📝 **Fix Typo in README**
-- 📄 Add LICENSE
-
-### v1.0.2
-
-- 📝 **Add "Get Your Cloudflare Api Key"-Section to README**
-
-### v1.0.1
-
-- ✨ **Add sync Function -> changes the IP of the configured DNS records on Cloudflare**
-- ✨ **Add getIp Function -> returns the external IP**
-- 📝 **Add README**
