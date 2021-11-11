@@ -10,6 +10,7 @@
 
 Cloudflare-DDNS-Sync is a simple module that updates Cloudflare DNS records.
 
+For a more detailed overview, have a look at the [Documentation](https://cddnss.knaup.dev/)
 
 You may also have a look at the **official** [CLI version](https://www.npmjs.com/package/cloudflare-ddns-sync-cli) of Cloudflare-DDNS-Sync.
 
