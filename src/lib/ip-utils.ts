@@ -9,19 +9,21 @@ export default class IPUtils {
   public static async getIpv4(): Promise<string> {
     try {
       return await publicIp.v4();
-      /* c8 ignore next */
+      /* c8 ignore start*/
     } catch (error) {
       return wimIp.v4();
     }
+    /* c8 ignore stop*/
   }
 
   public static async getIpv6(): Promise<string> {
     try {
       return await publicIp.v6();
-      /* c8 ignore next */
+      /* c8 ignore start */
     } catch (error) {
       return wimIp.v6();
     }
+    /* c8 ignore stop*/
   }
 
   public static async addIpChangeListener(callback: Function): Promise<string> {
@@ -33,12 +35,13 @@ export default class IPUtils {
       const currentIp: string = await this.getIpv4();
 
       const ipMustBeUpdated: boolean = currentIp !== previousIp;
-      /* c8 ignore next */
+      /* c8 ignore start */
       if (ipMustBeUpdated) {
         previousIp = currentIp;
 
         callback(currentIp);
       }
+      /* c8 ignore stop*/
     }, this.ipPollingDelay);
 
     this.ipChangeEventListeners.set(eventListenerId, intervalId);
