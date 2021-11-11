@@ -62,7 +62,7 @@ describe('Cron Handler', (): void => {
     it('should not schedule "*/2 * * * * a"', (done: Function): void => {
       try {
         cron.createCronJob('*/2 * * * * a', (): void => {
-          // This should never be called
+          // This should never be called, because the cron expression is invalid
         });
 
         done(`Error: "*/2 * * * * a" was scheduled.`);
