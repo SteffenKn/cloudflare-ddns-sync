@@ -26,11 +26,11 @@ export default class CloudflareDDNSSync {
     return ipUtils.getIpv6();
   }
 
-  public async getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
+  public getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
     return this.cloudflareClient.getRecordDataForDomain(domain);
   }
 
-  public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
+  public getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
     return this.cloudflareClient.getRecordDataForDomains(domains);
   }
 
@@ -42,7 +42,7 @@ export default class CloudflareDDNSSync {
     return this.cloudflareClient.getRecordDataForRecords(records);
   }
 
-  public async removeRecord(recordName: string, recordType?: string): Promise<void> {
+  public removeRecord(recordName: string, recordType?: string): Promise<void> {
     return this.cloudflareClient.removeRecordByNameAndType(recordName, recordType);
   }
 
@@ -74,11 +74,11 @@ export default class CloudflareDDNSSync {
     return changeListenerId;
   }
 
-  public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
+  public syncRecord(record: Record, ip?: string): Promise<RecordData> {
     return this.cloudflareClient.syncRecord(record, ip);
   }
 
-  public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
+  public syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     return this.cloudflareClient.syncRecords(records, ip);
   }
 }

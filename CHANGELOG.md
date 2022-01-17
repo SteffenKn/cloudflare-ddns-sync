@@ -1,7 +1,11 @@
-
 # Changelog
 
 ## v2
+
+### v2.0.5
+
+- 🚨 Replace tslint with eslint
+- ⬆️ Update dependencies
 
 ### v2.0.4
 
@@ -28,7 +32,6 @@
 ### v2.0.0
 
 - ♻️ **Rewrite Cloudflare-DDNS-Sync in Typescript**
-
 
 ## v1
 

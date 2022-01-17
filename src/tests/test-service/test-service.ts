@@ -30,8 +30,8 @@ export default class TestService {
       || testData.domain === 'yourdomain.com';
 
     if (testDataNotProvided) {
-      // tslint:disable-next-line:no-console
-      console.log(`In order to use the tests you must provide some data via 'src/tests/test-service/test-data.json' or via 'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"'`);
+      // eslint-disable-next-line max-len, no-console
+      console.log('In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'');
 
       process.exit();
     }
@@ -42,7 +42,7 @@ export default class TestService {
   private static getRandomRecords(amount: number, domain: string): Array<Record> {
     const records: Array<Record> = [];
 
-    for (let index: number = 0; index < amount; index++) {
+    for (let index = 0; index < amount; index++) {
       const record: Record = {
         name: `cddnss-test-${this.getRandomSubdomain()}.${domain}`,
       };
@@ -54,12 +54,12 @@ export default class TestService {
   }
 
   private static getRandomSubdomain(): string {
-    let result: string = '';
-    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength: number = characters.length;
 
-    for (let index: number = 0; index < 5; index++) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for (let index = 0; index < 5; index++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
 
     return result;

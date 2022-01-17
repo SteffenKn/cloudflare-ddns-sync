@@ -1,13 +1,13 @@
+/* eslint-disable no-unused-expressions */
 // tslint:disable:no-unused-expression
-import chai from 'chai';
 import {ScheduledTask} from 'node-cron';
+import chai from 'chai';
 
 import cron from '../lib/cron';
 
-const expect: Chai.ExpectStatic = chai.expect;
+const {expect} = chai;
 
 describe('Cron Handler', (): void => {
-
   describe('Validate Cron Expressions', (): void => {
     it('"* * * * *" should be valid"', (): void => {
       const result: boolean = cron.isValid('* * * * *');
@@ -65,7 +65,7 @@ describe('Cron Handler', (): void => {
           // This should never be called, because the cron expression is invalid
         });
 
-        done(`Error: "*/2 * * * * a" was scheduled.`);
+        done('Error: "*/2 * * * * a" was scheduled.');
       } catch (error) {
         expect(error.message).to.contain('is not a valid cron expression.');
         done();
