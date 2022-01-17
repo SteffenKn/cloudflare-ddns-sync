@@ -31,7 +31,7 @@
     "cloudflare": "2.9.1",
     "node-cron": "3.0.0",
     "parse-domain": "4.1.0",
-    "public-ip": "5.0.0",
+    "public-ip": "4.0.4",
     "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
