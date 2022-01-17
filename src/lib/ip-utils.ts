@@ -1,5 +1,5 @@
-import publicIp from 'public-ip';
 import * as wimIp from 'what-is-my-ip-address';
+import publicIp from 'public-ip';
 
 export default class IPUtils {
   private static readonly ipPollingDelay: number = 10 * 1000;
@@ -13,16 +13,19 @@ export default class IPUtils {
     } catch (error) {
       return wimIp.v4();
     }
+
     /* c8 ignore stop*/
   }
 
   public static async getIpv6(): Promise<string> {
     /* c8 ignore start */
+
     try {
       return await publicIp.v6();
     } catch (error) {
       return wimIp.v6();
     }
+
     /* c8 ignore stop*/
   }
 
@@ -31,7 +34,7 @@ export default class IPUtils {
 
     let previousIp: string = await this.getIpv4();
 
-      /* c8 ignore start */
+    /* c8 ignore start */
     const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
       const currentIp: string = await this.getIpv4();
 
@@ -42,7 +45,8 @@ export default class IPUtils {
         callback(currentIp);
       }
     }, this.ipPollingDelay);
-      /* c8 ignore stop*/
+
+    /* c8 ignore stop*/
 
     this.ipChangeEventListeners.set(eventListenerId, intervalId);
 
@@ -58,9 +62,12 @@ export default class IPUtils {
   }
 
   private static getRandomId(): string {
-    const beginningRandomString: string = Math.random().toString(36).substr(2);
-    const currentDateAsString: string = new Date().valueOf().toString(36);
-    const endingRandomString: string = Math.random().toString(36).substr(2);
+    const beginningRandomString: string = Math.random().toString(36)
+      .substr(2);
+    const currentDateAsString: string = new Date().valueOf()
+      .toString(36);
+    const endingRandomString: string = Math.random().toString(36)
+      .substr(2);
 
     const randomString: string = beginningRandomString + currentDateAsString + endingRandomString;
 
