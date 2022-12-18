@@ -62,15 +62,8 @@ export default class IPUtils {
   }
 
   private static getRandomId(): string {
-    const beginningRandomString: string = Math.random().toString(36)
-      .substr(2);
-    const currentDateAsString: string = new Date().valueOf()
-      .toString(36);
-    const endingRandomString: string = Math.random().toString(36)
-      .substr(2);
-
-    const randomString: string = beginningRandomString + currentDateAsString + endingRandomString;
-
-    return randomString;
+    return Math.random().toString(36)
+      .substring(2, 15) + Math.random().toString(36)
+      .substring(2, 15);
   }
 }
