@@ -11,14 +11,14 @@ const ipv6Regex = /^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:
 describe('IPUtils', (): void => {
   describe('Get IP', (): void => {
     it('should get a valid ipv4', async(): Promise<void> => {
-      const ip: string = await IpUtils.getIpv4();
+      const ip = await IpUtils.getIpv4();
 
       expect(ip).to.be.string;
       expect(ip).to.match(ipv4Regex);
     });
 
     it.skip('should get a valid ipv6', async(): Promise<void> => {
-      const ip: string = await IpUtils.getIpv6();
+      const ip = await IpUtils.getIpv6();
 
       expect(ip).to.be.string;
       expect(ip).to.match(ipv6Regex);
@@ -34,7 +34,7 @@ describe('IPUtils', (): void => {
     });
 
     it('should be able to create change listener', async(): Promise<void> => {
-      const changeListenerId: string = await IpUtils.addIpChangeListener((): void => {
+      const changeListenerId = await IpUtils.addIpChangeListener((): void => {
         // Do nothing
       });
 
@@ -45,10 +45,10 @@ describe('IPUtils', (): void => {
 
     it('should get the current ip in change listener', async(): Promise<void> => {
       // Prepare
-      const currentIp: string = await IpUtils.getIpv4();
+      const currentIp = await IpUtils.getIpv4();
       // Prepare END
 
-      const changeListenerId: string = await IpUtils.addIpChangeListener((ip: string): void => {
+      const changeListenerId = await IpUtils.addIpChangeListener((ip): void => {
         expect(ip).to.be.string;
         expect(ip).to.match(ipv4Regex);
         expect(ip).to.equal(currentIp);
@@ -59,7 +59,7 @@ describe('IPUtils', (): void => {
 
     it('should be able to remove a change listener', async(): Promise<void> => {
       // Prepare
-      const changeListenerId: string = await IpUtils.addIpChangeListener((): void => {
+      const changeListenerId = await IpUtils.addIpChangeListener((): void => {
         // Do nothing
       });
       // Prepare END

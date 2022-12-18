@@ -2,7 +2,7 @@ import * as wimIp from 'what-is-my-ip-address';
 import {publicIpv4, publicIpv6} from 'public-ip';
 
 export default class IPUtils {
-  private static readonly ipPollingDelay: number = 10 * 1000;
+  private static readonly ipPollingDelay = 10 * 1000;
 
   private static ipChangeEventListeners: Map<string, NodeJS.Timeout> = new Map();
 
@@ -30,15 +30,15 @@ export default class IPUtils {
   }
 
   public static async addIpChangeListener(callback: Function): Promise<string> {
-    const eventListenerId: string = this.getRandomId();
+    const eventListenerId = this.getId();
 
-    let previousIp: string = await this.getIpv4();
+    let previousIp = await this.getIpv4();
 
     /* c8 ignore start */
-    const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
-      const currentIp: string = await this.getIpv4();
+    const intervalId = setInterval(async(): Promise<void> => {
+      const currentIp = await this.getIpv4();
 
-      const ipMustBeUpdated: boolean = currentIp !== previousIp;
+      const ipMustBeUpdated = currentIp !== previousIp;
       if (ipMustBeUpdated) {
         previousIp = currentIp;
 
@@ -54,14 +54,14 @@ export default class IPUtils {
   }
 
   public static removeIpChangeListener(eventListenerId: string): void {
-    const eventListenerIntervalId: NodeJS.Timeout = this.ipChangeEventListeners.get(eventListenerId);
+    const eventListenerIntervalId = this.ipChangeEventListeners.get(eventListenerId);
 
     clearInterval(eventListenerIntervalId);
 
     IPUtils.ipChangeEventListeners.delete(eventListenerId);
   }
 
-  private static getRandomId(): string {
+  private static getId(): string {
     return Math.random().toString(36)
       .substring(2, 15) + Math.random().toString(36)
       .substring(2, 15);

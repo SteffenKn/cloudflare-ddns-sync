@@ -24,7 +24,7 @@ export default class TestService {
       records: this.getRandomRecords(5, domain),
     };
 
-    const testDataNotProvided: boolean = !testData.auth.email
+    const testDataNotProvided = !testData.auth.email
       || testData.auth.email === 'your@email.com'
       || !testData.auth.key
       || testData.auth.key === 'your_cloudflare_api_key'

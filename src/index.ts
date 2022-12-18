@@ -60,14 +60,14 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncOnIpChange(records: Array<Record>, callback: MultiSyncCallback): Promise<string> {
-    const changeListenerId: string = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
+    const changeListenerId = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);
     });
 
     // Sync records to make sure the current ip is already set.
-    const currentIp: string = await ipUtils.getIpv4();
+    const currentIp = await ipUtils.getIpv4();
     this.syncRecords(records, currentIp).then((syncedRecords: Array<RecordData>): void => {
       callback(syncedRecords);
     });
