@@ -5,12 +5,11 @@
 [![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://www.npmjs.com/package/cloudflare-ddns-sync)
 [![NPM](https://nodei.co/npm/cloudflare-ddns-sync-cli.png)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
 
-
 ## Overview
 
 Cloudflare-DDNS-Sync is a simple module that updates Cloudflare DNS records.
 
-For a more detailed overview, have a look at the [Documentation](https://cddnss.knaup.dev/)
+For a more detailed overview, have a look at the [Documentation](https://cddnss.knaup.pw/)
 
 You may also have a look at the **official** [CLI version](https://www.npmjs.com/package/cloudflare-ddns-sync-cli) of Cloudflare-DDNS-Sync.
 
@@ -18,7 +17,7 @@ You may also have a look at the **official** [CLI version](https://www.npmjs.com
 
 ### Prerequisites
 
-- Node
+- Node (14, 16, 18)
 - Cloudflare Account
 
 ### Installation
@@ -34,27 +33,27 @@ in your project folder.
 ## Usage
 
 > Hint: If a record is not existing, CDS will automatically create it when
-syncing.
+> syncing.
 
 ### Javascript Example
 
 ```javascript
-const Cddnss = require('cloudflare-ddns-sync').default;
+const Cddnss = require("cloudflare-ddns-sync").default;
 
-const cddnss = new Cddnss('your@email.com', '<your-cloudflare-api-key>');
+const cddnss = new Cddnss("your@email.com", "<your-cloudflare-api-key>");
 
 const records = [
   {
-    name: 'test-1.domain.com',
-    type: 'A',          // optional
-    proxied: true,      // optional
-    ttl: 1,             // optional
-    priority: 0,        // optional
-    content: '1.2.3.4', // optional
+    name: "test-1.domain.com",
+    type: "A", // optional
+    proxied: true, // optional
+    ttl: 1, // optional
+    priority: 0, // optional
+    content: "1.2.3.4", // optional
   },
   {
-    name: "test-2.domain.com"
-  }
+    name: "test-2.domain.com",
+  },
 ];
 
 cddnss.syncRecords(records).then((result) => {
@@ -65,21 +64,24 @@ cddnss.syncRecords(records).then((result) => {
 ### Typescript Example
 
 ```typescript
-import Cddnss, {Record, RecordData} from 'cloudflare-ddns-sync';
+import Cddnss, { Record, RecordData } from "cloudflare-ddns-sync";
 
-const cddnss: Cddnss = new Cddnss('your@email.com', '<your-cloudflare-api-key>');
+const cddnss: Cddnss = new Cddnss(
+  "your@email.com",
+  "<your-cloudflare-api-key>"
+);
 
 const records: Array<Record> = [
   {
-    name: 'test-1.yourdomain.com',
-    type: 'A',          // optional
-    proxied: true,      // optional
-    ttl: 1,             // optional
-    priority: 0,        // optional
-    content: '1.2.3.4', // optional
+    name: "test-1.yourdomain.com",
+    type: "A", // optional
+    proxied: true, // optional
+    ttl: 1, // optional
+    priority: 0, // optional
+    content: "1.2.3.4", // optional
   },
   {
-    name: "test-2.yourdomain.com"
+    name: "test-2.yourdomain.com",
   },
 ];
 
@@ -108,18 +110,18 @@ Cron expressions have the following syntax:
 
 - getIp(): Promise\<string\>
 - getIpv6(): Promise\<string\>
-- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
-- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://cddnss.knaup.dev/types/domainrecordlist)\>
-- getRecordDataForRecord(record: [Record](https://cddnss.knaup.dev/types/record)): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
-- getRecordDataForRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
+- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
+- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://cddnss.knaup.pw/types/domainrecordlist)\>
+- getRecordDataForRecord(record: [Record](https://cddnss.knaup.pw/types/record)): Promise\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>
+- getRecordDataForRecords(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
 - removeRecord(recordName: string, recordType?: string): Promise\<void\>
 - stopSyncOnIpChange(changeListenerId: string): void
-- syncByCronTime(cronExpression: string, records: Array\<[Record](https://cddnss.knaup.dev/types/recorddata)\>, callback: [MultiSyncCallback](https://cddnss.knaup.dev/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
-- syncOnIpChange(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, callback: multisynccallback): Promise\<string\>
-- syncRecord(record: [Record](https://cddnss.knaup.dev/types/record), ip?: string): Promise\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>
-- syncRecords(records: Array\<[Record](https://cddnss.knaup.dev/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://cddnss.knaup.dev/types/recorddata)\>\>
+- syncByCronTime(cronExpression: string, records: Array\<[Record](https://cddnss.knaup.pw/types/recorddata)\>, callback: [MultiSyncCallback](https://cddnss.knaup.pw/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
+- syncOnIpChange(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>, callback: multisynccallback): Promise\<string\>
+- syncRecord(record: [Record](https://cddnss.knaup.pw/types/record), ip?: string): Promise\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>
+- syncRecords(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
 
-For a more detailed view, have a look at the [Documentation](https://cddnss.knaup.dev/)
+For a more detailed view, have a look at the [Documentation](https://cddnss.knaup.pw/)
 
 ## Get Your Cloudflare API Key
 

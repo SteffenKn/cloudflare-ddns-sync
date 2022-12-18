@@ -5,7 +5,7 @@ export default class Cron {
     const cronExpressionIsInvalid = !this.isValid(cronExpression);
     if (cronExpressionIsInvalid) {
       // eslint-disable-next-line max-len
-      throw new Error(`'${cronExpression}' is not a valid cron expression.\nHere you can see how cron expressions work: https://cddnss.knaup.dev/cron-expression-syntax`);
+      throw new Error(`'${cronExpression}' is not a valid cron expression.\nHere you can see how cron expressions work: https://cddnss.knaup.pw/cron-expression-syntax`);
     }
 
     return cron.schedule(cronExpression, (): void => {
