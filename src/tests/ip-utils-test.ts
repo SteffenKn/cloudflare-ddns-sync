@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 import chai from 'chai';
 
-import IpUtils from '../lib/ip-utils';
+import IpUtils from '../lib/ip-utils.js';
 
 const {expect} = chai;
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;

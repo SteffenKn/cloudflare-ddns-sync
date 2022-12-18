@@ -2,7 +2,7 @@
 import {ScheduledTask} from 'node-cron';
 import chai from 'chai';
 
-import cron from '../lib/cron';
+import cron from '../lib/cron.js';
 
 const {expect} = chai;
 

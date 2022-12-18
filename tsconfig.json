@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "esnext",
-    "module": "commonjs",
+    "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
     "alwaysStrict": true,

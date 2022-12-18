@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-expressions */
 import chai from 'chai';
 
-import TestService, {TestData} from './test-service/test-service';
-import CloudflareClient from '../lib/cloudflare-client';
-import IPUtils from '../lib/ip-utils';
+import TestService, {TestData} from './test-service/test-service.js';
+import CloudflareClient from '../lib/cloudflare-client.js';
+import IPUtils from '../lib/ip-utils.js';
 
-import {DomainRecordList, Record, RecordData} from '../contracts';
+import {DomainRecordList, Record, RecordData} from '../contracts/index.js';
 
 const {expect} = chai;
 

@@ -1,13 +1,12 @@
 import {
-  ParseResult,
   ParseResultType,
   fromUrl,
   parseDomain,
 } from 'parse-domain';
 import Cloudflare from 'cloudflare';
 
-import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts';
-import IPUtils from './ip-utils';
+import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts/index.js';
+import IPUtils from './ip-utils.js';
 
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;
 // eslint-disable-next-line max-len
@@ -75,7 +74,7 @@ export default class CloudflareClient {
     const zoneId: string = await this.getZoneIdByRecordName(recordName);
     const recordId: string = await this.getRecordIdByNameAndType(recordName, recordTypeToUse);
 
-    return this.cloudflare.dnsRecords.del(zoneId, recordId);
+    await this.cloudflare.dnsRecords.del(zoneId, recordId);
   }
 
   public async getRecordDataForRecord(record: Record): Promise<RecordData> {
@@ -130,67 +129,73 @@ export default class CloudflareClient {
   }
 
   private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
-    const copyOfRecord: Record = {...record};
-    copyOfRecord.name = record.name.toLowerCase();
-    copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
-    copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
+    const dnsRecord: Cloudflare.DnsRecord = {
+      ...record,
+      name: record.name.toLowerCase(),
+      content: record.content ? record.content : ip,
+      type: record.type ? record.type : 'A',
+      ttl: record.ttl ? record.ttl : 1,
+    };
 
-    if (!copyOfRecord.content) {
-      throw Error(`Could not create Record "${copyOfRecord.name}": Content is missing!`);
+    if (!dnsRecord.content) {
+      throw Error(`Could not create Record "${dnsRecord.name}": Content is missing!`);
     }
 
-    if (copyOfRecord.type === 'A') {
-      if (!copyOfRecord.content.match(ipv4Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+    if (dnsRecord.type === 'A') {
+      if (!dnsRecord.content.match(ipv4Regex)) {
+        throw Error(`Could not create Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv4!`);
       }
-    } else if (copyOfRecord.type === 'AAAA') {
-      if (!copyOfRecord.content.match(ipv6Regex)) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+    } else if (dnsRecord.type === 'AAAA') {
+      if (!dnsRecord.content.match(ipv6Regex)) {
+        throw Error(`Could not create Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv6!`);
       }
-    } else if (copyOfRecord.type === 'CNAME') {
-      const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
+    } else if (dnsRecord.type === 'CNAME') {
+      const parsedDomain = parseDomain(fromUrl(dnsRecord.content));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
-        throw Error(`Could not create Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+        throw Error(`Could not create Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid domain name!`);
       }
     }
 
-    const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.add(zoneId, copyOfRecord);
+    const response = await this.cloudflare.dnsRecords.add(zoneId, dnsRecord as Cloudflare.DnsRecord) as {result: RecordData};
 
     return response.result;
   }
 
   private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
-    const copyOfRecord: Record = {...record};
-    copyOfRecord.name = record.name.toLowerCase();
-    copyOfRecord.content = copyOfRecord.content ? copyOfRecord.content : ip;
-    copyOfRecord.type = copyOfRecord.type ? copyOfRecord.type : 'A';
+    const dnsRecord: Cloudflare.DnsRecord = {
+      ...record,
+      name: record.name.toLowerCase(),
+      content: record.content ? record.content : ip,
+      type: record.type ? record.type : 'A',
+      ttl: record.ttl ? record.ttl : 1,
+    };
 
-    if (!copyOfRecord.content) {
-      throw Error(`Could not update Record "${copyOfRecord.name}": Content is missing!`);
+    if (!dnsRecord.content) {
+      throw Error(`Could not update Record "${dnsRecord.name}": Content is missing!`);
     }
 
-    if (copyOfRecord.type === 'A') {
-      if (!copyOfRecord.content.match(ipv4Regex)) {
-        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv4!`);
+    if (dnsRecord.type === 'A') {
+      if (!dnsRecord.content.match(ipv4Regex)) {
+        throw Error(`Could not update Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv4!`);
       }
-    } else if (copyOfRecord.type === 'AAAA') {
-      if (!copyOfRecord.content.match(ipv6Regex)) {
-        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid ipv6!`);
+    } else if (dnsRecord.type === 'AAAA') {
+      if (!dnsRecord.content.match(ipv6Regex)) {
+        throw Error(`Could not update Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv6!`);
       }
-    } else if (copyOfRecord.type === 'CNAME') {
-      const parsedDomain: ParseResult = parseDomain(fromUrl(copyOfRecord.content));
+    } else if (dnsRecord.type === 'CNAME') {
+      const parsedDomain = parseDomain(fromUrl(dnsRecord.content));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
-        throw Error(`Could not update Record "${copyOfRecord.name}": '${copyOfRecord.content}' is not a valid domain name!`);
+        throw Error(`Could not update Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid domain name!`);
       }
     }
 
-    const response: Response & {result: RecordData} = await this.cloudflare.dnsRecords.edit(zoneId, recordId, copyOfRecord);
+    const response = await this.cloudflare.dnsRecords.edit(zoneId, recordId, dnsRecord) as {result: RecordData};
 
     return response.result;
   }
 
   private async updateZoneMap(): Promise<void> {
-    const response: {result: Array<ZoneData>} = await this.cloudflare.zones.browse();
+    const response = await this.cloudflare.zones.browse() as {result: Array<ZoneData>};
     const zones: Array<ZoneData> = response.result;
 
     this.zoneMap = new Map();
@@ -240,8 +245,8 @@ export default class CloudflareClient {
   }
 
   private getRecordIdMapKey(record: Record): string {
-    const recordName: string = record.name.toLowerCase();
-    const recordType: string = record.type ? record.type.toLowerCase() : 'a';
+    const recordName = record.name.toLowerCase();
+    const recordType = record.type ? record.type.toLowerCase() : 'a';
 
     return `"${recordName}"_"${recordType}"`;
   }
@@ -254,10 +259,12 @@ export default class CloudflareClient {
     let pageIndex = 1;
     let allRecordsFound = false;
     while (!allRecordsFound) {
-      const response: Response & {result: Array<RecordData>} = await this.cloudflare.dnsRecords.browse(zoneId, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (this.cloudflare as any).dnsRecords.browse(zoneId, {
         page: pageIndex,
+        // eslint-disable-next-line camelcase
         per_page: 100,
-      });
+      }) as {result: Array<RecordData>};
 
       records.push(...response.result);
 
@@ -296,7 +303,7 @@ export default class CloudflareClient {
   }
 
   private getDomainByRecordName(recordName: string): string {
-    const parsedDomain: ParseResult = parseDomain(fromUrl(recordName));
+    const parsedDomain = parseDomain(fromUrl(recordName));
 
     if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
       throw new Error(`Could not parse domain. '${JSON.stringify(recordName)}' is not a valid record name.`);

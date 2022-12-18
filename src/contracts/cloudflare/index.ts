@@ -1,2 +1,2 @@
-export * from './RecordData';
-export * from './ZoneData';
+export * from './RecordData.js';
+export * from './ZoneData.js';

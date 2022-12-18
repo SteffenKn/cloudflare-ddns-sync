@@ -1,15 +1,15 @@
 import {ScheduledTask} from 'node-cron';
 
-import CloudflareClient from './lib/cloudflare-client';
-import Cron from './lib/cron';
-import ipUtils from './lib/ip-utils';
+import CloudflareClient from './lib/cloudflare-client.js';
+import Cron from './lib/cron.js';
+import ipUtils from './lib/ip-utils.js';
 
 import {
   DomainRecordList,
   MultiSyncCallback,
   Record,
   RecordData,
-} from './contracts/index';
+} from './contracts/index.js';
 
 export default class CloudflareDDNSSync {
   private cloudflareClient: CloudflareClient;
@@ -83,4 +83,4 @@ export default class CloudflareDDNSSync {
   }
 }
 
-export * from './contracts/index';
+export * from './contracts/index.js';

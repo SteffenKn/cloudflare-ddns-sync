@@ -1,5 +1,5 @@
 import * as wimIp from 'what-is-my-ip-address';
-import publicIp from 'public-ip';
+import {publicIpv4, publicIpv6} from 'public-ip';
 
 export default class IPUtils {
   private static readonly ipPollingDelay: number = 10 * 1000;
@@ -9,7 +9,7 @@ export default class IPUtils {
   public static async getIpv4(): Promise<string> {
     /* c8 ignore start*/
     try {
-      return await publicIp.v4();
+      return await publicIpv4();
     } catch (error) {
       return wimIp.v4();
     }
@@ -21,7 +21,7 @@ export default class IPUtils {
     /* c8 ignore start */
 
     try {
-      return await publicIp.v6();
+      return await publicIpv6();
     } catch (error) {
       return wimIp.v6();
     }
