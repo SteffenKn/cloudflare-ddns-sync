@@ -33,27 +33,27 @@ in your project folder.
 ## Usage
 
 > Hint: If a record is not existing, CDS will automatically create it when
-syncing.
+> syncing.
 
 ### Javascript Example
 
 ```javascript
-const Cddnss = require('cloudflare-ddns-sync').default;
+const Cddnss = require("cloudflare-ddns-sync").default;
 
-const cddnss = new Cddnss('your@email.com', '<your-cloudflare-api-key>');
+const cddnss = new Cddnss("your@email.com", "<your-cloudflare-api-key>");
 
 const records = [
   {
-    name: 'test-1.domain.com',
-    type: 'A',          // optional
-    proxied: true,      // optional
-    ttl: 1,             // optional
-    priority: 0,        // optional
-    content: '1.2.3.4', // optional
+    name: "test-1.domain.com",
+    type: "A", // optional
+    proxied: true, // optional
+    ttl: 1, // optional
+    priority: 0, // optional
+    content: "1.2.3.4", // optional
   },
   {
-    name: "test-2.domain.com"
-  }
+    name: "test-2.domain.com",
+  },
 ];
 
 cddnss.syncRecords(records).then((result) => {
@@ -64,21 +64,24 @@ cddnss.syncRecords(records).then((result) => {
 ### Typescript Example
 
 ```typescript
-import Cddnss, {Record, RecordData} from 'cloudflare-ddns-sync';
+import Cddnss, { Record, RecordData } from "cloudflare-ddns-sync";
 
-const cddnss: Cddnss = new Cddnss('your@email.com', '<your-cloudflare-api-key>');
+const cddnss: Cddnss = new Cddnss(
+  "your@email.com",
+  "<your-cloudflare-api-key>"
+);
 
 const records: Array<Record> = [
   {
-    name: 'test-1.yourdomain.com',
-    type: 'A',          // optional
-    proxied: true,      // optional
-    ttl: 1,             // optional
-    priority: 0,        // optional
-    content: '1.2.3.4', // optional
+    name: "test-1.yourdomain.com",
+    type: "A", // optional
+    proxied: true, // optional
+    ttl: 1, // optional
+    priority: 0, // optional
+    content: "1.2.3.4", // optional
   },
   {
-    name: "test-2.yourdomain.com"
+    name: "test-2.yourdomain.com",
   },
 ];
 
