@@ -255,17 +255,19 @@ export default class CloudflareClient {
 
     let pageIndex = 1;
     let allRecordsFound = false;
+    const recordsPerPage = 5000;
+
     while (!allRecordsFound) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await (this.cloudflare as any).dnsRecords.browse(zoneId, {
         page: pageIndex,
         // eslint-disable-next-line camelcase
-        per_page: 100,
+        per_page: recordsPerPage,
       }) as {result: Array<RecordData>};
 
       records.push(...response.result);
 
-      allRecordsFound = response.result.length < 100;
+      allRecordsFound = response.result.length < recordsPerPage;
 
       pageIndex++;
     }
