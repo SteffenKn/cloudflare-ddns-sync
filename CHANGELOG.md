@@ -2,6 +2,10 @@
 
 ## v2
 
+### v2.0.6
+
+- ⬆️ Update dependencies
+
 ### v2.0.5
 
 - 🚨 Replace tslint with eslint
