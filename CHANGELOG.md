@@ -1,5 +1,15 @@
 # Changelog
 
+## v3
+
+### v3.0.0
+
+**This package will now be released as native ECMAScript module.**
+
+- ✨ **Add possibility to use Cloudflare API Token**
+- ♻️ Reduce request if many DNS Records exist for one Zone
+- ⬆️ Update dependencies
+
 ## v2
 
 ### v2.0.6
