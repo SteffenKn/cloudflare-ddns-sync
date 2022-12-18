@@ -11,12 +11,14 @@ export default class TestService {
 
     const email = args.email ? args.email : testConfig.auth.email;
     const key = args.key ? args.key : testConfig.auth.key;
+    const token = args.token ? args.token : testConfig.auth.token;
     const domain = args.domain ? args.domain : testConfig.domain;
 
     const testData: TestData = {
       auth: {
         email: email,
         key: key,
+        token: token,
       },
       domain: domain,
       records: this.getRandomRecords(5, domain),
@@ -67,10 +69,7 @@ export default class TestService {
 }
 
 export type TestData = {
-  auth: {
-    email: string,
-    key: string,
-  },
+  auth: Auth,
   domain: string,
   records: Array<Record>,
 };

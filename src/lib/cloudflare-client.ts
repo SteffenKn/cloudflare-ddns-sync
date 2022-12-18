@@ -5,7 +5,7 @@ import {
 } from 'parse-domain';
 import Cloudflare from 'cloudflare';
 
-import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts/index.js';
+import {Auth, DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts/index.js';
 import IPUtils from './ip-utils.js';
 
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;
@@ -17,11 +17,8 @@ export default class CloudflareClient {
 
   private zoneMap: ZoneMap = new Map();
 
-  constructor(email: string, authKey: string) {
-    this.cloudflare = new Cloudflare({
-      email: email,
-      key: authKey,
-    });
+  constructor(auth: Auth) {
+    this.cloudflare = new Cloudflare(auth);
 
     this.updateZoneMap();
   }

@@ -9,7 +9,11 @@ import {DomainRecordList, Record, RecordData} from '../contracts/index.js';
 
 const {expect} = chai;
 
-const cloudflareClient: CloudflareClient = new CloudflareClient(TestService.getTestData().auth.email, TestService.getTestData().auth.key);
+const cloudflareClient: CloudflareClient = new CloudflareClient({
+  email: TestService.getTestData().auth.email,
+  key: TestService.getTestData().auth.key,
+  token: TestService.getTestData().auth.token,
+});
 
 const recordsToCleanUp: Array<Record> = [];
 

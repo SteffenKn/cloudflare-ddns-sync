@@ -5,6 +5,7 @@ import Cron from './lib/cron.js';
 import ipUtils from './lib/ip-utils.js';
 
 import {
+  Auth,
   DomainRecordList,
   MultiSyncCallback,
   Record,
@@ -14,8 +15,8 @@ import {
 export default class CloudflareDDNSSync {
   private cloudflareClient: CloudflareClient;
 
-  constructor(email: string, authKey: string) {
-    this.cloudflareClient = new CloudflareClient(email, authKey);
+  constructor(auth: Auth) {
+    this.cloudflareClient = new CloudflareClient(auth);
   }
 
   public getIp(): Promise<string> {
