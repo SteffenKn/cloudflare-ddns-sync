@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-expressions */
-// tslint:disable:no-unused-expression
 import chai from 'chai';
 
 import TestService, {TestData} from './test-service/test-service';

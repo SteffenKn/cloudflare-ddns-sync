@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-expressions */
-// tslint:disable:no-unused-expression
 import {ScheduledTask} from 'node-cron';
 import chai from 'chai';
 
