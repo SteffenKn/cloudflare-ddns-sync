@@ -1,6 +1,6 @@
 import minimist, {ParsedArgs} from 'minimist';
 
-import testConfig from './test-data.json';
+import testConfig from './test-data.json' assert { type: 'json' };
 
 import {Auth, Record} from '../../contracts/index.js';
 
