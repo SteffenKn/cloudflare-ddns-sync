@@ -1,6 +1,8 @@
+import {RecordTypes} from '../index.js';
+
 export type RecordData = {
   id: string;
-  type: string;
+  type: RecordTypes;
   name: string;
   content: string;
   proxiable: boolean;

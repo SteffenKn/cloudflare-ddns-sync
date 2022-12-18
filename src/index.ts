@@ -1,21 +1,22 @@
 import {ScheduledTask} from 'node-cron';
 
-import CloudflareClient from './lib/cloudflare-client';
-import Cron from './lib/cron';
-import ipUtils from './lib/ip-utils';
+import CloudflareClient from './lib/cloudflare-client.js';
+import Cron from './lib/cron.js';
+import ipUtils from './lib/ip-utils.js';
 
 import {
+  Auth,
   DomainRecordList,
   MultiSyncCallback,
   Record,
   RecordData,
-} from './contracts/index';
+} from './contracts/index.js';
 
 export default class CloudflareDDNSSync {
   private cloudflareClient: CloudflareClient;
 
-  constructor(email: string, authKey: string) {
-    this.cloudflareClient = new CloudflareClient(email, authKey);
+  constructor(auth: Auth) {
+    this.cloudflareClient = new CloudflareClient(auth);
   }
 
   public getIp(): Promise<string> {
@@ -59,14 +60,14 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncOnIpChange(records: Array<Record>, callback: MultiSyncCallback): Promise<string> {
-    const changeListenerId: string = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
+    const changeListenerId = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);
     });
 
     // Sync records to make sure the current ip is already set.
-    const currentIp: string = await ipUtils.getIpv4();
+    const currentIp = await ipUtils.getIpv4();
     this.syncRecords(records, currentIp).then((syncedRecords: Array<RecordData>): void => {
       callback(syncedRecords);
     });
@@ -83,4 +84,4 @@ export default class CloudflareDDNSSync {
   }
 }
 
-export * from './contracts/index';
+export * from './contracts/index.js';

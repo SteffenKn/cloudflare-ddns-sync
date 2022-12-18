@@ -1,15 +1,15 @@
 import * as wimIp from 'what-is-my-ip-address';
-import publicIp from 'public-ip';
+import {publicIpv4, publicIpv6} from 'public-ip';
 
 export default class IPUtils {
-  private static readonly ipPollingDelay: number = 10 * 1000;
+  private static readonly ipPollingDelay = 10 * 1000;
 
   private static ipChangeEventListeners: Map<string, NodeJS.Timeout> = new Map();
 
   public static async getIpv4(): Promise<string> {
     /* c8 ignore start*/
     try {
-      return await publicIp.v4();
+      return await publicIpv4();
     } catch (error) {
       return wimIp.v4();
     }
@@ -21,7 +21,7 @@ export default class IPUtils {
     /* c8 ignore start */
 
     try {
-      return await publicIp.v6();
+      return await publicIpv6();
     } catch (error) {
       return wimIp.v6();
     }
@@ -30,15 +30,15 @@ export default class IPUtils {
   }
 
   public static async addIpChangeListener(callback: Function): Promise<string> {
-    const eventListenerId: string = this.getRandomId();
+    const eventListenerId = this.getId();
 
-    let previousIp: string = await this.getIpv4();
+    let previousIp = await this.getIpv4();
 
     /* c8 ignore start */
-    const intervalId: NodeJS.Timeout = setInterval(async(): Promise<void> => {
-      const currentIp: string = await this.getIpv4();
+    const intervalId = setInterval(async(): Promise<void> => {
+      const currentIp = await this.getIpv4();
 
-      const ipMustBeUpdated: boolean = currentIp !== previousIp;
+      const ipMustBeUpdated = currentIp !== previousIp;
       if (ipMustBeUpdated) {
         previousIp = currentIp;
 
@@ -54,23 +54,16 @@ export default class IPUtils {
   }
 
   public static removeIpChangeListener(eventListenerId: string): void {
-    const eventListenerIntervalId: NodeJS.Timeout = this.ipChangeEventListeners.get(eventListenerId);
+    const eventListenerIntervalId = this.ipChangeEventListeners.get(eventListenerId);
 
     clearInterval(eventListenerIntervalId);
 
     IPUtils.ipChangeEventListeners.delete(eventListenerId);
   }
 
-  private static getRandomId(): string {
-    const beginningRandomString: string = Math.random().toString(36)
-      .substr(2);
-    const currentDateAsString: string = new Date().valueOf()
-      .toString(36);
-    const endingRandomString: string = Math.random().toString(36)
-      .substr(2);
-
-    const randomString: string = beginningRandomString + currentDateAsString + endingRandomString;
-
-    return randomString;
+  private static getId(): string {
+    return Math.random().toString(36)
+      .substring(2, 15) + Math.random().toString(36)
+      .substring(2, 15);
   }
 }

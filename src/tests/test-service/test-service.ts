@@ -1,28 +1,30 @@
 import minimist, {ParsedArgs} from 'minimist';
 
-import testConfig from './test-data.json';
+import testConfig from './test-data.json' assert { type: 'json' };
 
-import {Record} from '../../contracts/index.js';
+import {Auth, Record} from '../../contracts/index.js';
 
 /* c8 ignore next 100 */
 export default class TestService {
   public static getTestData(): TestData {
     const args: ParsedArgs = minimist(process.argv.slice(2));
 
-    const email: string = args.email ? args.email : testConfig.auth.email;
-    const key: string = args.key ? args.key : testConfig.auth.key;
-    const domain: string = args.domain ? args.domain : testConfig.domain;
+    const email = args.email ? args.email : testConfig.auth.email;
+    const key = args.key ? args.key : testConfig.auth.key;
+    const token = args.token ? args.token : testConfig.auth.token;
+    const domain = args.domain ? args.domain : testConfig.domain;
 
     const testData: TestData = {
       auth: {
         email: email,
         key: key,
+        token: token,
       },
       domain: domain,
       records: this.getRandomRecords(5, domain),
     };
 
-    const testDataNotProvided: boolean = !testData.auth.email
+    const testDataNotProvided = !testData.auth.email
       || testData.auth.email === 'your@email.com'
       || !testData.auth.key
       || testData.auth.key === 'your_cloudflare_api_key'
@@ -67,10 +69,7 @@ export default class TestService {
 }
 
 export type TestData = {
-  auth: {
-    email: string,
-    key: string,
-  },
+  auth: Auth,
   domain: string,
   records: Array<Record>,
 };

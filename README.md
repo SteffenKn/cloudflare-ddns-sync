@@ -17,7 +17,7 @@ You may also have a look at the **official** [CLI version](https://www.npmjs.com
 
 ### Prerequisites
 
-- Node (14, 16, 18)
+- Node (16, 18)
 - Cloudflare Account
 
 ### Installation
