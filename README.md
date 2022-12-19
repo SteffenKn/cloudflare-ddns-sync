@@ -1,9 +1,11 @@
 # Cloudflare-DDNS-Sync
 
-![](https://github.com/SteffenKn/Cloudflare-ddns-sync/workflows/Test-Workflow/badge.svg)
+![](https://github.com/SteffenKn/cloudflare-ddns-sync/actions/workflows/push.yml/badge.svg)
+[![npm version](https://badge.fury.io/js/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
+[![Downloads](https://img.shields.io/npm/dm/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
+[![CLI](https://img.shields.io/badge/CLI-npm-important.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
 
-[![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://www.npmjs.com/package/cloudflare-ddns-sync)
-[![NPM](https://nodei.co/npm/cloudflare-ddns-sync-cli.png)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
+
 
 ## Overview
 
@@ -40,7 +42,12 @@ in your project folder.
 ```javascript
 const Cddnss = require("cloudflare-ddns-sync").default;
 
-const cddnss = new Cddnss("your@email.com", "<your-cloudflare-api-key>");
+// either email and key or token
+const cddnss = new Cddnss({
+  email: "your@email.com",
+  key: "<your-cloudflare-api-key>",
+  token: "<your-cloudflare-api-token>"
+});
 
 const records = [
   {
@@ -66,10 +73,12 @@ cddnss.syncRecords(records).then((result) => {
 ```typescript
 import Cddnss, { Record, RecordData } from "cloudflare-ddns-sync";
 
-const cddnss: Cddnss = new Cddnss(
-  "your@email.com",
-  "<your-cloudflare-api-key>"
-);
+// either email and key or token
+const cddnss = new Cddnss({
+  email: "your@email.com",
+  key: "<your-cloudflare-api-key>",
+  token: "<your-cloudflare-api-token>"
+});
 
 const records: Array<Record> = [
   {
