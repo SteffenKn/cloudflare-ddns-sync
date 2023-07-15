@@ -5,3 +5,4 @@ coverage/
 
 package-lock.json
 tsconfig.json
+.prettierrc
