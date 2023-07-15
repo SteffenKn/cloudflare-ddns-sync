@@ -4,13 +4,7 @@ import CloudflareClient from './lib/cloudflare-client.js';
 import Cron from './lib/cron.js';
 import ipUtils from './lib/ip-utils.js';
 
-import {
-  Auth,
-  DomainRecordList,
-  MultiSyncCallback,
-  Record,
-  RecordData,
-} from './contracts/index.js';
+import {Auth, DomainRecordList, MultiSyncCallback, Record, RecordData} from './contracts/index.js';
 
 export default class CloudflareDDNSSync {
   private cloudflareClient: CloudflareClient;
@@ -52,7 +46,7 @@ export default class CloudflareDDNSSync {
   }
 
   public syncByCronTime(cronExpression: string, records: Array<Record>, callback: MultiSyncCallback, ip?: string): ScheduledTask {
-    return Cron.createCronJob(cronExpression, async(): Promise<void> => {
+    return Cron.createCronJob(cronExpression, async (): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);
@@ -60,7 +54,7 @@ export default class CloudflareDDNSSync {
   }
 
   public async syncOnIpChange(records: Array<Record>, callback: MultiSyncCallback): Promise<string> {
-    const changeListenerId = await ipUtils.addIpChangeListener(async(ip: string): Promise<void> => {
+    const changeListenerId = await ipUtils.addIpChangeListener(async (ip: string): Promise<void> => {
       const result: Array<RecordData> = await this.syncRecords(records, ip);
 
       callback(result);

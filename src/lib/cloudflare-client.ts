@@ -1,8 +1,4 @@
-import {
-  ParseResultType,
-  fromUrl,
-  parseDomain,
-} from 'parse-domain';
+import {ParseResultType, fromUrl, parseDomain} from 'parse-domain';
 import Cloudflare from 'cloudflare';
 
 import {Auth, DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../contracts/index.js';
@@ -10,7 +6,8 @@ import IPUtils from './ip-utils.js';
 
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;
 // eslint-disable-next-line max-len
-const ipv6Regex = /^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::))))$/u;
+const ipv6Regex =
+  /^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::))))$/u;
 
 export default class CloudflareClient {
   private cloudflare: Cloudflare;
@@ -45,7 +42,7 @@ export default class CloudflareClient {
     const recordIds: Map<string, string> = await this.getRecordIdsForRecords(records);
     const ipToUse = ip ? ip : await IPUtils.getIpv4();
 
-    const resultPromises: Array<Promise<RecordData>> = records.map(async(record: Record): Promise<RecordData> => {
+    const resultPromises: Array<Promise<RecordData>> = records.map(async (record: Record): Promise<RecordData> => {
       const zoneId = await this.getZoneIdByRecordName(record.name);
       const recordId = recordIds.get(this.getRecordIdMapKey(record));
 
@@ -79,8 +76,7 @@ export default class CloudflareClient {
 
     const recordDataForDomain: Array<RecordData> = await this.getRecordsByDomain(domain);
 
-    const recordData: RecordData
-      = recordDataForDomain.find((singleRecordData: RecordData): boolean => record.name.toLowerCase() === singleRecordData.name.toLowerCase());
+    const recordData: RecordData = recordDataForDomain.find((singleRecordData: RecordData): boolean => record.name.toLowerCase() === singleRecordData.name.toLowerCase());
 
     return recordData;
   }
@@ -88,13 +84,12 @@ export default class CloudflareClient {
   public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
     const domains: Array<string> = this.getDomainsFromRecords(records);
 
-    const recordDataPromises = domains.map(async(domain): Promise<Array<RecordData>> => {
+    const recordDataPromises = domains.map(async (domain): Promise<Array<RecordData>> => {
       const recordDataForDomain = await this.getRecordsByDomain(domain);
 
-      const recordDataForDomainFilteredByRecords
-        = recordDataForDomain
-          .filter((singleRecordData: RecordData): boolean => records
-            .some((record: Record): boolean => record.name.toLowerCase() === singleRecordData.name.toLowerCase()));
+      const recordDataForDomainFilteredByRecords = recordDataForDomain.filter((singleRecordData: RecordData): boolean =>
+        records.some((record: Record): boolean => record.name.toLowerCase() === singleRecordData.name.toLowerCase()),
+      );
 
       return recordDataForDomainFilteredByRecords;
     });
@@ -106,8 +101,7 @@ export default class CloudflareClient {
   }
 
   public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
-    const recordDataPromises
-     = domains.map((domain: string) => this.getRecordDataForDomain(domain));
+    const recordDataPromises = domains.map((domain: string) => this.getRecordDataForDomain(domain));
 
     const recordDataForDomains = await Promise.all(recordDataPromises);
 
@@ -153,7 +147,7 @@ export default class CloudflareClient {
       }
     }
 
-    const response = await this.cloudflare.dnsRecords.add(zoneId, dnsRecord as Cloudflare.DnsRecord) as {result: RecordData};
+    const response = (await this.cloudflare.dnsRecords.add(zoneId, dnsRecord as Cloudflare.DnsRecord)) as {result: RecordData};
 
     return response.result;
   }
@@ -186,13 +180,13 @@ export default class CloudflareClient {
       }
     }
 
-    const response = await this.cloudflare.dnsRecords.edit(zoneId, recordId, dnsRecord) as {result: RecordData};
+    const response = (await this.cloudflare.dnsRecords.edit(zoneId, recordId, dnsRecord)) as {result: RecordData};
 
     return response.result;
   }
 
   private async updateZoneMap(): Promise<void> {
-    const response = await this.cloudflare.zones.browse() as {result: Array<ZoneData>};
+    const response = (await this.cloudflare.zones.browse()) as {result: Array<ZoneData>};
     const zones = response.result;
 
     this.zoneMap = new Map();
@@ -218,8 +212,9 @@ export default class CloudflareClient {
 
     const records = await this.getRecordsByDomain(domain);
 
-    const record = records.find((currentRecord: RecordData): boolean => currentRecord.name.toLowerCase() === recordName.toLowerCase()
-                                                                     && currentRecord.type.toLowerCase() === recordType.toLowerCase());
+    const record = records.find(
+      (currentRecord: RecordData): boolean => currentRecord.name.toLowerCase() === recordName.toLowerCase() && currentRecord.type.toLowerCase() === recordType.toLowerCase(),
+    );
 
     const recordNotFound = record === undefined;
     if (recordNotFound) {
@@ -259,11 +254,11 @@ export default class CloudflareClient {
 
     while (!allRecordsFound) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (this.cloudflare as any).dnsRecords.browse(zoneId, {
+      const response = (await (this.cloudflare as any).dnsRecords.browse(zoneId, {
         page: pageIndex,
         // eslint-disable-next-line camelcase
         per_page: recordsPerPage,
-      }) as {result: Array<RecordData>};
+      })) as {result: Array<RecordData>};
 
       records.push(...response.result);
 
@@ -293,10 +288,7 @@ export default class CloudflareClient {
   }
 
   private getDomainsFromRecords(records: Array<Record>): Array<string> {
-    const domains
-      = records
-        .map((record) => this.getDomainByRecordName(record.name))
-        .filter((domain, index, domainList) => domainList.indexOf(domain.toLowerCase()) === index);
+    const domains = records.map((record) => this.getDomainByRecordName(record.name)).filter((domain, index, domainList) => domainList.indexOf(domain.toLowerCase()) === index);
 
     return domains;
   }

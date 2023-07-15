@@ -1,5 +1,5 @@
 export type Auth = {
-  email?: string,
-  key?: string,
-  token?: string,
-}
+  email?: string;
+  key?: string;
+  token?: string;
+};

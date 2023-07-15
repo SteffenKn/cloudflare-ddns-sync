@@ -18,12 +18,11 @@ const cloudflareClient: CloudflareClient = new CloudflareClient({
 const recordsToCleanUp: Array<Record> = [];
 
 describe('Cloudflare Client', (): void => {
-  afterEach(async(): Promise<void> => {
-    const cleanupPromises = recordsToCleanUp.map(async(record: Record): Promise<void> => {
+  afterEach(async (): Promise<void> => {
+    const cleanupPromises = recordsToCleanUp.map(async (record: Record): Promise<void> => {
       await cloudflareClient.removeRecordByNameAndType(record.name);
 
-      const indexOfRecord
-        = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => record.name.toLowerCase() === recordToCleanup.name.toLowerCase());
+      const indexOfRecord = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => record.name.toLowerCase() === recordToCleanup.name.toLowerCase());
 
       recordsToCleanUp.splice(indexOfRecord, 1);
     });
@@ -31,7 +30,7 @@ describe('Cloudflare Client', (): void => {
     await Promise.all(cleanupPromises);
   });
 
-  it('should be able to create a record', async(): Promise<void> => {
+  it('should be able to create a record', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     record.content = '1.2.3.4';
@@ -53,7 +52,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should be able to remove a record', async(): Promise<void> => {
+  it('should be able to remove a record', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     record.content = '1.2.3.4';
@@ -63,7 +62,7 @@ describe('Cloudflare Client', (): void => {
     await cloudflareClient.removeRecordByNameAndType(record.name);
   });
 
-  it('should get record data for records', async(): Promise<void> => {
+  it('should get record data for records', async (): Promise<void> => {
     // Prepare
     const {records} = TestService.getTestData();
     await cloudflareClient.syncRecords(records, '1.2.3.4');
@@ -84,7 +83,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should sync existing record', async(): Promise<void> => {
+  it('should sync existing record', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     await cloudflareClient.syncRecord(record);
@@ -99,7 +98,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should sync multiple records', async(): Promise<void> => {
+  it('should sync multiple records', async (): Promise<void> => {
     // Prepare
     const {records} = TestService.getTestData();
     // Prepare END
@@ -117,7 +116,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should sync with ip via parameter', async(): Promise<void> => {
+  it('should sync with ip via parameter', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     const randomIp = getRandomIp();
@@ -133,7 +132,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should sync with ip via record.content', async(): Promise<void> => {
+  it('should sync with ip via record.content', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     const randomIp = getRandomIp();
@@ -150,7 +149,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should sync with external ip', async(): Promise<void> => {
+  it('should sync with external ip', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     record.content = undefined;
@@ -167,7 +166,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should get record data for domain', async(): Promise<void> => {
+  it('should get record data for domain', async (): Promise<void> => {
     // Prepare
     const testData = TestService.getTestData();
     const {domain} = testData;
@@ -190,7 +189,7 @@ describe('Cloudflare Client', (): void => {
     // Cleanup END
   });
 
-  it('should get record data for multiple domains', async(): Promise<void> => {
+  it('should get record data for multiple domains', async (): Promise<void> => {
     // Prepare
     const testData = TestService.getTestData();
     const {domain} = testData;
