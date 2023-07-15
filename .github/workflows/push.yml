@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v1
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v1
@@ -58,7 +58,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: dist ${{matrix.node-version}}
-          path: "dist/"
+          path: 'dist/'
 
       - name: Install
         run: npm install
@@ -80,17 +80,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js 16.x
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
-          registry-url: "https://registry.npmjs.org"
+          node-version: 18.x
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Unstash dist
         uses: actions/download-artifact@master
         with:
-          name: dist 16.x
-          path: "dist/"
+          name: dist 18.x
+          path: 'dist/'
 
       - name: Install
         run: npm install

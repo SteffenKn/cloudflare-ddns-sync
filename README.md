@@ -5,8 +5,6 @@
 [![Downloads](https://img.shields.io/npm/dm/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
 [![CLI](https://img.shields.io/badge/CLI-npm-important.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
 
-
-
 ## Overview
 
 Cloudflare-DDNS-Sync is a simple module that updates Cloudflare DNS records.
@@ -19,7 +17,7 @@ You may also have a look at the **official** [CLI version](https://www.npmjs.com
 
 ### Prerequisites
 
-- Node (16, 18)
+- Node
 - Cloudflare Account
 
 ### Installation
@@ -40,26 +38,26 @@ in your project folder.
 ### Javascript Example
 
 ```javascript
-const Cddnss = require("cloudflare-ddns-sync").default;
+const Cddnss = require('cloudflare-ddns-sync').default;
 
 // either email and key or token
 const cddnss = new Cddnss({
-  email: "your@email.com",
-  key: "<your-cloudflare-api-key>",
-  token: "<your-cloudflare-api-token>"
+  email: 'your@email.com',
+  key: '<your-cloudflare-api-key>',
+  token: '<your-cloudflare-api-token>',
 });
 
 const records = [
   {
-    name: "test-1.domain.com",
-    type: "A", // optional
+    name: 'test-1.domain.com',
+    type: 'A', // optional
     proxied: true, // optional
     ttl: 1, // optional
     priority: 0, // optional
-    content: "1.2.3.4", // optional
+    content: '1.2.3.4', // optional
   },
   {
-    name: "test-2.domain.com",
+    name: 'test-2.domain.com',
   },
 ];
 
@@ -71,26 +69,26 @@ cddnss.syncRecords(records).then((result) => {
 ### Typescript Example
 
 ```typescript
-import Cddnss, { Record, RecordData } from "cloudflare-ddns-sync";
+import Cddnss, {Record, RecordData} from 'cloudflare-ddns-sync';
 
 // either email and key or token
 const cddnss = new Cddnss({
-  email: "your@email.com",
-  key: "<your-cloudflare-api-key>",
-  token: "<your-cloudflare-api-token>"
+  email: 'your@email.com',
+  key: '<your-cloudflare-api-key>',
+  token: '<your-cloudflare-api-token>',
 });
 
 const records: Array<Record> = [
   {
-    name: "test-1.yourdomain.com",
-    type: "A", // optional
+    name: 'test-1.yourdomain.com',
+    type: 'A', // optional
     proxied: true, // optional
     ttl: 1, // optional
     priority: 0, // optional
-    content: "1.2.3.4", // optional
+    content: '1.2.3.4', // optional
   },
   {
-    name: "test-2.yourdomain.com",
+    name: 'test-2.yourdomain.com',
   },
 ];
 
