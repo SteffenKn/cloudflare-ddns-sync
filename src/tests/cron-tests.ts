@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 import chai from 'chai';
 
 import cron from '../lib/cron.js';
