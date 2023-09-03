@@ -33,7 +33,7 @@ export default class TestService {
       testData.domain === 'yourdomain.com';
 
     if (testDataNotProvided) {
-      console.log(
+      console.error(
         'In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'',
       );
 
