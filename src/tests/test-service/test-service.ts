@@ -2,7 +2,7 @@ import minimist, {ParsedArgs} from 'minimist';
 
 import testConfig from './test-data.json' assert {type: 'json'};
 
-import {Auth, Record} from '../../contracts/index.js';
+import {Auth, Record} from '../../types/index.js';
 
 /* c8 ignore next 100 */
 export default class TestService {

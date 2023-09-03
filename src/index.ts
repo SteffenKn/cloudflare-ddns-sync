@@ -4,7 +4,7 @@ import CloudflareClient from './lib/cloudflare-client.js';
 import Cron from './lib/cron.js';
 import ipUtils from './lib/ip-utils.js';
 
-import {Auth, DomainRecordList, MultiSyncCallback, Record, RecordData} from './contracts/index.js';
+import {Auth, DomainRecordList, MultiSyncCallback, Record, RecordData} from './types/index.js';
 
 export default class CloudflareDDNSSync {
   private cloudflareClient: CloudflareClient;
@@ -78,4 +78,4 @@ export default class CloudflareDDNSSync {
   }
 }
 
-export * from './contracts/index.js';
+export * from './types/index.js';
