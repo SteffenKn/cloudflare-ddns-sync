@@ -2,6 +2,10 @@
 
 ## v3
 
+### v3.0.1
+
+- ⬆️ Update dependencies
+
 ### v3.0.0
 
 **This package will now be released as native ECMAScript module.**

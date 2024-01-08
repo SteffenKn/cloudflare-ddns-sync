@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-ddns-sync",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A simple module to update DNS records on Cloudflare whenever you want",
   "main": "dist/index.js",
   "author": "Steffen Knaup <SteffenKnaup@hotmail.de>",
@@ -21,8 +21,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint --fix \"src/**/*.ts\"",
+    "lint": "prettier -c ./src",
+    "lint:fix": "prettier -w ./src",
     "test": "c8 mocha dist/tests/*.js --timeout 15000 --exit",
     "test:coverage": "npm run test:coverage-check && npm run test:coverage-report",
     "test:coverage-check": "c8 check-coverage --lines 70 --functions 70 --branches 70",
@@ -30,25 +30,23 @@
   },
   "dependencies": {
     "cloudflare": "2.9.1",
-    "node-cron": "3.0.2",
-    "parse-domain": "7.0.1",
+    "node-cron": "3.0.3",
+    "parse-domain": "8.0.1",
     "public-ip": "6.0.1",
     "what-is-my-ip-address": "1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "4.3.4",
-    "@types/cloudflare": "^2.7.9",
-    "@types/minimist": "1.2.2",
-    "@types/mocha": "10.0.1",
-    "@types/node": "18.11.17",
-    "@types/node-cron": "3.0.6",
-    "@typescript-eslint/eslint-plugin": "5.46.1",
-    "@typescript-eslint/parser": "5.46.1",
-    "c8": "7.12.0",
-    "chai": "4.3.7",
-    "eslint": "8.30.0",
-    "minimist": "1.2.7",
+    "@types/chai": "4.3.11",
+    "@types/cloudflare": "^2.7.13",
+    "@types/minimist": "1.2.5",
+    "@types/mocha": "10.0.6",
+    "@types/node": "20.10.7",
+    "@types/node-cron": "3.0.11",
+    "c8": "9.0.0",
+    "chai": "5.0.0",
+    "minimist": "1.2.8",
     "mocha": "10.2.0",
-    "typescript": "4.9.4"
+    "prettier": "^3.1.1",
+    "typescript": "5.3.3"
   }
 }

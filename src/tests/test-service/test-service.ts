@@ -1,8 +1,8 @@
 import minimist, {ParsedArgs} from 'minimist';
 
-import testConfig from './test-data.json' assert { type: 'json' };
+import testConfig from './test-data.json' assert {type: 'json'};
 
-import {Auth, Record} from '../../contracts/index.js';
+import {Auth, Record} from '../../types/index.js';
 
 /* c8 ignore next 100 */
 export default class TestService {
@@ -24,16 +24,18 @@ export default class TestService {
       records: this.getRandomRecords(5, domain),
     };
 
-    const testDataNotProvided = !testData.auth.email
-      || testData.auth.email === 'your@email.com'
-      || !testData.auth.key
-      || testData.auth.key === 'your_cloudflare_api_key'
-      || !testData.domain
-      || testData.domain === 'yourdomain.com';
+    const testDataNotProvided =
+      !testData.auth.email ||
+      testData.auth.email === 'your@email.com' ||
+      !testData.auth.key ||
+      testData.auth.key === 'your_cloudflare_api_key' ||
+      !testData.domain ||
+      testData.domain === 'yourdomain.com';
 
     if (testDataNotProvided) {
-      // eslint-disable-next-line max-len, no-console
-      console.log('In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'');
+      console.error(
+        'In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'',
+      );
 
       process.exit();
     }
@@ -69,7 +71,7 @@ export default class TestService {
 }
 
 export type TestData = {
-  auth: Auth,
-  domain: string,
-  records: Array<Record>,
+  auth: Auth;
+  domain: string;
+  records: Array<Record>;
 };

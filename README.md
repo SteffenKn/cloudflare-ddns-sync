@@ -1,9 +1,9 @@
 # Cloudflare-DDNS-Sync
 
-![](https://github.com/SteffenKn/Cloudflare-ddns-sync/workflows/Test-Workflow/badge.svg)
-
-[![NPM](https://nodei.co/npm/cloudflare-ddns-sync.png)](https://www.npmjs.com/package/cloudflare-ddns-sync)
-[![NPM](https://nodei.co/npm/cloudflare-ddns-sync-cli.png)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
+![](https://github.com/SteffenKn/cloudflare-ddns-sync/actions/workflows/push.yml/badge.svg)
+[![npm version](https://badge.fury.io/js/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
+[![Downloads](https://img.shields.io/npm/dm/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
+[![CLI](https://img.shields.io/badge/CLI-npm-important.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
 
 ## Overview
 
@@ -17,7 +17,7 @@ You may also have a look at the **official** [CLI version](https://www.npmjs.com
 
 ### Prerequisites
 
-- Node (16, 18)
+- Node
 - Cloudflare Account
 
 ### Installation
@@ -38,21 +38,26 @@ in your project folder.
 ### Javascript Example
 
 ```javascript
-const Cddnss = require("cloudflare-ddns-sync").default;
+const Cddnss = require('cloudflare-ddns-sync').default;
 
-const cddnss = new Cddnss("your@email.com", "<your-cloudflare-api-key>");
+// either email and key or token
+const cddnss = new Cddnss({
+  email: 'your@email.com',
+  key: '<your-cloudflare-api-key>',
+  token: '<your-cloudflare-api-token>',
+});
 
 const records = [
   {
-    name: "test-1.domain.com",
-    type: "A", // optional
+    name: 'test-1.domain.com',
+    type: 'A', // optional
     proxied: true, // optional
     ttl: 1, // optional
     priority: 0, // optional
-    content: "1.2.3.4", // optional
+    content: '1.2.3.4', // optional
   },
   {
-    name: "test-2.domain.com",
+    name: 'test-2.domain.com',
   },
 ];
 
@@ -64,24 +69,26 @@ cddnss.syncRecords(records).then((result) => {
 ### Typescript Example
 
 ```typescript
-import Cddnss, { Record, RecordData } from "cloudflare-ddns-sync";
+import Cddnss, {Record, RecordData} from 'cloudflare-ddns-sync';
 
-const cddnss: Cddnss = new Cddnss(
-  "your@email.com",
-  "<your-cloudflare-api-key>"
-);
+// either email and key or token
+const cddnss = new Cddnss({
+  email: 'your@email.com',
+  key: '<your-cloudflare-api-key>',
+  token: '<your-cloudflare-api-token>',
+});
 
 const records: Array<Record> = [
   {
-    name: "test-1.yourdomain.com",
-    type: "A", // optional
+    name: 'test-1.yourdomain.com',
+    type: 'A', // optional
     proxied: true, // optional
     ttl: 1, // optional
     priority: 0, // optional
-    content: "1.2.3.4", // optional
+    content: '1.2.3.4', // optional
   },
   {
-    name: "test-2.yourdomain.com",
+    name: 'test-2.yourdomain.com',
   },
 ];
 

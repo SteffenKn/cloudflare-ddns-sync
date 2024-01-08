@@ -35,7 +35,7 @@ export default class IPUtils {
     let previousIp = await this.getIpv4();
 
     /* c8 ignore start */
-    const intervalId = setInterval(async(): Promise<void> => {
+    const intervalId = setInterval(async (): Promise<void> => {
       const currentIp = await this.getIpv4();
 
       const ipMustBeUpdated = currentIp !== previousIp;
@@ -62,8 +62,6 @@ export default class IPUtils {
   }
 
   private static getId(): string {
-    return Math.random().toString(36)
-      .substring(2, 15) + Math.random().toString(36)
-      .substring(2, 15);
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 }
