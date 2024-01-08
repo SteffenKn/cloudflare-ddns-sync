@@ -1,8 +1,6 @@
-import chai from 'chai';
+import {expect} from 'chai';
 
 import cron from '../lib/cron.js';
-
-const {expect} = chai;
 
 describe('Cron Handler', (): void => {
   describe('Validate Cron Expressions', (): void => {

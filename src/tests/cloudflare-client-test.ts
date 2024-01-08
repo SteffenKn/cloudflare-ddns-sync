@@ -1,12 +1,10 @@
-import chai from 'chai';
+import {expect} from 'chai';
 
 import CloudflareClient from '../lib/cloudflare-client.js';
 import IPUtils from '../lib/ip-utils.js';
 import TestService from './test-service/test-service.js';
 
 import {Record, RecordData} from '../types/index.js';
-
-const {expect} = chai;
 
 const cloudflareClient: CloudflareClient = new CloudflareClient({
   email: TestService.getTestData().auth.email,
