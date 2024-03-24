@@ -1,4 +1,4 @@
-import {RecordTypes as CloudflareRecordTypes} from 'cloudflare';
+import {Record as CloudflareRecordTypes} from 'cloudflare';
 
 export type RecordTypes = Exclude<CloudflareRecordTypes, 'MX' | 'SRV' | 'URI'>;
 

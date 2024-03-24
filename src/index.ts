@@ -22,11 +22,11 @@ export default class CloudflareDDNSSync {
   }
 
   public getRecordDataForDomain(domain: string): Promise<Array<RecordData>> {
-    return this.cloudflareClient.getRecordDataForDomain(domain);
+    return this.cloudflareClient.getRecordsByDomain(domain);
   }
 
   public getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {
-    return this.cloudflareClient.getRecordDataForDomains(domains);
+    return this.cloudflareClient.getRecordsByDomains(domains);
   }
 
   public getRecordDataForRecord(record: Record): Promise<RecordData> {
@@ -70,11 +70,11 @@ export default class CloudflareDDNSSync {
   }
 
   public syncRecord(record: Record, ip?: string): Promise<RecordData> {
-    return this.cloudflareClient.syncRecord(record, ip);
+    return this.cloudflareClient.syncRecord(record, ip) as any;
   }
 
   public syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
-    return this.cloudflareClient.syncRecords(records, ip);
+    return this.cloudflareClient.syncRecords(records, ip) as any;
   }
 }
 

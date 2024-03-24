@@ -29,7 +29,7 @@
     "test:coverage-report": "c8 report"
   },
   "dependencies": {
-    "cloudflare": "2.9.1",
+    "cloudflare": "3.0.0-beta.11",
     "node-cron": "3.0.3",
     "parse-domain": "8.0.2",
     "public-ip": "6.0.2"
