@@ -2,6 +2,12 @@
 
 ## v3
 
+### 3.0.2
+
+- 📝 Add logo to README
+- ⬆️ Update dependencies
+- 🔥 Remove `what-is-my-ip-address` and use retry instead, because `what-is-my-ip-address` is not maintained for a long time
+
 ### v3.0.1
 
 - ⬆️ Update dependencies

@@ -1,4 +1,9 @@
-# Cloudflare-DDNS-Sync
+<table>
+  <tr>
+    <td width="25%"><img src="./logo.png" alt="Logo" width="100%"></td>
+    <td><h1>Cloudflare DDNS Sync</h1></td>
+  </tr>
+</table>
 
 ![](https://github.com/SteffenKn/cloudflare-ddns-sync/actions/workflows/push.yml/badge.svg)
 [![npm version](https://badge.fury.io/js/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)

@@ -1,4 +1,3 @@
-import * as wimIp from 'what-is-my-ip-address';
 import {publicIpv4, publicIpv6} from 'public-ip';
 
 export default class IPUtils {
@@ -11,7 +10,7 @@ export default class IPUtils {
     try {
       return await publicIpv4();
     } catch (error) {
-      return wimIp.v4();
+      return publicIpv4();
     }
 
     /* c8 ignore stop*/
@@ -23,7 +22,7 @@ export default class IPUtils {
     try {
       return await publicIpv6();
     } catch (error) {
-      return wimIp.v6();
+      return publicIpv6();
     }
 
     /* c8 ignore stop*/
