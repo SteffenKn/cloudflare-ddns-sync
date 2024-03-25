@@ -4,12 +4,12 @@ import CloudflareClient from '../lib/cloudflare-client.js';
 import IPUtils from '../lib/ip-utils.js';
 import TestService from './test-service/test-service.js';
 
-import {Record, RecordData} from '../types/index.js';
+import {Record} from '../types/index.js';
 
 const cloudflareClient: CloudflareClient = new CloudflareClient({
-  email: TestService.getTestData().auth.email,
-  key: TestService.getTestData().auth.key,
-  token: TestService.getTestData().auth.token,
+  apiEmail: TestService.getTestData().auth.apiEmail,
+  apiKey: TestService.getTestData().auth.apiKey,
+  apiToken: TestService.getTestData().auth.apiToken,
 });
 
 const recordsToCleanUp: Array<Record> = [];
@@ -67,7 +67,7 @@ describe('Cloudflare Client', (): void => {
 
     const recordData = await cloudflareClient.getRecordDataForRecords(records);
 
-    const recordDataNames = recordData.map((recordDataEntry: RecordData): string => recordDataEntry.name.toLowerCase());
+    const recordDataNames = recordData.map((recordDataEntry): string => recordDataEntry.name.toLowerCase());
 
     expect(recordData.length).to.equal(records.length);
 
@@ -102,7 +102,7 @@ describe('Cloudflare Client', (): void => {
 
     const recordData = await cloudflareClient.syncRecords(records);
 
-    const recordDataNames = recordData.map((singleRecordData: RecordData): string => singleRecordData.name.toLowerCase());
+    const recordDataNames = recordData.map((singleRecordData): string => singleRecordData.name.toLowerCase());
 
     for (const record of records) {
       expect(recordDataNames).to.contain(record.name.toLowerCase());
@@ -171,9 +171,9 @@ describe('Cloudflare Client', (): void => {
     await cloudflareClient.syncRecords(records, '1.2.3.4');
     // Prepare END
 
-    const recordData = await cloudflareClient.getRecordDataForDomain(domain);
+    const recordData = await cloudflareClient.getRecordsByDomain(domain);
 
-    const recordDataNames = recordData.map((recordDataEntry: RecordData): string => recordDataEntry.name.toLowerCase());
+    const recordDataNames = recordData.map((recordDataEntry): string => recordDataEntry.name.toLowerCase());
 
     // At least the data of the synced records should be existing
     expect(recordData.length).to.be.greaterThan(records.length - 1);
@@ -194,11 +194,11 @@ describe('Cloudflare Client', (): void => {
     await cloudflareClient.syncRecords(records, '1.2.3.4');
     // Prepare END
 
-    const domainRecordList = await cloudflareClient.getRecordDataForDomains([domain]);
+    const domainRecordList = await cloudflareClient.getRecordsByDomains([domain]);
 
     expect(Object.keys(domainRecordList)).to.contain(domain);
 
-    const recordDataNames = domainRecordList[domain].map((recordDataEntry: RecordData): string => recordDataEntry.name.toLowerCase());
+    const recordDataNames = domainRecordList[domain].map((recordDataEntry): string => recordDataEntry.name.toLowerCase());
 
     // At least the data of the synced records should be existing
     expect(domainRecordList[domain].length).to.be.greaterThan(records.length - 1);

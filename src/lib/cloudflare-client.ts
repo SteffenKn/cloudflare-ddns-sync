@@ -1,7 +1,7 @@
 import {ParseResultType, fromUrl, parseDomain} from 'parse-domain';
 import Cloudflare, {ClientOptions as CloudflareOptions} from 'cloudflare';
 
-import {DomainRecordList, Record, RecordData, ZoneMap} from '../types/index.js';
+import {Record, ZoneMap} from '../types/index.js';
 import IPUtils from './ip-utils.js';
 
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;
@@ -104,7 +104,7 @@ export default class CloudflareClient {
 
     const recordDataForDomains = await Promise.all(recordDataPromises);
 
-    const recordData: DomainRecordList = {};
+    const recordData = {};
     recordDataForDomains.forEach((recordDataForDomain, index) => {
       recordData[domains[index]] = recordDataForDomain;
     });
@@ -115,34 +115,20 @@ export default class CloudflareClient {
   public async getRecordsByDomain(domain: string) {
     const zoneId = await this.getZoneIdByDomain(domain);
 
-    const records: Array<RecordData> = [];
-
-    let pageIndex = 1;
-    let allRecordsFound = false;
-    const recordsPerPage = 5000;
-
-    while (!allRecordsFound) {
-      const response = (await (this.cloudflare as any).dnsRecords.browse(zoneId, {
-        page: pageIndex,
-        per_page: recordsPerPage,
-      })) as {result: Array<RecordData>};
-
-      records.push(...response.result);
-
-      allRecordsFound = response.result.length < recordsPerPage;
-
-      pageIndex++;
+    const allRecords: Cloudflare.DNS.Records.DNSRecord[] = [];
+    for await (const recordListResponse of this.cloudflare.dns.records.list({zone_id: zoneId})) {
+      allRecords.push(recordListResponse);
     }
 
-    return records;
+    return allRecords;
   }
 
   private async createRecord(zoneId: string, recordData: Record, ip?: string) {
-    const dnsRecordToCreate = {
+    const dnsRecordToCreate: Cloudflare.DNS.RecordCreateParams = {
       ...recordData,
       name: recordData.name.toLowerCase(),
-      content: recordData.content ? recordData.content : ip,
-      type: recordData.type ? recordData.type : 'A',
+      content: (recordData.content ? recordData.content : ip) as string,
+      type: (recordData.type ? recordData.type : 'A') as any,
       ttl: recordData.ttl ? recordData.ttl : 1,
       zone_id: zoneId,
     };
@@ -160,7 +146,7 @@ export default class CloudflareClient {
         throw Error(`Could not create Record "${dnsRecordToCreate.name}": '${dnsRecordToCreate.content}' is not a valid ipv6!`);
       }
     } else if (dnsRecordToCreate.type === 'CNAME') {
-      const parsedDomain = parseDomain(fromUrl(dnsRecordToCreate.content));
+      const parsedDomain = parseDomain(fromUrl(dnsRecordToCreate.content as string));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
         throw Error(`Could not create Record "${dnsRecordToCreate.name}": '${dnsRecordToCreate.content}' is not a valid domain name!`);
       }
@@ -170,11 +156,11 @@ export default class CloudflareClient {
   }
 
   private async updateRecord(zoneId: string, recordId: string, recordData: Record, ip?: string) {
-    const updatedDnsRecord = {
+    const updatedDnsRecord: Cloudflare.DNS.RecordCreateParams = {
       ...recordData,
       name: recordData.name.toLowerCase(),
-      content: recordData.content ? recordData.content : ip,
-      type: recordData.type ? recordData.type : 'A',
+      content: (recordData.content ? recordData.content : ip) as string,
+      type: (recordData.type ? recordData.type : 'A') as any,
       ttl: recordData.ttl ? recordData.ttl : 1,
       zone_id: zoneId,
     };
@@ -192,7 +178,7 @@ export default class CloudflareClient {
         throw Error(`Could not update Record "${updatedDnsRecord.name}": '${updatedDnsRecord.content}' is not a valid ipv6!`);
       }
     } else if (updatedDnsRecord.type === 'CNAME') {
-      const parsedDomain = parseDomain(fromUrl(updatedDnsRecord.content));
+      const parsedDomain = parseDomain(fromUrl(updatedDnsRecord.content as string));
       if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
         throw Error(`Could not update Record "${updatedDnsRecord.name}": '${updatedDnsRecord.content}' is not a valid domain name!`);
       }

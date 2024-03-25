@@ -1,4 +1,3 @@
-import {RecordData} from './index.js';
+import Cloudflare from 'cloudflare';
 
-export type SingleSyncCallback = (syncResult: RecordData) => void;
-export type MultiSyncCallback = (syncResult: Array<RecordData>) => void;
+export type MultiSyncCallback = (syncResult: Cloudflare.DNS.DNSRecord[]) => void;

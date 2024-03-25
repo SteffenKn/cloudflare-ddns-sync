@@ -19,6 +19,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "skipLibCheck": true
   }
 }

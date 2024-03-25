@@ -9,28 +9,13 @@ export default class TestService {
   public static getTestData(): TestData {
     const args: ParsedArgs = minimist(process.argv.slice(2));
 
-    const email = args.email ? args.email : testConfig.auth.email;
-    const key = args.key ? args.key : testConfig.auth.key;
-    const token = args.token ? args.token : testConfig.auth.token;
+    const cloudflareEmail = args.email ? args.email : testConfig.auth.email;
+    const cloudflareApiKey = args.key ? args.key : testConfig.auth.key;
+    const cloudflareApiToken = args.token ? args.token : testConfig.auth.token;
     const domain = args.domain ? args.domain : testConfig.domain;
 
-    const testData: TestData = {
-      auth: {
-        email: email,
-        key: key,
-        token: token,
-      },
-      domain: domain,
-      records: this.getRandomRecords(5, domain),
-    };
-
     const testDataNotProvided =
-      !testData.auth.email ||
-      testData.auth.email === 'your@email.com' ||
-      !testData.auth.key ||
-      testData.auth.key === 'your_cloudflare_api_key' ||
-      !testData.domain ||
-      testData.domain === 'yourdomain.com';
+      !cloudflareEmail || cloudflareEmail === 'your@email.com' || !cloudflareApiKey || cloudflareApiKey === 'your_cloudflare_api_key' || !domain || domain === 'yourdomain.com';
 
     if (testDataNotProvided) {
       console.error(
@@ -40,14 +25,24 @@ export default class TestService {
       process.exit();
     }
 
+    const testData: TestData = {
+      auth: {
+        apiEmail: cloudflareEmail,
+        apiKey: cloudflareApiKey,
+        apiToken: cloudflareApiToken,
+      },
+      domain: domain,
+      records: this.getRandomRecords(5, domain),
+    };
+
     return testData;
   }
 
   private static getRandomRecords(amount: number, domain: string): Array<Record> {
-    const records: Array<Record> = [];
+    const records = [];
 
     for (let index = 0; index < amount; index++) {
-      const record: Record = {
+      const record = {
         name: `cddnss-test-${this.getRandomSubdomain()}.${domain}`,
       };
 

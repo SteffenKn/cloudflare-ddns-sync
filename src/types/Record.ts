@@ -1,12 +1,3 @@
-import {Record as CloudflareRecordTypes} from 'cloudflare';
+import {Cloudflare} from 'cloudflare';
 
-export type RecordTypes = Exclude<CloudflareRecordTypes, 'MX' | 'SRV' | 'URI'>;
-
-export type Record = {
-  name: string;
-  type?: RecordTypes;
-  proxied?: boolean;
-  ttl?: number;
-  priority?: number;
-  content?: string;
-};
+export type Record = Cloudflare.DNS.DNSRecord;
