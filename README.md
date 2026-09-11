@@ -1,4 +1,9 @@
-# Cloudflare DDNS Sync
+<table>
+  <tr>
+    <td width="25%"><img src="./logo.png" alt="Cloudflare DDNS Sync logo" width="100%"></td>
+    <td><h1>Cloudflare DDNS Sync</h1></td>
+  </tr>
+</table>
 
 Cloudflare DDNS Sync synchronizes DNS records with the current public IP address. Version 4 provides a small, DDNS-oriented API.
 
