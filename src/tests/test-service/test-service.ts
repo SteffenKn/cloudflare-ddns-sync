@@ -1,6 +1,6 @@
 import minimist, {ParsedArgs} from 'minimist';
 
-import testConfig from './test-data.json' assert {type: 'json'};
+import testConfig from './test-data.json' with {type: 'json'};
 
 import {Auth, Record} from '../../types/index.js';
 
@@ -37,7 +37,7 @@ export default class TestService {
         'In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'',
       );
 
-      process.exit();
+      process.exit(1);
     }
 
     return testData;

@@ -22,7 +22,7 @@ You may also have a look at the **official** [CLI version](https://www.npmjs.com
 
 ### Prerequisites
 
-- Node
+- Node.js 20 or newer (Node.js 22 or 24 recommended)
 - Cloudflare Account
 
 ### Installation

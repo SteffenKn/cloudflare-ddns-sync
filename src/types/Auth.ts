@@ -1,3 +1,5 @@
-import Cloudflare from 'cloudflare';
-
-export type Auth = Cloudflare.AuthObject;
+export type Auth = {
+  email?: string | undefined;
+  key?: string | undefined;
+  token?: string | undefined;
+};

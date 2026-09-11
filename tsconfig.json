@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2022",
     "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
@@ -19,6 +19,10 @@
     "resolveJsonModule": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "types": [
+      "node",
+      "mocha"
+    ]
   }
 }

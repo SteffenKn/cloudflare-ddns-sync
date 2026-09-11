@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
           npm -v
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
           path: 'dist/'
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Test
         env:
@@ -80,20 +80,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 24.x
           registry-url: 'https://registry.npmjs.org'
 
       - name: Unstash dist
         uses: actions/download-artifact@master
         with:
-          name: dist 20.x
+          name: dist 24.x
           path: 'dist/'
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Publish on NPM
         run: npm publish

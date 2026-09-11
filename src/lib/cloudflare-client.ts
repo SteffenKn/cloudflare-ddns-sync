@@ -1,7 +1,8 @@
 import {ParseResultType, fromUrl, parseDomain} from 'parse-domain';
 import Cloudflare from 'cloudflare';
+import type {RecordCreateParams, RecordUpdateParams} from 'cloudflare/resources/dns/records';
 
-import {DomainRecordList, Record, RecordData, ZoneData, ZoneMap} from '../types/index.js';
+import {Auth, DomainRecordList, Record, RecordData, ZoneMap} from '../types/index.js';
 import IPUtils from './ip-utils.js';
 
 const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/u;
@@ -13,10 +14,15 @@ export default class CloudflareClient {
 
   private zoneMap: ZoneMap = new Map();
 
-  constructor(auth: Cloudflare.AuthObject) {
-    this.cloudflare = new Cloudflare(auth);
-
-    this.updateZoneMap();
+  constructor(auth: Auth) {
+    const isUserServiceKey = auth.key?.startsWith('v1.0-');
+    this.cloudflare = new Cloudflare({
+      apiEmail: auth.key && !isUserServiceKey ? (auth.email ?? null) : null,
+      apiKey: !isUserServiceKey ? auth.key || null : null,
+      apiToken: auth.key ? null : auth.token || null,
+      userServiceKey: isUserServiceKey ? auth.key : null,
+      timeout: 10_000,
+    });
   }
 
   public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
@@ -67,7 +73,7 @@ export default class CloudflareClient {
     const zoneId = await this.getZoneIdByRecordName(recordName);
     const recordId = await this.getRecordIdByNameAndType(recordName, recordTypeToUse);
 
-    await this.cloudflare.dnsRecords.del(zoneId, recordId);
+    await this.cloudflare.dns.records.delete(recordId, {zone_id: zoneId});
   }
 
   public async getRecordDataForRecord(record: Record): Promise<RecordData> {
@@ -119,7 +125,7 @@ export default class CloudflareClient {
   }
 
   private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord: Cloudflare.DnsRecord = {
+    const dnsRecord = {
       ...record,
       name: record.name.toLowerCase(),
       content: record.content ? record.content : ip,
@@ -146,13 +152,13 @@ export default class CloudflareClient {
       }
     }
 
-    const response = (await this.cloudflare.dnsRecords.add(zoneId, dnsRecord as Cloudflare.DnsRecord)) as {result: RecordData};
+    const response = await this.cloudflare.dns.records.create({zone_id: zoneId, ...dnsRecord} as RecordCreateParams);
 
-    return response.result;
+    return response as RecordData;
   }
 
   private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord: Cloudflare.DnsRecord = {
+    const dnsRecord = {
       ...record,
       name: record.name.toLowerCase(),
       content: record.content ? record.content : ip,
@@ -179,19 +185,17 @@ export default class CloudflareClient {
       }
     }
 
-    const response = (await this.cloudflare.dnsRecords.edit(zoneId, recordId, dnsRecord)) as {result: RecordData};
+    const response = await this.cloudflare.dns.records.update(recordId, {zone_id: zoneId, ...dnsRecord} as RecordUpdateParams);
 
-    return response.result;
+    return response as RecordData;
   }
 
   private async updateZoneMap(): Promise<void> {
-    const response = (await this.cloudflare.zones.browse()) as {result: Array<ZoneData>};
-    const zones = response.result;
-
-    this.zoneMap = new Map();
-    for (const zone of zones) {
-      this.zoneMap.set(zone.name, zone.id);
+    const zones: ZoneMap = new Map();
+    for await (const zone of this.cloudflare.zones.list()) {
+      zones.set(zone.name.toLowerCase(), zone.id);
     }
+    this.zoneMap = zones;
   }
 
   private async getRecordIdByNameAndType(recordName: string, recordType: string): Promise<string> {
@@ -247,27 +251,15 @@ export default class CloudflareClient {
 
     const records: Array<RecordData> = [];
 
-    let pageIndex = 1;
-    let allRecordsFound = false;
-    const recordsPerPage = 5000;
-
-    while (!allRecordsFound) {
-      const response = (await (this.cloudflare as any).dnsRecords.browse(zoneId, {
-        page: pageIndex,
-        per_page: recordsPerPage,
-      })) as {result: Array<RecordData>};
-
-      records.push(...response.result);
-
-      allRecordsFound = response.result.length < recordsPerPage;
-
-      pageIndex++;
+    for await (const record of this.cloudflare.dns.records.list({zone_id: zoneId, per_page: 5000})) {
+      records.push(record as RecordData);
     }
 
     return records;
   }
 
   private async getZoneIdByDomain(domain: string): Promise<string> {
+    domain = domain.toLowerCase();
     if (this.zoneMap.has(domain)) {
       const zoneId = this.zoneMap.get(domain.toLowerCase());
 
