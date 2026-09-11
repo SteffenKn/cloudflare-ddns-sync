@@ -10,6 +10,8 @@
 - 🚨 Add a DDNS-oriented API with `createDdns()`, `sync()`, `schedule()`, `watch()`, `list()`, `remove()` and `ip()`
 - 🚨 Allow records to be configured as hostnames; A and AAAA records automatically resolve the matching public IP
 - 🚨 Return a dedicated controllable job from schedules and watchers
+- 🐛 Respect the requested DNS type when listing records with the same hostname
+- ♻️ Validate configuration before network access, make jobs safe to stop and add `sync({ipv4, ipv6})` for configured records
 
 ## v3
 

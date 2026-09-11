@@ -23,11 +23,25 @@ export type WatchOptions = JobOptions & {
   intervalMs?: number;
 };
 
-export type ListOptions = {
+export type RecordListOptions = {
   records?: RecordSelection;
-  domains?: string | Array<string>;
-  groupBy?: 'domain';
+  domains?: never;
+  groupBy?: never;
 };
+
+export type DomainListOptions = {
+  records?: never;
+  domains?: string | Array<string>;
+  groupBy?: never;
+};
+
+export type GroupedDomainListOptions = {
+  records?: never;
+  domains: string | Array<string>;
+  groupBy: 'domain';
+};
+
+export type ListOptions = RecordListOptions | DomainListOptions | GroupedDomainListOptions;
 
 export type SyncJob = {
   run(): Promise<Array<DnsRecord>>;

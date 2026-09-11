@@ -24,9 +24,12 @@ await ddns.syncRecords(records, '203.0.113.10');
 // v4
 await ddns.sync('home.example.com');
 await ddns.sync(records, {ipv4: '203.0.113.10'});
+await ddns.sync({ipv4: '203.0.113.10'}); // configured records
 ```
 
 `sync()` always returns an array. For a single record, use the first entry: `const [record] = await ddns.sync('home.example.com')`.
+
+For configured records, pass fixed addresses directly as the first argument. The former placeholder form `sync(undefined, {ipv4})` remains supported for compatibility.
 
 A and AAAA records automatically use the matching IP family. Non-IP records now require explicit `content`.
 

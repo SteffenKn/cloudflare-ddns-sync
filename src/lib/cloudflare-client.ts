@@ -63,10 +63,16 @@ export default class CloudflareClient {
   }
 
   public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
-    const recordNames = new Set(records.map((record) => record.name.toLowerCase()));
     const recordsByDomain = await Promise.all(this.getDomainsFromRecords(records).map((domain) => this.getRecordsByDomain(domain)));
 
-    return recordsByDomain.flat().filter((record): boolean => recordNames.has(record.name.toLowerCase()));
+    return recordsByDomain
+      .flat()
+      .filter((record): boolean =>
+        records.some(
+          (requestedRecord): boolean =>
+            requestedRecord.name.toLowerCase() === record.name.toLowerCase() && (requestedRecord.type === undefined || requestedRecord.type === record.type),
+        ),
+      );
   }
 
   public async getRecordDataForDomains(domains: Array<string>): Promise<DomainRecordList> {

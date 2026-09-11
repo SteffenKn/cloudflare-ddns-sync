@@ -49,7 +49,7 @@ await ddns.sync();
 await ddns.sync('temporary.example.com');
 await ddns.sync(['home.example.com', {name: 'vpn.example.com', proxied: true}]);
 
-await ddns.sync(undefined, {
+await ddns.sync({
   ipv4: '203.0.113.10',
   ipv6: '2001:db8::1',
 });
@@ -70,12 +70,15 @@ const watching = await ddns.watch({
 await watching.stop();
 ```
 
-`schedule()` starts immediately and synchronizes at the next cron interval. `watch()` synchronizes first and then watches the required IP families; the default interval is ten seconds. Both return a job with `run()`, `start()` and `stop()` methods.
+`schedule()` starts immediately and synchronizes at the next cron interval. `watch()` synchronizes first and then watches only the required IP families; the default interval is ten seconds. Fixed addresses and records with explicit `content` are not polled. Both return a job with `run()`, `start()` and `stop()` methods. Errors from `run()` reject its promise; automatic runs call `onError` once.
+
+Configuration errors are `DdnsError`s with `code: 'INVALID_CONFIG'`; errors while looking up a public address have `code: 'IP_UNAVAILABLE'`.
 
 ## Listing and removing records
 
 ```ts
 const records = await ddns.list({records: 'home.example.com'});
+const ipv6Records = await ddns.list({records: {name: 'home.example.com', type: 'AAAA'}});
 const domainRecords = await ddns.list({domains: 'example.com'});
 const grouped = await ddns.list({domains: ['example.com', 'example.org'], groupBy: 'domain'});
 
@@ -83,7 +86,7 @@ await ddns.remove('home.example.com');
 await ddns.remove({name: 'home.example.com', type: 'AAAA'});
 ```
 
-`remove('name')` removes an A record. Use a record object for other types. `list()` without filters uses the records configured when creating the DDNS instance.
+`remove('name')` removes an A record. Use a record object for other types. `list()` without filters uses the records configured when creating the DDNS instance. A record filter with `type` returns only that DNS type.
 
 ## Public IP
 

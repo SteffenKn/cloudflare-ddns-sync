@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 
-import {createDdns} from '../index.js';
+import {createDdns, DdnsError} from '../index.js';
 import cron from '../lib/cron.js';
 
 describe('Cron Handler', (): void => {
@@ -43,6 +43,24 @@ describe('Cron Handler', (): void => {
   });
 
   describe('Schedule Cron Expressions', (): void => {
+    it('should reject invalid v4 configuration before starting a job', async (): Promise<void> => {
+      expect(() => createDdns({token: 'test-token', records: ['']})).to.throw(DdnsError, 'records[0].name');
+
+      const ddns = createDdns({token: 'test-token', records: []});
+      try {
+        await ddns.list({records: [], domains: []} as never);
+        expect.fail('Expected list to reject conflicting filters.');
+      } catch (error) {
+        expect(error.message).to.contain('either records or domains');
+      }
+      try {
+        await ddns.watch({intervalMs: 0});
+        expect.fail('Expected watch to reject an invalid interval.');
+      } catch (error) {
+        expect(error.message).to.contain('intervalMs');
+      }
+    });
+
     it('should create a v4 sync job', async (): Promise<void> => {
       const ddns = createDdns({token: 'test-token', records: []});
       const job = ddns.schedule('*/1 * * * * *');
