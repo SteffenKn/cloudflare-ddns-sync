@@ -4,11 +4,9 @@
 
 ### v4.0.0
 
-- Update all dependencies, including Cloudflare 2 → 7, node-cron 3 → 4 and public-ip 6 → 8.
-- Require Node.js 20 or newer; development tools require 20.19+ or 22.12+.
-- Preserve public auth fields, key/token precedence, record types, sync methods and DNS defaults while adapting to the new SDK.
-- Fetch all zone and DNS record pages; report zone-loading failures through the awaited operation.
-- Add offline SDK compatibility tests and a reproducible dependency lockfile.
+- ⬆️ Update dependencies, including Cloudflare 2 → 7, node-cron 3 → 4 and public-ip 6 → 8.
+- ♻️ Preserve public auth fields, key/token precedence, record types, sync methods and DNS defaults while adapting to the new SDK.
+- ♻️ Fetch all zone and DNS record pages; report zone-loading failures through the awaited operation.
 
 ## v3
 

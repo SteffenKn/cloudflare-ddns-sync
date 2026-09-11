@@ -17,7 +17,7 @@ const recordsToCleanUp: Array<Record> = [];
 describe('Cloudflare Client', (): void => {
   afterEach(async (): Promise<void> => {
     const cleanupPromises = recordsToCleanUp.map(async (record: Record): Promise<void> => {
-      await cloudflareClient.removeRecordByNameAndType(record.name);
+      await cloudflareClient.removeRecordByNameAndType(record.name, record.type);
 
       const indexOfRecord = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => record.name.toLowerCase() === recordToCleanup.name.toLowerCase());
 
@@ -43,6 +43,23 @@ describe('Cloudflare Client', (): void => {
     expect(createdRecord.name.length).to.be.greaterThan(0);
     expect(createdRecord.type).to.be.string;
     expect(createdRecord.type).to.equal(expectedRecordType);
+
+    // Cleanup
+    recordsToCleanUp.push(record);
+    // Cleanup END
+  });
+
+  it('should be able to create an IPv6 record', async (): Promise<void> => {
+    // Prepare
+    const record = TestService.getTestData().records.shift();
+    record.type = 'AAAA';
+    record.content = '2001:db8::1';
+    // Prepare END
+
+    const createdRecord = await cloudflareClient.syncRecord(record);
+
+    expect(createdRecord.type).to.equal('AAAA');
+    expect(createdRecord.content).to.equal('2001:db8::1');
 
     // Cleanup
     recordsToCleanUp.push(record);
