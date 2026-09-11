@@ -1,23 +1,19 @@
 import {expect} from 'chai';
 
-import CloudflareClient from '../lib/cloudflare-client.js';
+import {createDdns, Ddns} from '../index.js';
 import IPUtils from '../lib/ip-utils.js';
 import TestService from './test-service/test-service.js';
 
 import {Record, RecordData} from '../types/index.js';
 
-const cloudflareClient: CloudflareClient = new CloudflareClient({
-  email: TestService.getTestData().auth.email,
-  key: TestService.getTestData().auth.key,
-  token: TestService.getTestData().auth.token,
-});
+const cloudflareClient: Ddns = createDdns(TestService.getTestData().auth);
 
 const recordsToCleanUp: Array<Record> = [];
 
 describe('Cloudflare Client', (): void => {
   afterEach(async (): Promise<void> => {
     const cleanupPromises = recordsToCleanUp.map(async (record: Record): Promise<void> => {
-      await cloudflareClient.removeRecordByNameAndType(record.name, record.type);
+      await cloudflareClient.remove({name: record.name, type: record.type || 'A'});
 
       const indexOfRecord = recordsToCleanUp.findIndex((recordToCleanup: Record): boolean => record.name.toLowerCase() === recordToCleanup.name.toLowerCase());
 
@@ -33,7 +29,7 @@ describe('Cloudflare Client', (): void => {
     record.content = '1.2.3.4';
     // Prepare END
 
-    const createdRecord = await cloudflareClient.syncRecord(record);
+    const createdRecord = await syncRecord(record);
 
     const expectedRecordType = record.type ? record.type : 'A';
 
@@ -56,7 +52,7 @@ describe('Cloudflare Client', (): void => {
     record.content = '2001:db8::1';
     // Prepare END
 
-    const createdRecord = await cloudflareClient.syncRecord(record);
+    const createdRecord = await syncRecord(record);
 
     expect(createdRecord.type).to.equal('AAAA');
     expect(createdRecord.content).to.equal('2001:db8::1');
@@ -70,19 +66,19 @@ describe('Cloudflare Client', (): void => {
     // Prepare
     const record = TestService.getTestData().records.shift();
     record.content = '1.2.3.4';
-    await cloudflareClient.syncRecord(record);
+    await syncRecord(record);
     // Prepare END
 
-    await cloudflareClient.removeRecordByNameAndType(record.name);
+    await cloudflareClient.remove(record.name);
   });
 
   it('should get record data for records', async (): Promise<void> => {
     // Prepare
     const {records} = TestService.getTestData();
-    await cloudflareClient.syncRecords(records, '1.2.3.4');
+    await cloudflareClient.sync(records, {ipv4: '1.2.3.4'});
     // Prepare END
 
-    const recordData = await cloudflareClient.getRecordDataForRecords(records);
+    const recordData = (await cloudflareClient.list({records})) as Array<RecordData>;
 
     const recordDataNames = recordData.map((recordDataEntry: RecordData): string => recordDataEntry.name.toLowerCase());
 
@@ -100,10 +96,10 @@ describe('Cloudflare Client', (): void => {
   it('should sync existing record', async (): Promise<void> => {
     // Prepare
     const record = TestService.getTestData().records.shift();
-    await cloudflareClient.syncRecord(record);
+    await syncRecord(record);
     // Prepare END
 
-    const recordData = await cloudflareClient.syncRecord(record);
+    const recordData = await syncRecord(record);
 
     expect(recordData.name.toLowerCase()).to.equal(record.name.toLowerCase());
 
@@ -117,7 +113,7 @@ describe('Cloudflare Client', (): void => {
     const {records} = TestService.getTestData();
     // Prepare END
 
-    const recordData = await cloudflareClient.syncRecords(records);
+    const recordData = await cloudflareClient.sync(records);
 
     const recordDataNames = recordData.map((singleRecordData: RecordData): string => singleRecordData.name.toLowerCase());
 
@@ -136,7 +132,7 @@ describe('Cloudflare Client', (): void => {
     const randomIp = getRandomIp();
     // Prepare END
 
-    const recordData = await cloudflareClient.syncRecord(record, randomIp);
+    const recordData = await syncRecord(record, randomIp);
 
     expect(recordData.name.toLowerCase()).to.equal(record.name.toLowerCase());
     expect(recordData.content).to.equal(randomIp);
@@ -153,7 +149,7 @@ describe('Cloudflare Client', (): void => {
     record.content = randomIp;
     // Prepare END
 
-    const recordData = await cloudflareClient.syncRecord(record);
+    const recordData = await syncRecord(record);
 
     expect(recordData.name.toLowerCase()).to.equal(record.name.toLowerCase());
     expect(recordData.content).to.equal(randomIp);
@@ -170,7 +166,7 @@ describe('Cloudflare Client', (): void => {
     const currentIp = await IPUtils.getIpv4();
     // Prepare END
 
-    const recordData = await cloudflareClient.syncRecord(record);
+    const recordData = await syncRecord(record);
 
     expect(recordData.name.toLowerCase()).to.equal(record.name.toLowerCase());
     expect(recordData.content).to.equal(currentIp);
@@ -185,10 +181,10 @@ describe('Cloudflare Client', (): void => {
     const testData = TestService.getTestData();
     const {domain} = testData;
     const {records} = testData;
-    await cloudflareClient.syncRecords(records, '1.2.3.4');
+    await cloudflareClient.sync(records, {ipv4: '1.2.3.4'});
     // Prepare END
 
-    const recordData = await cloudflareClient.getRecordDataForDomain(domain);
+    const recordData = (await cloudflareClient.list({domains: domain})) as Array<RecordData>;
 
     const recordDataNames = recordData.map((recordDataEntry: RecordData): string => recordDataEntry.name.toLowerCase());
 
@@ -208,10 +204,10 @@ describe('Cloudflare Client', (): void => {
     const testData = TestService.getTestData();
     const {domain} = testData;
     const {records} = testData;
-    await cloudflareClient.syncRecords(records, '1.2.3.4');
+    await cloudflareClient.sync(records, {ipv4: '1.2.3.4'});
     // Prepare END
 
-    const domainRecordList = await cloudflareClient.getRecordDataForDomains([domain]);
+    const domainRecordList = (await cloudflareClient.list({domains: [domain], groupBy: 'domain'})) as {[domain: string]: Array<RecordData>};
 
     expect(Object.keys(domainRecordList)).to.contain(domain);
 
@@ -231,6 +227,12 @@ describe('Cloudflare Client', (): void => {
 
 function getRandomIp(): string {
   return `${getRandomNumber()}.${getRandomNumber()}.${getRandomNumber()}.${getRandomNumber()}`;
+}
+
+async function syncRecord(record: Record, ipv4?: string): Promise<RecordData> {
+  const [result] = await cloudflareClient.sync(record, ipv4 ? {ipv4} : {});
+
+  return result;
 }
 
 function getRandomNumber(): number {

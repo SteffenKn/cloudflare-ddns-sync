@@ -9,3 +9,6 @@ export type Record = {
   priority?: number;
   content?: string;
 };
+
+/** A hostname or a DNS record with explicit options. */
+export type RecordInput = string | Record;

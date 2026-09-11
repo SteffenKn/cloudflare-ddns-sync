@@ -7,6 +7,9 @@
 - ⬆️ Update dependencies, including Cloudflare 2 → 7, node-cron 3 → 4 and public-ip 6 → 8.
 - ♻️ Preserve public auth fields, key/token precedence, record types, sync methods and DNS defaults while adapting to the new SDK.
 - ♻️ Fetch all zone and DNS record pages; report zone-loading failures through the awaited operation.
+- 🚨 Add a DDNS-oriented API with `createDdns()`, `sync()`, `schedule()`, `watch()`, `list()`, `remove()` and `ip()`
+- 🚨 Allow records to be configured as hostnames; A and AAAA records automatically resolve the matching public IP
+- 🚨 Return a dedicated controllable job from schedules and watchers
 
 ## v3
 

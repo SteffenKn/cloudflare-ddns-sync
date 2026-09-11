@@ -1,160 +1,105 @@
-<table>
-  <tr>
-    <td width="25%"><img src="./logo.png" alt="Logo" width="100%"></td>
-    <td><h1>Cloudflare DDNS Sync</h1></td>
-  </tr>
-</table>
+# Cloudflare DDNS Sync
 
-![](https://github.com/SteffenKn/cloudflare-ddns-sync/actions/workflows/push.yml/badge.svg)
-[![npm version](https://badge.fury.io/js/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
-[![Downloads](https://img.shields.io/npm/dm/cloudflare-ddns-sync.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync)
-[![CLI](https://img.shields.io/badge/CLI-npm-important.svg)](https://www.npmjs.com/package/cloudflare-ddns-sync-cli)
+Cloudflare DDNS Sync synchronizes DNS records with the current public IP address. Version 4 provides a small, DDNS-oriented API.
 
-## Overview
+## Voraussetzungen
 
-Cloudflare-DDNS-Sync is a simple module that updates Cloudflare DNS records.
+- Node.js 20 or newer
+- A Cloudflare API token with permission to read zones and edit DNS records
 
-For a more detailed overview, have a look at the [Documentation](https://cddnss.knaup.pw/)
-
-You may also have a look at the **official** [CLI version](https://www.npmjs.com/package/cloudflare-ddns-sync-cli) of Cloudflare-DDNS-Sync.
-
-## How do I set this project up?
-
-### Prerequisites
-
-- Node.js 20 or newer (Node.js 22 or 24 recommended)
-- Cloudflare Account
-
-### Installation
-
-To install Cloudflare-DDNS-Sync simply run:
-
-```
+```sh
 npm install cloudflare-ddns-sync
 ```
 
-in your project folder.
+## Einstieg
 
-## Usage
+Set `CLOUDFLARE_API_TOKEN` and configure the hostnames once:
 
-> Hint: If a record is not existing, CDS will automatically create it when
-> syncing.
+```ts
+import {createDdns} from 'cloudflare-ddns-sync';
 
-### Javascript Example
-
-```javascript
-const Cddnss = require('cloudflare-ddns-sync').default;
-
-// either email and key or token
-const cddnss = new Cddnss({
-  email: 'your@email.com',
-  key: '<your-cloudflare-api-key>',
-  token: '<your-cloudflare-api-token>',
+const ddns = createDdns({
+  records: ['home.example.com', {name: 'app.example.com', proxied: true}],
 });
 
-const records = [
-  {
-    name: 'test-1.domain.com',
-    type: 'A', // optional
-    proxied: true, // optional
-    ttl: 1, // optional
-    priority: 0, // optional
-    content: '1.2.3.4', // optional
-  },
-  {
-    name: 'test-2.domain.com',
-  },
-];
-
-cddnss.syncRecords(records).then((result) => {
-  console.log(result);
-});
+await ddns.sync();
 ```
 
-### Typescript Example
+A string represents an A record. Missing A and AAAA records are created; existing records with the same name and type are updated. A records automatically receive the public IPv4 address, and AAAA records receive the IPv6 address.
 
-```typescript
-import Cddnss, {Record, RecordData} from 'cloudflare-ddns-sync';
-
-// either email and key or token
-const cddnss = new Cddnss({
-  email: 'your@email.com',
-  key: '<your-cloudflare-api-key>',
-  token: '<your-cloudflare-api-token>',
+```ts
+const ddns = createDdns({
+  token: process.env.CLOUDFLARE_API_TOKEN,
+  records: [
+    'home.example.com',
+    {name: 'home.example.com', type: 'AAAA'},
+    {name: 'alias.example.com', type: 'CNAME', content: 'home.example.com'},
+  ],
 });
 
-const records: Array<Record> = [
-  {
-    name: 'test-1.yourdomain.com',
-    type: 'A', // optional
-    proxied: true, // optional
-    ttl: 1, // optional
-    priority: 0, // optional
-    content: '1.2.3.4', // optional
-  },
-  {
-    name: 'test-2.yourdomain.com',
-  },
-];
+await ddns.sync();
+```
 
-cddnss.syncRecords(records).then((result: Array<RecordData>) => {
-  console.log(result);
+Explicit `token`, `email`/`key` and user service keys remain supported. If no credentials are provided, only `CLOUDFLARE_API_TOKEN` is used.
+
+## Synchronizing
+
+```ts
+await ddns.sync();
+await ddns.sync('temporary.example.com');
+await ddns.sync(['home.example.com', {name: 'vpn.example.com', proxied: true}]);
+
+await ddns.sync(undefined, {
+  ipv4: '203.0.113.10',
+  ipv6: '2001:db8::1',
 });
 ```
 
-### Cron Expression Syntax
+`sync()` always returns an array of updated DNS records. Explicit `content` on a record takes precedence. Record types other than A and AAAA require `content`.
 
-Cron expressions have the following syntax:
+## Scheduling and IP watching
 
+```ts
+const scheduled = ddns.schedule('*/5 * * * *');
+await scheduled.stop();
+
+const watching = await ddns.watch({
+  onError: error => console.error(error),
+});
+
+await watching.stop();
 ```
-* * * * * *
-┬ ┬ ┬ ┬ ┬ ┬
-│ │ │ │ │ │
-│ │ │ │ │ └──── weekday (0-7, sunday is 0 or 7)
-│ │ │ │ └────── month (1-12)
-│ │ │ └──────── day (1-31)
-│ │ └────────── hour (0-23)
-│ └──────────── minute (0-59)
-└────────────── second (0-59) [optional]
+
+`schedule()` starts immediately and synchronizes at the next cron interval. `watch()` synchronizes first and then watches the required IP families; the default interval is ten seconds. Both return a job with `run()`, `start()` and `stop()` methods.
+
+## Listing and removing records
+
+```ts
+const records = await ddns.list({records: 'home.example.com'});
+const domainRecords = await ddns.list({domains: 'example.com'});
+const grouped = await ddns.list({domains: ['example.com', 'example.org'], groupBy: 'domain'});
+
+await ddns.remove('home.example.com');
+await ddns.remove({name: 'home.example.com', type: 'AAAA'});
 ```
 
-## Methods
+`remove('name')` removes an A record. Use a record object for other types. `list()` without filters uses the records configured when creating the DDNS instance.
 
-- getIp(): Promise\<string\>
-- getIpv6(): Promise\<string\>
-- getRecordDataForDomain(domain: string): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
-- getRecordDataForDomains(domains: Array\<string\>): Promise\<[DomainRecordList](https://cddnss.knaup.pw/types/domainrecordlist)\>
-- getRecordDataForRecord(record: [Record](https://cddnss.knaup.pw/types/record)): Promise\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>
-- getRecordDataForRecords(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
-- removeRecord(recordName: string, recordType?: string): Promise\<void\>
-- stopSyncOnIpChange(changeListenerId: string): void
-- syncByCronTime(cronExpression: string, records: Array\<[Record](https://cddnss.knaup.pw/types/recorddata)\>, callback: [MultiSyncCallback](https://cddnss.knaup.pw/types/multisynccallback), ip?: string): [ScheduledTask](https://www.npmjs.com/package/node-cron#scheduledtask-methods)
-- syncOnIpChange(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>, callback: multisynccallback): Promise\<string\>
-- syncRecord(record: [Record](https://cddnss.knaup.pw/types/record), ip?: string): Promise\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>
-- syncRecords(records: Array\<[Record](https://cddnss.knaup.pw/types/record)\>, ip?: string): Promise\<Array\<[RecordData](https://cddnss.knaup.pw/types/recorddata)\>\>
+## Public IP
 
-For a more detailed view, have a look at the [Documentation](https://cddnss.knaup.pw/)
+```ts
+const ipv4 = await ddns.ip();
+const ipv6 = await ddns.ip(6);
+```
 
-## Get Your Cloudflare API Key
+## Migrating from v3
 
-- Go to **[Cloudflare](https://www.cloudflare.com)**
-- **Log In**
-- In the upper right corner: **click on the user icon**
-- Go to **"My Profile"**
-- In the "API Tokens"-Section: **click on the "View"-Button of the Global Key**
-- **Enter your password** and **fill the captcha**
-- **Copy the API Key**
+v4 is a breaking release. See [MIGRATION-V4.md](./MIGRATION-V4.md) for the complete mapping of the previous API.
 
 ## Tests
 
-In order to run the tests there are two ways to do so
+The integration tests create and remove records in a Cloudflare test zone:
 
-### Use `test-data.json`
-
-- Open the `test-data.json` which can be found under `src/tests/test-service/`
-- Configure the email, cloudflare api key and the domain
-- Run `npm test`
-
-### Use `npm test` Only
-
-- Run `npm test -- --email="your@email.com" --key="your_cloudflare_api_key" --domain="yourdomain.com"`
+```sh
+npm test -- --token="$CLOUDFLARE_API_TOKEN" --domain="example.com"
+```

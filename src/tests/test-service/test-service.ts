@@ -14,31 +14,23 @@ export default class TestService {
     const token = args.token ? args.token : testConfig.auth.token;
     const domain = args.domain ? args.domain : testConfig.domain;
 
-    const testData: TestData = {
-      auth: {
-        email: email,
-        key: key,
-        token: token,
-      },
-      domain: domain,
-      records: this.getRandomRecords(5, domain),
-    };
-
-    const testDataNotProvided =
-      !testData.auth.email ||
-      testData.auth.email === 'your@email.com' ||
-      !testData.auth.key ||
-      testData.auth.key === 'your_cloudflare_api_key' ||
-      !testData.domain ||
-      testData.domain === 'yourdomain.com';
+    const hasApiToken = Boolean(token && token !== 'your_cloudflare_api_token');
+    const hasGlobalApiKey = Boolean(email && email !== 'your@email.com' && key && key !== 'your_cloudflare_api_key');
+    const testDataNotProvided = (!hasApiToken && !hasGlobalApiKey) || !domain || domain === 'yourdomain.com';
 
     if (testDataNotProvided) {
       console.error(
-        'In order to use the tests you must provide some data via \'src/tests/test-service/test-data.json\' or via \'npm test -- --email="your@email.com" --key="cloudflare-key" --domain="domain.com"\'',
+        'Provide a Cloudflare API token or email and global API key via \'src/tests/test-service/test-data.json\' or npm test -- --token="token" --domain="domain.com".',
       );
 
       process.exit(1);
     }
+
+    const testData: TestData = {
+      auth: hasApiToken ? {token} : {email, key},
+      domain: domain,
+      records: this.getRandomRecords(5, domain),
+    };
 
     return testData;
   }

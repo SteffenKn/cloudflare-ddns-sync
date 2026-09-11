@@ -4,7 +4,6 @@ import type {RecordCreateParams, RecordUpdateParams} from 'cloudflare/resources/
 import {isIP} from 'node:net';
 
 import {Auth, DomainRecordList, Record, RecordData, ZoneMap} from '../types/index.js';
-import IPUtils from './ip-utils.js';
 
 type DnsRecord = Record & {
   name: string;
@@ -39,14 +38,13 @@ export default class CloudflareClient {
 
   public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
     const recordIds = await this.getRecordIdsForRecords(records);
-    const ipToUse = ip || (await IPUtils.getIpv4());
 
     return Promise.all(
       records.map(async (record): Promise<RecordData> => {
         const zoneId = await this.getZoneIdByRecordName(record.name);
         const recordId = recordIds.get(this.getRecordIdMapKey(record));
 
-        return recordId ? this.updateRecord(zoneId, recordId, record, ipToUse) : this.createRecord(zoneId, record, ipToUse);
+        return recordId ? this.updateRecord(zoneId, recordId, record, ip) : this.createRecord(zoneId, record, ip);
       }),
     );
   }
@@ -82,20 +80,20 @@ export default class CloudflareClient {
   }
 
   private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord = this.prepareRecord(record, ip, 'create');
+    const dnsRecord = this.prepareRecord(record, 'create', ip);
     const response = await this.cloudflare.dns.records.create({zone_id: zoneId, ...dnsRecord} as RecordCreateParams);
 
     return response as RecordData;
   }
 
   private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord = this.prepareRecord(record, ip, 'update');
+    const dnsRecord = this.prepareRecord(record, 'update', ip);
     const response = await this.cloudflare.dns.records.update(recordId, {zone_id: zoneId, ...dnsRecord} as RecordUpdateParams);
 
     return response as RecordData;
   }
 
-  private prepareRecord(record: Record, ip: string | undefined, operation: RecordOperation): DnsRecord {
+  private prepareRecord(record: Record, operation: RecordOperation, ip?: string): DnsRecord {
     const dnsRecord: DnsRecord = {
       ...record,
       name: record.name.toLowerCase(),

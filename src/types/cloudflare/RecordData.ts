@@ -1,6 +1,6 @@
 import {RecordTypes} from '../index.js';
 
-export type RecordData = {
+export type DnsRecord = {
   id: string;
   type: RecordTypes;
   name: string;
@@ -15,6 +15,9 @@ export type RecordData = {
   created_on: string;
   meta: RecordMetaData;
 };
+
+/** @deprecated Use DnsRecord. */
+export type RecordData = DnsRecord;
 
 export type RecordMetaData = {
   auto_added: boolean;

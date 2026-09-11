@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 
+import {createDdns} from '../index.js';
 import cron from '../lib/cron.js';
 
 describe('Cron Handler', (): void => {
@@ -42,6 +43,28 @@ describe('Cron Handler', (): void => {
   });
 
   describe('Schedule Cron Expressions', (): void => {
+    it('should create a v4 sync job', async (): Promise<void> => {
+      const ddns = createDdns({token: 'test-token', records: []});
+      const job = ddns.schedule('*/1 * * * * *');
+
+      await job.stop();
+    });
+
+    it('should run and stop v4 jobs', async (): Promise<void> => {
+      const ddns = createDdns({token: 'test-token', records: ['home.example.com']});
+      const sync = async (): Promise<Array<never>> => [];
+      const ip = async (): Promise<string> => '1.2.3.4';
+      (ddns as unknown as {sync: typeof sync}).sync = sync;
+      (ddns as unknown as {ip: typeof ip}).ip = ip;
+
+      const scheduled = ddns.schedule('*/1 * * * * *');
+      expect(await scheduled.run()).to.deep.equal([]);
+      await scheduled.stop();
+
+      const watching = await ddns.watch();
+      await watching.stop();
+    });
+
     it('should schedule "*/1 * * * * *"', (done: Function): void => {
       try {
         const scheduledTask = cron.createCronJob('*/1 * * * * *', (): void => {
