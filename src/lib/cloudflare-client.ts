@@ -5,14 +5,12 @@ import {isIP} from 'node:net';
 
 import {Auth, DomainRecordList, Record, RecordData, ZoneMap} from '../types/index.js';
 
-type DnsRecord = Record & {
+type PreparedRecord = Record & {
   name: string;
   content: string;
   type: NonNullable<Record['type']>;
   ttl: number;
 };
-
-type RecordOperation = 'create' | 'update';
 
 export default class CloudflareClient {
   private cloudflare: Cloudflare;
@@ -30,13 +28,7 @@ export default class CloudflareClient {
     });
   }
 
-  public async syncRecord(record: Record, ip?: string): Promise<RecordData> {
-    const [result] = await this.syncRecords([record], ip);
-
-    return result;
-  }
-
-  public async syncRecords(records: Array<Record>, ip?: string): Promise<Array<RecordData>> {
+  public async syncRecords(records: Array<Record>): Promise<Array<RecordData>> {
     const recordIds = await this.getRecordIdsForRecords(records);
 
     return Promise.all(
@@ -44,7 +36,7 @@ export default class CloudflareClient {
         const zoneId = await this.getZoneIdByRecordName(record.name);
         const recordId = recordIds.get(this.getRecordIdMapKey(record));
 
-        return recordId ? this.updateRecord(zoneId, recordId, record, ip) : this.createRecord(zoneId, record, ip);
+        return recordId ? this.updateRecord(zoneId, recordId, record) : this.createRecord(zoneId, record);
       }),
     );
   }
@@ -54,12 +46,6 @@ export default class CloudflareClient {
     const recordId = await this.getRecordIdByNameAndType(recordName, recordType);
 
     await this.cloudflare.dns.records.delete(recordId, {zone_id: zoneId});
-  }
-
-  public async getRecordDataForRecord(record: Record): Promise<RecordData> {
-    const records = await this.getRecordsByDomain(this.getDomainByRecordName(record.name));
-
-    return records.find((entry): boolean => entry.name.toLowerCase() === record.name.toLowerCase());
   }
 
   public async getRecordDataForRecords(records: Array<Record>): Promise<Array<RecordData>> {
@@ -85,41 +71,41 @@ export default class CloudflareClient {
     return this.getRecordsByDomain(domain);
   }
 
-  private async createRecord(zoneId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord = this.prepareRecord(record, 'create', ip);
+  private async createRecord(zoneId: string, record: Record): Promise<RecordData> {
+    const dnsRecord = this.prepareRecord(record);
     const response = await this.cloudflare.dns.records.create({zone_id: zoneId, ...dnsRecord} as RecordCreateParams);
 
     return response as RecordData;
   }
 
-  private async updateRecord(zoneId: string, recordId: string, record: Record, ip?: string): Promise<RecordData> {
-    const dnsRecord = this.prepareRecord(record, 'update', ip);
+  private async updateRecord(zoneId: string, recordId: string, record: Record): Promise<RecordData> {
+    const dnsRecord = this.prepareRecord(record);
     const response = await this.cloudflare.dns.records.update(recordId, {zone_id: zoneId, ...dnsRecord} as RecordUpdateParams);
 
     return response as RecordData;
   }
 
-  private prepareRecord(record: Record, operation: RecordOperation, ip?: string): DnsRecord {
-    const dnsRecord: DnsRecord = {
+  private prepareRecord(record: Record): PreparedRecord {
+    const dnsRecord: PreparedRecord = {
       ...record,
       name: record.name.toLowerCase(),
-      content: record.content || ip || '',
+      content: record.content || '',
       type: record.type || 'A',
       ttl: record.ttl || 1,
     };
 
     if (!dnsRecord.content) {
-      throw Error(`Could not ${operation} Record "${dnsRecord.name}": Content is missing!`);
+      throw Error(`Could not sync record "${dnsRecord.name}": content is missing.`);
     }
 
     if (dnsRecord.type === 'A' && isIP(dnsRecord.content) !== 4) {
-      throw Error(`Could not ${operation} Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv4!`);
+      throw Error(`Could not sync record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid IPv4 address.`);
     }
     if (dnsRecord.type === 'AAAA' && isIP(dnsRecord.content) !== 6) {
-      throw Error(`Could not ${operation} Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid ipv6!`);
+      throw Error(`Could not sync record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid IPv6 address.`);
     }
     if (dnsRecord.type === 'CNAME' && !this.isValidDomain(dnsRecord.content)) {
-      throw Error(`Could not ${operation} Record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid domain name!`);
+      throw Error(`Could not sync record "${dnsRecord.name}": '${dnsRecord.content}' is not a valid domain name.`);
     }
 
     return dnsRecord;

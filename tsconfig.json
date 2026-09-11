@@ -11,15 +11,15 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "removeComments": false,
     "resolveJsonModule": true,
     "strict": true,
-    "useUnknownInCatchVariables": false,
-    "strictNullChecks": false,
+    "useUnknownInCatchVariables": true,
+    "strictNullChecks": true,
     "types": [
       "node",
       "mocha"

@@ -104,5 +104,6 @@ v4 is a breaking release. See [MIGRATION-V4.md](./MIGRATION-V4.md) for the compl
 The integration tests create and remove records in a Cloudflare test zone:
 
 ```sh
+npm run build
 npm test -- --token="$CLOUDFLARE_API_TOKEN" --domain="example.com"
 ```

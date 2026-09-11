@@ -51,13 +51,13 @@ describe('Cron Handler', (): void => {
         await ddns.list({records: [], domains: []} as never);
         expect.fail('Expected list to reject conflicting filters.');
       } catch (error) {
-        expect(error.message).to.contain('either records or domains');
+        expect(errorMessage(error)).to.contain('either records or domains');
       }
       try {
         await ddns.watch({intervalMs: 0});
         expect.fail('Expected watch to reject an invalid interval.');
       } catch (error) {
-        expect(error.message).to.contain('intervalMs');
+        expect(errorMessage(error)).to.contain('intervalMs');
       }
     });
 
@@ -103,9 +103,13 @@ describe('Cron Handler', (): void => {
 
         done('Error: "*/2 * * * * a" was scheduled.');
       } catch (error) {
-        expect(error.message).to.contain('is not a valid cron expression.');
+        expect(errorMessage(error)).to.contain('is not a valid cron expression.');
         done();
       }
     });
   });
 });
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

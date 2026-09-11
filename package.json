@@ -20,7 +20,8 @@
     "url": "git://github.com:Steffen982/cloudflare-ddns-sync.git"
   },
   "scripts": {
-    "build": "tsc",
+    "clean": "node --input-type=module -e \"import {rm} from 'node:fs/promises'; await rm('dist', {recursive: true, force: true});\"",
+    "build": "npm run clean && tsc",
     "lint": "prettier -c ./src",
     "lint:fix": "prettier -w ./src",
     "test": "c8 mocha dist/tests/*.js --timeout 15000 --exit",

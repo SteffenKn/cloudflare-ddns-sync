@@ -1,9 +1,8 @@
-import {ScheduledTask} from 'node-cron';
 import {isIP} from 'node:net';
 
 import CloudflareClient from './lib/cloudflare-client.js';
-import Cron from './lib/cron.js';
 import IPUtils from './lib/ip-utils.js';
+import {ScheduledSyncJob, WatchSyncJob} from './lib/sync-job.js';
 import {
   Auth,
   DdnsOptions,
@@ -23,6 +22,8 @@ import {
 const defaultWatchIntervalMs = 10_000;
 const maxTimerDelayMs = 2_147_483_647;
 const recordTypes = new Set(['A', 'AAAA', 'CNAME', 'HTTPS', 'TXT', 'LOC', 'NS', 'SPF', 'CERT', 'DNSKEY', 'DS', 'NAPTR', 'SMIMEA', 'SSHFP', 'SVCB', 'TLSA']);
+
+type SyncRecord = Record & {type: NonNullable<Record['type']>};
 
 export type DdnsErrorCode = 'INVALID_CONFIG' | 'IP_UNAVAILABLE';
 
@@ -55,7 +56,7 @@ export class Ddns {
   public async sync(first?: RecordSelection | SyncOptions, second: SyncOptions = {}): Promise<Array<DnsRecord>> {
     const {records, options} = getSyncArguments(first, second);
     validateSyncOptions(options);
-    const selectedRecords = this.resolveRecords(records);
+    const selectedRecords = normalizeSyncRecords(this.resolveRecords(records));
     if (selectedRecords.length === 0) {
       return [];
     }
@@ -69,7 +70,7 @@ export class Ddns {
 
   public async watch(options: WatchOptions = {}): Promise<SyncJob> {
     const copiedOptions = copyWatchOptions(options);
-    const job = new WatchSyncJob(this, copiedOptions, this.dynamicFamilies(copiedOptions.records, copiedOptions));
+    const job = new WatchSyncJob(this, copiedOptions, this.dynamicFamilies(this.resolveRecords(copiedOptions.records), copiedOptions));
     await job.start();
 
     return job;
@@ -118,13 +119,13 @@ export class Ddns {
     return selectedRecords.map((record) => ({...record}));
   }
 
-  private dynamicFamilies(records: RecordSelection | undefined, options: SyncOptions): Array<4 | 6> {
+  private dynamicFamilies(records: Array<Record>, options: SyncOptions): Array<4 | 6> {
     const families = new Set<4 | 6>();
-    for (const record of this.resolveRecords(records)) {
+    for (const record of records) {
       if (record.content) {
         continue;
       }
-      if ((!record.type || record.type === 'A') && options.ipv4 === undefined) {
+      if ((record.type === undefined || record.type === 'A') && options.ipv4 === undefined) {
         families.add(4);
       }
       if (record.type === 'AAAA' && options.ipv6 === undefined) {
@@ -135,9 +136,9 @@ export class Ddns {
     return [...families];
   }
 
-  private async withContent(records: Array<Record>, options: SyncOptions): Promise<Array<Record>> {
+  private async withContent(records: Array<SyncRecord>, options: SyncOptions): Promise<Array<SyncRecord>> {
     for (const record of records) {
-      if (!record.content && record.type && record.type !== 'A' && record.type !== 'AAAA') {
+      if (!record.content && record.type !== 'A' && record.type !== 'AAAA') {
         throw invalidConfig(`Record "${record.name}" of type ${record.type} requires content.`);
       }
     }
@@ -150,11 +151,11 @@ export class Ddns {
       }),
     );
 
-    const preparedRecords = records.map((record): Record => {
+    const preparedRecords = records.map((record): SyncRecord => {
       if (record.content) {
         return record;
       }
-      if (!record.type || record.type === 'A') {
+      if (record.type === 'A') {
         return {...record, content: options.ipv4 ?? addresses.get(4)};
       }
 
@@ -169,215 +170,6 @@ export class Ddns {
   }
 }
 
-abstract class BaseSyncJob implements SyncJob {
-  private inFlight?: Promise<Array<DnsRecord>>;
-
-  private callingCallback = false;
-
-  public constructor(
-    protected readonly ddns: Ddns,
-    protected readonly options: JobOptions,
-  ) {}
-
-  public run(): Promise<Array<DnsRecord>> {
-    return this.runWith(this.options);
-  }
-
-  public abstract start(): Promise<void>;
-
-  public abstract stop(): Promise<void>;
-
-  protected runInBackground(options: SyncOptions = this.options): void {
-    void this.runWith(options).catch(async (error): Promise<void> => this.reportError(toError(error)));
-  }
-
-  protected runWith(options: SyncOptions): Promise<Array<DnsRecord>> {
-    if (this.inFlight) {
-      return this.inFlight;
-    }
-
-    const run = this.perform(options);
-    this.inFlight = run;
-    void run
-      .finally((): void => {
-        if (this.inFlight === run) {
-          this.inFlight = undefined;
-        }
-      })
-      .catch((): void => undefined);
-
-    return run;
-  }
-
-  protected async settle(): Promise<void> {
-    if (!this.callingCallback) {
-      await this.inFlight?.catch((): void => undefined);
-    }
-  }
-
-  protected async reportError(error: Error): Promise<void> {
-    try {
-      if (this.options.onError) {
-        await this.options.onError(error);
-      } else {
-        console.error(error);
-      }
-    } catch (callbackError) {
-      console.error(toError(callbackError));
-    }
-  }
-
-  private async perform(options: SyncOptions): Promise<Array<DnsRecord>> {
-    const result = await this.ddns.sync(this.options.records, options);
-    this.callingCallback = true;
-    try {
-      await this.options.onSync?.(result);
-    } finally {
-      this.callingCallback = false;
-    }
-
-    return result;
-  }
-}
-
-class ScheduledSyncJob extends BaseSyncJob {
-  private readonly task: ScheduledTask;
-
-  private active = true;
-
-  public constructor(ddns: Ddns, expression: string, options: JobOptions) {
-    super(ddns, options);
-    this.task = Cron.createCronJob(expression, (): void => {
-      if (this.active) {
-        this.runInBackground();
-      }
-    });
-  }
-
-  public async start(): Promise<void> {
-    if (!this.active) {
-      this.active = true;
-      await this.task.start();
-    }
-  }
-
-  public async stop(): Promise<void> {
-    this.active = false;
-    await this.task.stop();
-    await this.settle();
-  }
-}
-
-class WatchSyncJob extends BaseSyncJob {
-  private timer?: NodeJS.Timeout;
-
-  private active = false;
-
-  private starting?: Promise<void>;
-
-  private checking?: Promise<void>;
-
-  private previousAddresses = new Map<4 | 6, string>();
-
-  public constructor(
-    ddns: Ddns,
-    options: WatchOptions,
-    private readonly families: Array<4 | 6>,
-  ) {
-    super(ddns, options);
-  }
-
-  public start(): Promise<void> {
-    if (this.starting) {
-      return this.starting;
-    }
-    if (this.active) {
-      return Promise.resolve();
-    }
-
-    this.active = true;
-    const start = this.startWatcher();
-    this.starting = start;
-    void start.finally((): void => {
-      if (this.starting === start) {
-        this.starting = undefined;
-      }
-    });
-
-    return start;
-  }
-
-  public async stop(): Promise<void> {
-    this.active = false;
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = undefined;
-    }
-    await this.checking?.catch((): void => undefined);
-    await this.settle();
-  }
-
-  private async startWatcher(): Promise<void> {
-    const addresses = await this.currentAddresses();
-    if (!this.active) {
-      return;
-    }
-    await this.runWith({...this.options, ...addressesToOptions(addresses)});
-    if (!this.active) {
-      return;
-    }
-
-    this.previousAddresses = addresses;
-    if (this.families.length > 0) {
-      this.timer = setInterval(
-        (): void => {
-          this.checkInBackground();
-        },
-        (this.options as WatchOptions).intervalMs || defaultWatchIntervalMs,
-      );
-    }
-  }
-
-  private checkInBackground(): void {
-    if (!this.active || this.checking) {
-      return;
-    }
-
-    const check = this.checkForChanges();
-    this.checking = check;
-    void check
-      .catch(async (error): Promise<void> => this.reportError(toError(error)))
-      .finally((): void => {
-        if (this.checking === check) {
-          this.checking = undefined;
-        }
-      });
-  }
-
-  private async checkForChanges(): Promise<void> {
-    const addresses = await this.currentAddresses();
-    if (!this.active || !addressesChanged(this.previousAddresses, addresses)) {
-      return;
-    }
-
-    await this.runWith({...this.options, ...addressesToOptions(addresses)});
-    if (this.active) {
-      this.previousAddresses = addresses;
-    }
-  }
-
-  private async currentAddresses(): Promise<Map<4 | 6, string>> {
-    const addresses = new Map<4 | 6, string>();
-    await Promise.all(
-      this.families.map(async (family): Promise<void> => {
-        addresses.set(family, await this.ddns.ip(family));
-      }),
-    );
-
-    return addresses;
-  }
-}
-
 export function createDdns(options: DdnsOptions = {}): Ddns {
   return new Ddns(options);
 }
@@ -389,6 +181,10 @@ function normalizeRecords(records: RecordSelection): Array<Record> {
 
     return record;
   });
+}
+
+function normalizeSyncRecords(records: Array<Record>): Array<SyncRecord> {
+  return records.map((record): SyncRecord => ({...record, type: record.type ?? 'A'}));
 }
 
 function getSyncArguments(first: RecordSelection | SyncOptions | undefined, second: SyncOptions): {records?: RecordSelection; options: SyncOptions} {
@@ -507,30 +303,8 @@ function copyWatchOptions(options: WatchOptions): WatchOptions {
   return {...copied, intervalMs};
 }
 
-function addressesToOptions(addresses: Map<4 | 6, string>): SyncOptions {
-  const options: SyncOptions = {};
-  const ipv4 = addresses.get(4);
-  const ipv6 = addresses.get(6);
-  if (ipv4) {
-    options.ipv4 = ipv4;
-  }
-  if (ipv6) {
-    options.ipv6 = ipv6;
-  }
-
-  return options;
-}
-
-function addressesChanged(previous: Map<4 | 6, string>, current: Map<4 | 6, string>): boolean {
-  return previous.size !== current.size || [...current].some(([family, address]): boolean => previous.get(family) !== address);
-}
-
 function toArray<T>(value: T | Array<T>): Array<T> {
   return Array.isArray(value) ? value : [value];
-}
-
-function toError(value: unknown): Error {
-  return value instanceof Error ? value : new Error(String(value));
 }
 
 function invalidConfig(message: string): DdnsError {
