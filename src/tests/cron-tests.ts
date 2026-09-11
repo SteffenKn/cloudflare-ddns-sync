@@ -68,6 +68,32 @@ describe('Cron Handler', (): void => {
       await job.stop();
     });
 
+    it('should support a custom IP resolver, zones and closing a client', async (): Promise<void> => {
+      const ddns = createDdns({
+        token: 'test-token',
+        zone: 'example.com',
+        records: ['@', 'home'],
+        resolveIp: async (family): Promise<string> => (family === 4 ? '1.2.3.4' : '2001:db8::1'),
+      });
+
+      expect(await ddns.ip()).to.equal('1.2.3.4');
+      try {
+        await ddns.remove('outside.example.org');
+        expect.fail('Expected records outside the configured zone to be rejected.');
+      } catch (error) {
+        expect(errorMessage(error)).to.contain('outside configured zone');
+      }
+
+      await ddns.close();
+      expect(() => ddns.schedule('* * * * *')).to.throw('closed');
+    });
+
+    it('should plan an empty configured record set without writing records', async (): Promise<void> => {
+      const ddns = createDdns({token: 'test-token', records: []});
+
+      expect(await ddns.plan()).to.deep.equal([]);
+    });
+
     it('should run and stop v4 jobs', async (): Promise<void> => {
       const ddns = createDdns({token: 'test-token', records: ['home.example.com']});
       const sync = async (): Promise<Array<never>> => [];

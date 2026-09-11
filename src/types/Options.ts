@@ -6,11 +6,20 @@ export type RecordSelection = RecordInput | Array<RecordInput>;
 
 export type DdnsOptions = Auth & {
   records?: RecordSelection;
+  zone?: string;
+  resolveIp?: (family: 4 | 6) => string | Promise<string>;
 };
 
 export type SyncOptions = {
   ipv4?: string;
   ipv6?: string;
+};
+
+export type SyncChange = {
+  record: RecordInput;
+  action: 'create' | 'update' | 'unchanged';
+  before?: DnsRecord;
+  after: RecordInput;
 };
 
 export type JobOptions = SyncOptions & {

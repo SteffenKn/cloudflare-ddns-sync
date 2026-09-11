@@ -4,6 +4,7 @@ import type {RecordCreateParams, RecordUpdateParams} from 'cloudflare/resources/
 import {isIP} from 'node:net';
 
 import {Auth, DomainRecordList, Record, RecordData, ZoneMap} from '../types/index.js';
+import {SyncError} from './sync-error.js';
 
 type PreparedRecord = Record & {
   name: string;
@@ -29,16 +30,44 @@ export default class CloudflareClient {
   }
 
   public async syncRecords(records: Array<Record>): Promise<Array<RecordData>> {
-    const recordIds = await this.getRecordIdsForRecords(records);
-
-    return Promise.all(
+    const existingRecords = await this.getRecordDataForRecords(records);
+    const existingByKey = new Map(existingRecords.map((record) => [this.getRecordIdMapKey(record), record]));
+    const settled = await Promise.allSettled(
       records.map(async (record): Promise<RecordData> => {
         const zoneId = await this.getZoneIdByRecordName(record.name);
-        const recordId = recordIds.get(this.getRecordIdMapKey(record));
+        const existing = existingByKey.get(this.getRecordIdMapKey(record));
+        if (existing && this.isUnchanged(existing, record)) {
+          return existing;
+        }
 
-        return recordId ? this.updateRecord(zoneId, recordId, record) : this.createRecord(zoneId, record);
+        return existing ? this.updateRecord(zoneId, existing.id, record) : this.createRecord(zoneId, record);
       }),
     );
+
+    const succeeded: Array<RecordData> = [];
+    const failed: Array<{record: Record; error: Error}> = [];
+    for (const [index, result] of settled.entries()) {
+      if (result.status === 'fulfilled') {
+        succeeded.push(result.value);
+      } else {
+        failed.push({record: records[index], error: toError(result.reason)});
+      }
+    }
+    if (failed.length > 0) {
+      throw new SyncError(succeeded, failed);
+    }
+
+    return succeeded;
+  }
+
+  public async planRecords(records: Array<Record>): Promise<Array<{record: Record; action: 'create' | 'update' | 'unchanged'; before?: RecordData; after: Record}>> {
+    const existingRecords = await this.getRecordDataForRecords(records);
+    const existingByKey = new Map(existingRecords.map((record) => [this.getRecordIdMapKey(record), record]));
+
+    return records.map((record) => {
+      const before = existingByKey.get(this.getRecordIdMapKey(record));
+      return {record, before, after: record, action: before ? (this.isUnchanged(before, record) ? 'unchanged' : 'update') : 'create'};
+    });
   }
 
   public async removeRecordByNameAndType(recordName: string, recordType = 'A'): Promise<void> {
@@ -142,14 +171,15 @@ export default class CloudflareClient {
     return record;
   }
 
-  private async getRecordIdsForRecords(records: Array<Record>): Promise<Map<string, string>> {
-    const recordData = await this.getRecordDataForRecords(records);
-    const recordIds = new Map<string, string>();
-    for (const record of recordData) {
-      recordIds.set(this.getRecordIdMapKey(record), record.id);
-    }
-
-    return recordIds;
+  private isUnchanged(existing: RecordData, desired: Record): boolean {
+    const prepared = this.prepareRecord(desired);
+    return (
+      existing.name.toLowerCase() === prepared.name &&
+      existing.type === prepared.type &&
+      existing.content === prepared.content &&
+      existing.ttl === prepared.ttl &&
+      (desired.proxied === undefined || existing.proxied === desired.proxied)
+    );
   }
 
   private getRecordIdMapKey(record: Record): string {
@@ -202,4 +232,8 @@ export default class CloudflareClient {
 
     return parsedDomain.type === ParseResultType.Listed && Boolean(parsedDomain.domain);
   }
+}
+
+function toError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
 }

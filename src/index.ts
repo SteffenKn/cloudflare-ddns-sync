@@ -2,6 +2,7 @@ import {isIP} from 'node:net';
 
 import CloudflareClient from './lib/cloudflare-client.js';
 import IPUtils from './lib/ip-utils.js';
+import {SyncError} from './lib/sync-error.js';
 import {ScheduledSyncJob, WatchSyncJob} from './lib/sync-job.js';
 import {
   Auth,
@@ -15,6 +16,7 @@ import {
   RecordListOptions,
   RecordSelection,
   SyncJob,
+  SyncChange,
   SyncOptions,
   WatchOptions,
 } from './types/index.js';
@@ -38,15 +40,27 @@ export class DdnsError extends Error {
   }
 }
 
+export {SyncError};
+
 export class Ddns {
   private readonly cloudflareClient: CloudflareClient;
 
   private readonly configuredRecords?: Array<Record>;
 
+  private readonly zone?: string;
+
+  private readonly resolveIp?: (family: 4 | 6) => string | Promise<string>;
+
+  private readonly jobs = new Set<SyncJob>();
+
+  private closed = false;
+
   public constructor(options: DdnsOptions = {}) {
-    const {records, ...auth} = options;
+    const {records, zone, resolveIp, ...auth} = options;
     this.cloudflareClient = new CloudflareClient(resolveAuth(auth));
-    this.configuredRecords = records === undefined ? undefined : normalizeRecords(records);
+    this.zone = normalizeZone(zone);
+    this.resolveIp = resolveIp;
+    this.configuredRecords = records === undefined ? undefined : normalizeRecords(records, this.zone);
   }
 
   public sync(): Promise<Array<DnsRecord>>;
@@ -54,6 +68,7 @@ export class Ddns {
   public sync(records: RecordSelection, options?: SyncOptions): Promise<Array<DnsRecord>>;
   public sync(records: undefined, options: SyncOptions): Promise<Array<DnsRecord>>;
   public async sync(first?: RecordSelection | SyncOptions, second: SyncOptions = {}): Promise<Array<DnsRecord>> {
+    this.ensureOpen();
     const {records, options} = getSyncArguments(first, second);
     validateSyncOptions(options);
     const selectedRecords = normalizeSyncRecords(this.resolveRecords(records));
@@ -64,14 +79,34 @@ export class Ddns {
     return this.cloudflareClient.syncRecords(await this.withContent(selectedRecords, options));
   }
 
+  public plan(): Promise<Array<SyncChange>>;
+  public plan(options: SyncOptions): Promise<Array<SyncChange>>;
+  public plan(records: RecordSelection, options?: SyncOptions): Promise<Array<SyncChange>>;
+  public async plan(first?: RecordSelection | SyncOptions, second: SyncOptions = {}): Promise<Array<SyncChange>> {
+    this.ensureOpen();
+    const {records, options} = getSyncArguments(first, second);
+    validateSyncOptions(options);
+    const selectedRecords = normalizeSyncRecords(this.resolveRecords(records));
+    if (selectedRecords.length === 0) {
+      return [];
+    }
+
+    return this.cloudflareClient.planRecords(await this.withContent(selectedRecords, options));
+  }
+
   public schedule(expression: string, options: JobOptions = {}): SyncJob {
-    return new ScheduledSyncJob(this, expression, copyJobOptions(options));
+    this.ensureOpen();
+    const job = new ScheduledSyncJob(this, expression, copyJobOptions(options));
+    this.jobs.add(job);
+    return job;
   }
 
   public async watch(options: WatchOptions = {}): Promise<SyncJob> {
+    this.ensureOpen();
     const copiedOptions = copyWatchOptions(options);
     const job = new WatchSyncJob(this, copiedOptions, this.dynamicFamilies(this.resolveRecords(copiedOptions.records), copiedOptions));
     await job.start();
+    this.jobs.add(job);
 
     return job;
   }
@@ -81,6 +116,7 @@ export class Ddns {
   public list(filter: DomainListOptions): Promise<Array<DnsRecord>>;
   public list(filter: GroupedDomainListOptions): Promise<{[domain: string]: Array<DnsRecord>}>;
   public async list(filter: ListOptions = {}): Promise<Array<DnsRecord> | {[domain: string]: Array<DnsRecord>}> {
+    this.ensureOpen();
     validateListFilter(filter);
     if ('domains' in filter && filter.domains !== undefined) {
       const domains = toArray(filter.domains);
@@ -94,29 +130,46 @@ export class Ddns {
   }
 
   public async remove(records: RecordSelection): Promise<void> {
-    const selectedRecords = normalizeRecords(records);
+    this.ensureOpen();
+    const selectedRecords = normalizeRecords(records, this.zone);
     await Promise.all(selectedRecords.map((record) => this.cloudflareClient.removeRecordByNameAndType(record.name, record.type)));
   }
 
   public async ip(family: 4 | 6 = 4): Promise<string> {
+    this.ensureOpen();
     if (family !== 4 && family !== 6) {
       throw invalidConfig('IP family must be 4 or 6.');
     }
 
     try {
-      return family === 4 ? await IPUtils.getIpv4() : await IPUtils.getIpv6();
+      return this.resolveIp ? await this.resolveIp(family) : family === 4 ? await IPUtils.getIpv4() : await IPUtils.getIpv6();
     } catch (error) {
       throw new DdnsError('IP_UNAVAILABLE', `Could not determine the public IPv${family} address.`, error);
     }
   }
 
+  public async close(): Promise<void> {
+    if (this.closed) {
+      return;
+    }
+    this.closed = true;
+    await Promise.all([...this.jobs].map(async (job): Promise<void> => job.stop()));
+    this.jobs.clear();
+  }
+
   private resolveRecords(records?: RecordSelection): Array<Record> {
-    const selectedRecords = records === undefined ? this.configuredRecords : normalizeRecords(records);
+    const selectedRecords = records === undefined ? this.configuredRecords : normalizeRecords(records, this.zone);
     if (selectedRecords === undefined) {
       throw invalidConfig('Provide records when creating Ddns or when calling this method.');
     }
 
     return selectedRecords.map((record) => ({...record}));
+  }
+
+  private ensureOpen(): void {
+    if (this.closed) {
+      throw new DdnsError('INVALID_CONFIG', 'This Ddns instance is closed.');
+    }
   }
 
   private dynamicFamilies(records: Array<Record>, options: SyncOptions): Array<4 | 6> {
@@ -174,13 +227,41 @@ export function createDdns(options: DdnsOptions = {}): Ddns {
   return new Ddns(options);
 }
 
-function normalizeRecords(records: RecordSelection): Array<Record> {
+function normalizeRecords(records: RecordSelection, zone?: string): Array<Record> {
   return toArray(records).map((input, index): Record => {
     const record = typeof input === 'string' ? {name: input} : {...input};
+    record.name = normalizeRecordName(record.name, zone);
     validateRecord(record, `records[${index}]`);
 
     return record;
   });
+}
+
+function normalizeZone(zone: string | undefined): string | undefined {
+  if (zone === undefined) {
+    return undefined;
+  }
+  if (typeof zone !== 'string' || zone.trim().length === 0) {
+    throw invalidConfig('zone must be a non-empty domain.');
+  }
+
+  return zone.toLowerCase();
+}
+
+function normalizeRecordName(name: string, zone: string | undefined): string {
+  if (!zone) {
+    return name;
+  }
+  if (name === '@') {
+    return zone;
+  }
+  if (!name.includes('.')) {
+    return `${name}.${zone}`;
+  }
+  if (name === zone || name.endsWith(`.${zone}`)) {
+    return name;
+  }
+  throw invalidConfig(`Record "${name}" is outside configured zone "${zone}".`);
 }
 
 function normalizeSyncRecords(records: Array<Record>): Array<SyncRecord> {

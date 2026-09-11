@@ -57,6 +57,12 @@ await ddns.sync({
 
 `sync()` always returns an array of updated DNS records. Explicit `content` on a record takes precedence. Record types other than A and AAAA require `content`.
 
+Use `plan()` to inspect the same operation without writing DNS records. Each entry has an `action` of `create`, `update` or `unchanged`. `sync()` leaves unchanged records untouched. If one or more writes fail, it throws `SyncError` with `succeeded` and `failed` entries.
+
+```ts
+const changes = await ddns.plan();
+```
+
 ## Scheduling and IP watching
 
 ```ts
@@ -94,6 +100,20 @@ await ddns.remove({name: 'home.example.com', type: 'AAAA'});
 const ipv4 = await ddns.ip();
 const ipv6 = await ddns.ip(6);
 ```
+
+## Optional: eigene IP-Quelle und Zone
+
+```ts
+const ddns = createDdns({
+  zone: 'example.com',
+  records: ['@', 'home'],
+  resolveIp: family => readAddressFromRouter(family),
+});
+
+await ddns.close();
+```
+
+With `zone`, `@` means the zone apex and simple labels are expanded. `resolveIp` is used by both `sync()` and `watch()`.
 
 ## Migrating from v3
 
