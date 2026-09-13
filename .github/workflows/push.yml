@@ -12,9 +12,9 @@ jobs:
         node-version: [22.x, 24.x, 26.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -33,7 +33,7 @@ jobs:
         run: npm run build
 
       - name: Stash dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist ${{matrix.node-version}}
           path: dist/
@@ -48,14 +48,14 @@ jobs:
         node-version: [22.x, 24.x, 26.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Unstash dist
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8
         with:
           name: dist ${{matrix.node-version}}
           path: 'dist/'
@@ -79,17 +79,17 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 24.x
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - name: Use Node.js 26.x
+        uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: 26.x
           registry-url: 'https://registry.npmjs.org'
 
       - name: Unstash dist
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8
         with:
-          name: dist 24.x
+          name: dist 26.x
           path: 'dist/'
 
       - name: Install
