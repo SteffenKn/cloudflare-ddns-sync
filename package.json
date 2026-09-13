@@ -24,6 +24,7 @@
     "build": "npm run clean && tsc",
     "lint": "prettier -c ./src",
     "lint:fix": "prettier -w ./src",
+    "prepublishOnly": "npm run lint && npm run build",
     "test": "c8 mocha dist/tests/*.js --timeout 15000 --exit",
     "test:coverage": "npm run test:coverage-check && npm run test:coverage-report",
     "test:coverage-check": "c8 check-coverage --lines 70 --functions 70 --branches 70",
