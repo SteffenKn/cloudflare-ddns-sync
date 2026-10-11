@@ -4,6 +4,8 @@
 
 ### v4.0.0
 
+- 🐛 Fix domain parsing for wildcard DNS record names such as `*.example.com`.
+
 - ⬆️ Update dependencies, including Cloudflare 2 → 7, node-cron 3 → 4 and public-ip 6 → 8.
 - ♻️ Preserve public auth fields, key/token precedence, record types, sync methods and DNS defaults while adapting to the new SDK.
 - ♻️ Fetch all zone and DNS record pages; report zone-loading failures through the awaited operation.
