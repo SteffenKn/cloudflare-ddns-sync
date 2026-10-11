@@ -218,7 +218,7 @@ export default class CloudflareClient {
   }
 
   private getDomainByRecordName(recordName: string): string {
-    const parsedDomain = parseDomain(fromUrl(recordName));
+    const parsedDomain = parseDomain(fromUrl(recordName.replace(/^\*\./, '')));
 
     if (parsedDomain.type !== ParseResultType.Listed || !parsedDomain.domain) {
       throw new Error(`Could not parse domain. '${JSON.stringify(recordName)}' is not a valid record name.`);
